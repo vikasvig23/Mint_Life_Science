@@ -57,5 +57,6 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
+    implementation ("androidx.recyclerview:recyclerview:1.3.2")
     androidTestImplementation(libs.androidx.espresso.core)
 }
