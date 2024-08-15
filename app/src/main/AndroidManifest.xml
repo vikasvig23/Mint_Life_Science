@@ -13,16 +13,27 @@
         android:theme="@style/Theme.MintLifeSciences"
         tools:targetApi="31">
         <activity
-            android:name=".addDoctor.AddDoctorActivity"
+            android:name=".doctorMedicine.DoctorMedicineActivity"
             android:exported="false" />
         <activity
-            android:name=".homescreen.HomeActivity"
+            android:name=".addDoctor.AddDoctorActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".homescreen.HomeActivity"
+            android:exported="false">
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".signUp.SignUpActivity"
