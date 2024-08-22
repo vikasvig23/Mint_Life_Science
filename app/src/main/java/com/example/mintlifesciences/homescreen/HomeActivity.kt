@@ -1,6 +1,7 @@
 package com.example.mintlifesciences.homescreen
 
 import android.animation.AnimatorInflater
+import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.Menu
@@ -18,6 +19,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.mintlifesciences.R
+import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityHomeBinding
 import com.example.mintlifesciences.login.LoginViewModel
 import com.google.android.material.navigation.NavigationView
@@ -30,6 +32,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_home)
         binding=DataBindingUtil.setContentView(this,R.layout.activity_home)
         viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
@@ -69,7 +72,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             gravity=Gravity.CENTER
             stateListAnimator = AnimatorInflater.loadStateListAnimator(this@HomeActivity, R.animator.item_elevation_animator)
             setOnClickListener {
-                Toast.makeText(this@HomeActivity, "Clicked: $item", Toast.LENGTH_SHORT).show()
+                navigateToMainActivity(item)
             }
         }
         val layoutParams = LinearLayout.LayoutParams(
@@ -83,24 +86,19 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return textView
     }
 
-    override fun onBackPressed() {
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
+    private fun navigateToMainActivity(item: String) {
+        val intent = Intent(this, AddDoctorActivity::class.java)
+        intent.putExtra("SELECTED_ITEM", item)
+        startActivity(intent)
     }
-
-//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.drawer_menu, menu)
-//        return true
-//    }
-
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_home -> {
-                // Handle Home click
+                val intent =Intent(this,HomeActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.nav_doc->{
 
             }
         }

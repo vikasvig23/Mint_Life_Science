@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "194546955110",
+    "firebase_url": "https://mint-life-sciences-admin-app-default-rtdb.firebaseio.com",
+    "project_id": "mint-life-sciences-admin-app",
+    "storage_bucket": "mint-life-sciences-admin-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194546955110:android:ef5323871a8db8beee8ea7",
+        "android_client_info": {
+          "package_name": "com.example.mintlifesciences"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNayw91-3ChQgYovnxOnk5HV16OhVt09I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

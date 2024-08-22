@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Medicine Name TextView -->
+    <TextView
+        android:id="@+id/tvMedicineName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Medicine Name"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp"
+        android:background="?android:attr/selectableItemBackground" />
+
+    <!-- Medicine Description TextView -->
+    <TextView
+        android:id="@+id/tvMedicineDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Medicine Description"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:padding="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/darker_gray" />
+
+</androidx.cardview.widget.CardView>

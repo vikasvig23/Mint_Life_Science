@@ -2,11 +2,15 @@
 
 
 <androidx.cardview.widget.CardView android:layout_width="match_parent"
+    android:id="@+id/card_doc"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="8dp"
     android:elevation="4dp"
     android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="5dp"
+    android:foreground="?android:attr/selectableItemBackground"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <LinearLayout
@@ -20,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Doctor Name"
-            android:textSize="16sp"
+            android:textSize="26sp"
             android:textStyle="bold"/>
 
 

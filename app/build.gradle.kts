@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id ("kotlin-kapt")
+    id("com.google.gms.google-services")
+
 }
 
 android {
@@ -44,6 +46,7 @@ android {
     }
 
 
+
 }
 
 dependencies {
@@ -55,8 +58,14 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.firebase.database.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     implementation ("androidx.recyclerview:recyclerview:1.3.2")
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation ("com.google.firebase:firebase-database:20.0.5")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-analytics")
+
 }
