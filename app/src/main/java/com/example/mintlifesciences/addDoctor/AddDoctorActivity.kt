@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.databinding.ActivityAddDoctorBinding
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
+import com.example.mintlifesciences.homescreen.HomeActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import org.w3c.dom.Text
@@ -43,34 +44,28 @@ class AddDoctorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_add_doctor)
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
 
-        supportActionBar?.hide()
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         binding=DataBindingUtil.setContentView(this,R.layout.activity_add_doctor)
         //binding.btn.setOnClickListener(this)
         binding.recDocView.layoutManager=LinearLayoutManager(this)
         viewModel=ViewModelProvider(this)[AddDoctorViewModel::class.java]
         viewModel.init(this)
         selectedItem = intent.getStringExtra("SELECTED_ITEM") ?: ""
-//        var data= ArrayList<DoctorData>()
-//        data.add(DoctorData("",""))
-//        val adapter=AddDoctorAdapter(data)
-//       binding.recDocView.adapter=adapter
 
         adapter = AddDoctorAdapter(emptyList())
         binding.recDocView.adapter = adapter
         binding.recDocView.layoutManager = LinearLayoutManager(this)
-
+binding.backArrow.setOnClickListener{
+    val intent=Intent(this,HomeActivity::class.java)
+    startActivity(intent)
+}
 
         viewModel.loadDoctorData(selectedItem)
 
-//        viewModel.docData.observe(this, Observer { docData->
-//            adapter= AddDoctorAdapter(docData)
-//            binding.recDocView.adapter=adapter
-//            binding.recDocView.layoutManager=LinearLayoutManager(this)
-//
-//        })
+
 
         viewModel.loadDoctorData(selectedItem)
 
@@ -85,23 +80,6 @@ class AddDoctorActivity : AppCompatActivity() {
             showDoctorDialog()
         }
 
-//        viewModel.docData.observe(this, Observer {doctor->
-//            updateRecyclerView()
-//
-//        })
-
-//        val cardDoc=LayoutInflater.from(this).inflate(R.layout.doctor_list,null)
-//
-//        //val cardDoc=findViewById<CardView>(R.id.card_doc)
-//        cardDoc.setOnClickListener{
-//            val docName =cardDoc.findViewById<TextView>(R.id.tvName).text.toString()
-//            val intent=Intent(this,DoctorMedicineActivity::class.java).apply {
-//                putExtra("DOC_NAME",docName)
-//            }
-//            startActivity(intent)
-//
-//        }
-
 
     }
 
@@ -114,6 +92,7 @@ class AddDoctorActivity : AppCompatActivity() {
         dialogView.setOnClickListener{
             val intent=Intent(this,DoctorMedicineActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
         val docName=dialogView.findViewById<TextInputEditText>(R.id.doc_edit)
@@ -141,11 +120,4 @@ class AddDoctorActivity : AppCompatActivity() {
         dialog.show()
 
     }
-//    private fun updateRecyclerView(people: List<DoctorData>) {
-//        val recyclerView: RecyclerView = findViewById(R.id.rec_doc_view)
-//        recyclerView.adapter = AddDoctorAdapter(people)
-//        recyclerView.layoutManager = LinearLayoutManager(this)
-//    }
-
-
 }

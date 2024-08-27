@@ -3,9 +3,11 @@ package com.example.mintlifesciences.homescreen
 import android.animation.AnimatorInflater
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +20,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityHomeBinding
@@ -28,63 +31,67 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     lateinit var binding:ActivityHomeBinding
     private lateinit var viewModel: HomeViewModel
+    private lateinit var adapter: HomeAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_home)
         binding=DataBindingUtil.setContentView(this,R.layout.activity_home)
         viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         viewModel.init(this)
         setSupportActionBar(binding.root.findViewById(R.id.toolbar))
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        binding.itemContainer
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
 
-        viewModel.items.observe(this, Observer { items->
+
+
+        adapter = HomeAdapter(emptyList()) { item ->
+            navigateToMainActivity(item)
+        }
+
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = adapter
+
+        viewModel.items.observe(this, Observer { items ->
             updateUI(items)
         })
-//        drawerLayout = binding.drawerLayout
-//        navigationView = binding.navView
 
         val toggle=ActionBarDrawerToggle(this,binding.drawerLayout,binding.root.findViewById(R.id.toolbar), R.string.navigation_drawer_open,R.string.navigation_drawer_close)
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         binding.navView.setNavigationItemSelectedListener (this)
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.refreshData() // Refresh data
+            // Stop the refresh animation after 5 seconds
+            Handler().postDelayed({
+                binding.swipeRefreshLayout.isRefreshing = false
+            }, 5000)
+        }
+
+        viewModel.loading.observe(this, Observer { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            if (!isLoading) {
+                binding.swipeRefreshLayout.isRefreshing = false
+            }
+        })
+        viewModel.error.observe(this, Observer { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                viewModel.errorHandled() // Reset error state after handling
+            }
+        })
+
     }
+
 
     private fun updateUI(items: List<String>?) {
-        binding.itemContainer.removeAllViews()
-        if (items != null) {
-            for (item in items) {
-                val itemView = createItemView(item)
-                binding.itemContainer.addView(itemView)
-            }
+        items?.let {
+            adapter.updateItems(it)
         }
     }
 
-    private fun createItemView(item: String): TextView {
-        val textView = TextView(this).apply {
-            text = item
-            textSize = 20f // Increase text size
-            setPadding(16, 16, 16, 16)
-            setBackgroundResource(R.drawable.border)
-            gravity=Gravity.CENTER
-            stateListAnimator = AnimatorInflater.loadStateListAnimator(this@HomeActivity, R.animator.item_elevation_animator)
-            setOnClickListener {
-                navigateToMainActivity(item)
-            }
-        }
-        val layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.FILL_PARENT,
-            LinearLayout.LayoutParams.FILL_PARENT
-        ).apply {
-            setMargins(16, 16, 16, 16) // Add margins to create gaps between items
-            height= 120
-        }
-        textView.layoutParams = layoutParams
-        return textView
-    }
 
     private fun navigateToMainActivity(item: String) {
         val intent = Intent(this, AddDoctorActivity::class.java)
@@ -105,4 +112,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
+
+
 }
