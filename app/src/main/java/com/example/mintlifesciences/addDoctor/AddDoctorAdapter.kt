@@ -45,6 +45,7 @@ class AddDoctorAdapter(var docList: List<DoctorData>):
             context.startActivity(intent)
         }
     }
+
     fun updateList(newDocList: List<DoctorData>) {
         docList = newDocList
         notifyDataSetChanged()

@@ -28,7 +28,6 @@ class SignUpActivity : AppCompatActivity(), OnClickListener {
         viewModel.init(this)
         binding.btn.setOnClickListener(this)
         binding.txt3.setOnClickListener(this)
-
     }
 
     override fun onClick(v: View?) {

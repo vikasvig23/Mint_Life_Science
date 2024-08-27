@@ -4,7 +4,6 @@ import android.graphics.drawable.GradientDrawable
 
 object Utility {
 
-
     fun createGeadientDrawable(
         cornerRadius: Float,
         startColor:Int,
