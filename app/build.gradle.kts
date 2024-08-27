@@ -64,8 +64,8 @@ dependencies {
     implementation ("androidx.recyclerview:recyclerview:1.3.2")
     androidTestImplementation(libs.androidx.espresso.core)
     implementation ("com.google.firebase:firebase-database:20.0.5")
-
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
 }

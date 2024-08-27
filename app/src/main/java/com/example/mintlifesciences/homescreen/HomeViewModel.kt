@@ -1,6 +1,10 @@
 package com.example.mintlifesciences.homescreen
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.view.View
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,48 +19,96 @@ class HomeViewModel (application: Application) : AndroidViewModel(application) {
     private val _items = MutableLiveData<List<String>>()
     val items: LiveData<List<String>> get() = _items
 
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> get() = _loading
+
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> get() = _error
+
     private val databaseRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
 
 
 
     fun init(activity:HomeActivity) {
-       // fetchItemsFromFirebase()
+
+        fetchDataFromFirebase()
         this.activity = activity
-
-        //_items.value = listOf("Mini Life Sciences Pvt Ltd", "USP Life Sciences", "USP Medicraft", "Critical Care", "Gyno Care", "Bv-Clean")
-        databaseRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // Data exists, retrieve it
-                    val itemList = mutableListOf<String>()
-                    for (itemSnapshot in snapshot.children) {
-                        itemSnapshot.key?.let { itemList.add(it) }
-                    }
-                    _items.value = itemList
-                } else {
-                    // Data doesn't exist, store the initial list
-                    val initialList = listOf(
-                        "Mini Life Sciences Pvt Ltd",
-                        "USP Life Sciences",
-                        "USP Medicraft",
-                        "Critical Care",
-                        "Gyno Care",
-                        "Bv-Clean"
-                    )
-                    _items.value = initialList
-                    saveInitialListToFirebase(initialList)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Handle possible errors.
-            }
-        })
     }
+    fun refreshData() {
+        fetchDataFromFirebase() // Refresh data from Firebase
+    }
+
+
+    //_items.value = listOf("Mini Life Sciences Pvt Ltd", "USP Life Sciences", "USP Medicraft", "Critical Care", "Gyno Care", "Bv-Clean")
+        fun fetchDataFromFirebase() {
+
+        _loading.value = true
+
+        if (!isNetworkAvailable()) {
+            _loading.value = true
+            _error.value = "No Internet Connection"
+            return
+        }
+
+            databaseRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val itemList = mutableListOf<String>()
+                        for (itemSnapshot in snapshot.children) {
+                            itemSnapshot.key?.let { itemList.add(it) }
+                        }
+                        _items.value = itemList
+                    } else {
+                        val initialList = listOf(
+                            "Mini Life Sciences Pvt Ltd",
+                            "USP Life Sciences",
+                            "USP Medicraft",
+                            "Critical Care",
+                            "Gyno Care",
+                            "Bv-Clean"
+                        )
+                        _items.value = initialList
+                        saveInitialListToFirebase(initialList)
+                    }
+                    _loading.value = false
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    _loading.value = false
+                    _error.value = error.message
+                }
+            })
+        }
+
+
+
+
+
+    private fun showLoader() {
+        activity.binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideLoader() {
+        activity.binding.progressBar.visibility = View.GONE
+    }
+
+
 
     private fun saveInitialListToFirebase(initialList: List<String>) {
         for (item in initialList) {
             databaseRef.child(item).setValue(true)  // Save as keys in Firebase
         }
     }
+
+    fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getApplication<Application>().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
+    }
+
+    fun errorHandled() {
+        _error.value = null
+    }
+
+
 }

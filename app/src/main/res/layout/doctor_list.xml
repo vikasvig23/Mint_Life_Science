@@ -17,25 +17,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="6dp">
 
         <TextView
             android:id="@+id/tvName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Doctor Name"
+            android:fontFamily="@font/notosansmedium"
             android:textSize="26sp"
-            android:textStyle="bold"/>
+            />
 
 
         <TextView
             android:id="@+id/tvClass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:fontFamily="@font/notosanslight"
             android:text="Doctor Specialist"
             android:textSize="16sp"
-            android:textStyle="bold"/>
+            />
 
 
     </LinearLayout>
