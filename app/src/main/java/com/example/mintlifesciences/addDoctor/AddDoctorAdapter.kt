@@ -1,5 +1,6 @@
 package com.example.mintlifesciences.addDoctor
 
+import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,11 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.mintlifesciences.R
-import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
+
 
 class AddDoctorAdapter(var docList: List<DoctorData>):
     RecyclerView.Adapter<AddDoctorAdapter.DoctorViewHolder>() {
@@ -39,7 +38,7 @@ class AddDoctorAdapter(var docList: List<DoctorData>):
 
         holder.carddoc.setOnClickListener{
             val context=holder.itemView.context
-            val intent= Intent(context,DoctorMedicineActivity::class.java).apply {
+            val intent= Intent(context, DoctorMedicineActivity::class.java).apply {
                 putExtra("DOC_NAME",itemViewModel.docName)
             }
             context.startActivity(intent)

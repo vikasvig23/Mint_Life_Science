@@ -32,7 +32,8 @@
     app:layout_constraintStart_toStartOf="parent"
     android:layout_marginTop="15dp"
     android:clickable="true"
-    android:layout_marginStart="10dp"/>
+
+    android:layout_marginStart="14dp"/>
 
     <TextView
         android:layout_width="wrap_content"

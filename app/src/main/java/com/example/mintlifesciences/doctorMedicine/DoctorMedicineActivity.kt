@@ -1,14 +1,13 @@
+package com.example.mintlifesciences.doctorMedicine
+
+import DocMedicineViewModel
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.example.mintlifesciences.R
-import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityDoctorMedicineBinding
-import com.example.mintlifesciences.doctorMedicine.MedicineListActivity
 
 class DoctorMedicineActivity : AppCompatActivity() {
     lateinit var binding: ActivityDoctorMedicineBinding
