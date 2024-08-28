@@ -1,23 +1,40 @@
 package com.example.mintlifesciences.addDoctor
 
+import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
+import android.view.WindowManager
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.cardview.widget.CardView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.databinding.ActivityAddDoctorBinding
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+import org.w3c.dom.Text
+
 class AddDoctorActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityAddDoctorBinding
@@ -42,9 +59,11 @@ class AddDoctorActivity : AppCompatActivity() {
         adapter = AddDoctorAdapter(this, emptyList(),selectedItem)
         binding.recDocView.adapter = adapter
         binding.recDocView.layoutManager = LinearLayoutManager(this)
-        binding.backArrow.setOnClickListener {
-            val intent = Intent(this, HomeActivity::class.java)
-            startActivity(intent)
+
+
+        binding.backArrow.setOnClickListener{
+            onBackPressed()
+            true
         }
 
         viewModel.loadDoctorData(selectedItem)
@@ -66,14 +85,21 @@ class AddDoctorActivity : AppCompatActivity() {
 
 
     }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        // Navigate back to MainActivity
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
+        finish() // Destroy SecondActivity when navigating back to MainActivity
+    }
 
     private fun showDoctorDialog() {
 
 
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_doctor, null)
 
-        dialogView.setOnClickListener {
-            val intent = Intent(this, DoctorMedicineActivity::class.java)
+        dialogView.setOnClickListener{
+            val intent=Intent(this,DoctorMedicineActivity::class.java)
             startActivity(intent)
             finish()
         }

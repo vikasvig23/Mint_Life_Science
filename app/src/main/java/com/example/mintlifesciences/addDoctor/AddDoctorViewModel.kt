@@ -39,7 +39,7 @@ class AddDoctorViewModel(application: Application):AndroidViewModel(application)
 
     fun saveDoctorData(selectedItem: String, doctor: DoctorData) {
         val databaseReference = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
-        databaseReference.child(selectedItem).child("Doctors").push().setValue(doctor)
+        databaseReference.child(selectedItem).child("Doctors").child(doctor.docName).setValue(doctor)
     }
 
     fun loadDoctorData(selectedItem: String) {
