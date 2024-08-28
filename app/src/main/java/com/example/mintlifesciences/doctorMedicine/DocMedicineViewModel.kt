@@ -1,4 +1,5 @@
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,6 +23,9 @@ class DocMedicineViewModel(application: Application) : AndroidViewModel(applicat
         val updatedList = _selectedMedicines.value ?: mutableListOf()
         updatedList.add(medicine)
         _selectedMedicines.value = updatedList
+
+        // Log the addition of the medicine
+        Log.d("DocMedicineViewModel", "Medicine Added: ${medicine.name}")
     }
 
     // Function to remove a medicine from the list
@@ -29,6 +33,9 @@ class DocMedicineViewModel(application: Application) : AndroidViewModel(applicat
         val updatedList = _selectedMedicines.value ?: mutableListOf()
         updatedList.remove(medicine)
         _selectedMedicines.value = updatedList
+
+        // Log the removal of the medicine
+        Log.d("DocMedicineViewModel", "Medicine Removed: ${medicine.name}")
     }
 
     // Function to clear the list

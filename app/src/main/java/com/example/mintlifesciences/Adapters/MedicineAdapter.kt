@@ -3,6 +3,7 @@ package com.example.mintlifesciences.Adapters
 import DocMedicineViewModel
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,9 +17,9 @@ import com.example.mintlifesciences.R
 class MedicineAdapter(
     private val context: Context,
     private var dataList: List<Medicine>,
-    private val selectedMedicines: MutableList<Medicine>
+    private val selectedMedicines: MutableList<Medicine>,
+    private val viewModel: DocMedicineViewModel
 ) : RecyclerView.Adapter<MyViewHolder>() {
-    private lateinit var viewModel : DocMedicineViewModel
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val view: View = LayoutInflater.from(parent.context)
@@ -31,8 +32,8 @@ class MedicineAdapter(
 
         holder.medicineTitle.text = medicine.name
 
-        // Check if this medicine is selected
-        if (selectedMedicines.contains(medicine)) {
+        // Check if this medicine is already selected
+        if (viewModel.selectedMedicines.value?.contains(medicine) == true) {
             holder.selectedIcon.visibility = View.VISIBLE
         } else {
             holder.selectedIcon.visibility = View.GONE
@@ -43,10 +44,16 @@ class MedicineAdapter(
                 selectedMedicines.remove(medicine)
                 viewModel.removeMedicine(medicine)
                 holder.selectedIcon.visibility = View.GONE
+
+                // Log medicine removal
+                Log.d("MedicineListActivity", "Medicine Removed: ${medicine.name}")
             } else {
                 selectedMedicines.add(medicine)
-                viewModel.addMedicine(medicine);
+                viewModel.addMedicine(medicine)
                 holder.selectedIcon.visibility = View.VISIBLE
+
+                // Log medicine addition
+                Log.d("MedicineListActivity", "Medicine Added: ${medicine.name}")
             }
         }
     }

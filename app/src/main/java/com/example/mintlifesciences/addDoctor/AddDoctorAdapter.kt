@@ -2,6 +2,8 @@ package com.example.mintlifesciences.addDoctor
 
 import android.content.Intent
 import android.util.Log
+
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +15,12 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 
-class AddDoctorAdapter(var docList: List<DoctorData>):
-    RecyclerView.Adapter<AddDoctorAdapter.DoctorViewHolder>() {
+class AddDoctorAdapter(
+
+    private val context: Context,
+    var docList: List<DoctorData>,
+    private val brandName: String
+):RecyclerView.Adapter<AddDoctorAdapter.DoctorViewHolder>() {
 
     class DoctorViewHolder(ItemView: View):RecyclerView.ViewHolder(ItemView){
         val carddoc:CardView=itemView.findViewById(R.id.card_doc)
@@ -38,10 +44,9 @@ class AddDoctorAdapter(var docList: List<DoctorData>):
         holder.docSpeciality.text =itemViewModel.docSpeciality
 
         holder.carddoc.setOnClickListener{
-            val context=holder.itemView.context
-            val intent= Intent(context,DoctorMedicineActivity::class.java).apply {
-                putExtra("DOC_NAME",itemViewModel.docName)
-            }
+            val intent = Intent(context, DoctorMedicineActivity::class.java)
+            intent.putExtra("doctorName", itemViewModel.docName)
+            intent.putExtra("brandName", brandName)
             context.startActivity(intent)
         }
     }

@@ -16,9 +16,6 @@
             android:name=".doctorMedicine.MedicineListActivity"
             android:exported="false" />
         <activity
-            android:name=".addDoctor.RecentDoctors"
-            android:exported="false" />
-        <activity
             android:name=".doctorMedicine.DoctorMedicineActivity"
             android:exported="false" />
         <activity

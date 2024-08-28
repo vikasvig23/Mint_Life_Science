@@ -1,45 +1,54 @@
+package com.example.mintlifesciences.doctorMedicine
+
+import DocMedicineViewModel
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.example.mintlifesciences.R
-import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityDoctorMedicineBinding
-import com.example.mintlifesciences.doctorMedicine.MedicineListActivity
 
 class DoctorMedicineActivity : AppCompatActivity() {
     lateinit var binding: ActivityDoctorMedicineBinding
-    private lateinit var viewModel: DocMedicineViewModel
-    private lateinit var brandName : String
-    private lateinit var doctorName : String
-
+    // Initialize ViewModel using the 'by viewModels()' delegate at the class level
+    private val viewModel: DocMedicineViewModel by viewModels {
+        ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+    }
+    private lateinit var brandName: String
+    private lateinit var doctorName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_doctor_medicine)
-        viewModel = ViewModelProvider(this)[DocMedicineViewModel::class.java]
 
-//        // Retrieve the doctor's name from the intent
-       doctorName = intent.getStringExtra("DOC_NAME") ?: ""
-//        brandName = intent.getStringExtra("brand_name") ?: ""
+        // Retrieve the doctor's name and brand name from the intent
+        doctorName = intent.getStringExtra("doctorName") ?: ""
+        brandName = intent.getStringExtra("brandName") ?: ""
 
         binding.docT.text = doctorName
 
-        // Observe changes to the selected medicines
-        viewModel.selectedMedicines.observe(this) { medicines ->
-            // Update the UI with the list of selected medicines
-
-        }
+//        viewModel.selectedMedicines.observe(this) { medicines ->
+//            Log.d("DoctorMedicineActivity", "Selected Medicines: ${medicines.joinToString { it.name ?: "Unknown" }}")
+//
+//            if (medicines.isNotEmpty()) {
+//                val lastAddedMedicine = medicines.lastOrNull()?.name ?: "Unknown"
+//                binding.mediName.text = lastAddedMedicine
+//                Toast.makeText(this, "Last Added Medicine: $lastAddedMedicine", Toast.LENGTH_SHORT).show()
+//            } else {
+//                binding.mediName.text = "No Medicine Selected"
+//            }
+//        }
 
         binding.addMed.setOnClickListener {
             val intent = Intent(this, MedicineListActivity::class.java)
-            intent.putExtra("brand_name", brandName )
+            intent.putExtra("brand_name", brandName)
+            intent.putExtra("doctorName", doctorName)
             startActivity(intent)
         }
     }
-
-
 }

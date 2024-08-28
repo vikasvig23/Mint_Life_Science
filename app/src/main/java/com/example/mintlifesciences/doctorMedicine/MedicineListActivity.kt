@@ -3,33 +3,33 @@ package com.example.mintlifesciences.doctorMedicine
 import DocMedicineViewModel
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.mintlifesciences.R
-import com.example.mintlifesciences.databinding.ActivityMedicineListBinding
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.Adapters.MedicineAdapter
 import com.example.mintlifesciences.Model.Medicine
+import com.example.mintlifesciences.R
+import com.example.mintlifesciences.databinding.ActivityMedicineListBinding
 import com.google.firebase.database.*
 
 class MedicineListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMedicineListBinding
-
     private lateinit var medicineAdapter: MedicineAdapter
     private lateinit var database: DatabaseReference
 
-    private lateinit var brandName : String
+    private lateinit var brandName: String
+    private lateinit var doctorName: String
 
-
-    private val viewModel: DocMedicineViewModel by viewModels()
-
+    private val viewModel: DocMedicineViewModel by viewModels {
+        ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+    }
     private var medicineList: MutableList<Medicine> = mutableListOf()
     private var selectedMedicines: MutableList<Medicine> = mutableListOf()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,10 +37,23 @@ class MedicineListActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        medicineAdapter = MedicineAdapter(this, medicineList, selectedMedicines)
+        medicineAdapter = MedicineAdapter(this, medicineList, selectedMedicines, viewModel)
         binding.recyclerView.adapter = medicineAdapter
 
         brandName = intent.getStringExtra("brand_name") ?: ""
+        doctorName = intent.getStringExtra("doctorName") ?: ""
+
+//        viewModel.selectedMedicines.observe(this) { medicines ->
+//            Log.d("DoctorMedicineActivity", "Selected Medicines: ${medicines.joinToString { it.name ?: "Unknown" }}")
+//
+//            if (medicines.isNotEmpty()) {
+//                val lastAddedMedicine = medicines.lastOrNull()?.name ?: "Unknown"
+//                Toast.makeText(this, "Last Added Medicine: $lastAddedMedicine", Toast.LENGTH_SHORT).show()
+//            } else {
+//                Toast.makeText(this, "Last Added Medicine: xyz", Toast.LENGTH_SHORT).show()
+//
+//            }
+//        }
 
         // Show progress dialog
         val builder = AlertDialog.Builder(this)
@@ -84,9 +97,10 @@ class MedicineListActivity : AppCompatActivity() {
         })
 
         binding.done.setOnClickListener {
+            // Pass selected medicines and finish the activity
+
             finish()
         }
-
     }
 
     private fun filterMedicines(query: String) {
