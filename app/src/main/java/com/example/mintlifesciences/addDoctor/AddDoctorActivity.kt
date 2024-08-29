@@ -45,20 +45,17 @@ class AddDoctorActivity : AppCompatActivity() {
         binding.recDocView.layoutManager = LinearLayoutManager(this)
 
 
-binding.backArrow.setOnClickListener{
-    onBackPressed()
-    true
-}
-
-
-        viewModel.loadDoctorData(selectedItem)
+        binding.backArrow.setOnClickListener{
+            onBackPressed()
+            true
+        }
 
 
 
         viewModel.loadDoctorData(selectedItem)
 
         viewModel.docData.observe(this, Observer { doctors ->
-            Log.d("MainActivity", "Received data: $doctors")
+            Log.d("AddDoctorActivity", "Received data: $doctors")
             adapter.updateList(doctors)
         })
 
@@ -72,10 +69,9 @@ binding.backArrow.setOnClickListener{
     }
     override fun onBackPressed() {
         super.onBackPressed()
-        // Navigate back to MainActivity
         val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)
-        finish() // Destroy SecondActivity when navigating back to MainActivity
+        finish()
     }
 
     private fun showDoctorDialog() {
@@ -84,11 +80,11 @@ binding.backArrow.setOnClickListener{
 
        val dialogView=LayoutInflater.from(this).inflate(R.layout.dialog_add_doctor,null)
 
-        dialogView.setOnClickListener{
-            val intent=Intent(this, DoctorMedicineActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
+//        dialogView.setOnClickListener{
+//            val intent=Intent(this, DoctorMedicineActivity::class.java)
+//            startActivity(intent)
+//            finish()
+//        }
 
         val docName=dialogView.findViewById<TextInputEditText>(R.id.doc_edit)
         val docSpec=dialogView.findViewById<TextInputEditText>(R.id.spec_edit)

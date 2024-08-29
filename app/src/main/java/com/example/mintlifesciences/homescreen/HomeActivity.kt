@@ -4,6 +4,7 @@ import android.animation.AnimatorInflater
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -25,14 +26,15 @@ import com.example.mintlifesciences.R
 import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityHomeBinding
 import com.example.mintlifesciences.login.LoginViewModel
+import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
 import com.google.android.material.navigation.NavigationView
 
-class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class HomeActivity : AppCompatActivity(){
 
     lateinit var binding:ActivityHomeBinding
     private lateinit var viewModel: HomeViewModel
     private lateinit var adapter: HomeAdapter
-
+lateinit var toggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,8 +44,9 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel.init(this)
         setSupportActionBar(binding.root.findViewById(R.id.toolbar))
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+    //    window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
 
+       // binding.drawerLayout
 
 
         adapter = HomeAdapter(emptyList()) { item ->
@@ -57,10 +60,31 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             updateUI(items)
         })
 
-        val toggle=ActionBarDrawerToggle(this,binding.drawerLayout,binding.root.findViewById(R.id.toolbar), R.string.navigation_drawer_open,R.string.navigation_drawer_close)
+        toggle=ActionBarDrawerToggle(this,binding.drawerLayout, R.string.navigation_drawer_open,R.string.navigation_drawer_close)
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-        binding.navView.setNavigationItemSelectedListener (this)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+
+        binding.navView.setNavigationItemSelectedListener{
+
+            when (it.itemId) {
+                R.id.nav_home -> {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    val intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                }
+
+                R.id.nav_rec_doc -> {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    val intent = Intent(this, RecentDoctorsActivity::class.java)
+                    startActivity(intent)
+                }
+
+
+            }
+            true
+        }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
             viewModel.refreshData() // Refresh data
@@ -100,19 +124,37 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         finish()
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.nav_home -> {
-                val intent =Intent(this,HomeActivity::class.java)
-                startActivity(intent)
-            }
-            R.id.nav_doc->{
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-            }
+        if (toggle.onOptionsItemSelected(item)){
+           return true
         }
-        binding.drawerLayout.closeDrawer(GravityCompat.START)
-        return true
+        return super.onOptionsItemSelected(item)
     }
+
+
+//    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+//        Log.d("Navigation", "Item selected: ${item.itemId}")
+//
+//        when (item.itemId) {
+//            R.id.nav_home -> {
+//                binding.drawerLayout.closeDrawer(GravityCompat.START)
+//                val intent = Intent(this, HomeActivity::class.java)
+//                startActivity(intent)
+//            }
+//
+//            R.id.nav_rec_doc -> {
+//                binding.drawerLayout.closeDrawer(GravityCompat.START)
+//                val intent = Intent(this, RecentDoctorsActivity::class.java)
+//                startActivity(intent)
+//            }
+//
+//
+//        }
+//        return true
+//    }
+
+
 
 
 }
