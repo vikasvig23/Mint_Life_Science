@@ -13,8 +13,12 @@
         android:theme="@style/Theme.MintLifeSciences"
         tools:targetApi="31">
         <activity
+            android:name=".recentDoctors.RecentDoctorsActivity"
+            android:exported="false" />
+        <activity
             android:name=".doctorMedicine.MedicineListActivity"
             android:exported="false" />
+
         <activity
             android:name=".doctorMedicine.DoctorMedicineActivity"
             android:exported="false" />
