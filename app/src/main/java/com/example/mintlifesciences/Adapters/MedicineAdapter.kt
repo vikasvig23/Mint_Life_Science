@@ -1,8 +1,6 @@
 package com.example.mintlifesciences.Adapters
 
-import DocMedicineViewModel
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +16,7 @@ class MedicineAdapter(
     private val context: Context,
     private var dataList: List<Medicine>,
     private val selectedMedicines: MutableList<Medicine>,
-    private val viewModel: DocMedicineViewModel
+    private val alreadySelectedMedicine: List<Medicine>
 ) : RecyclerView.Adapter<MyViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -33,7 +31,8 @@ class MedicineAdapter(
         holder.medicineTitle.text = medicine.name
 
         // Check if this medicine is already selected
-        if (viewModel.selectedMedicines.value?.contains(medicine) == true) {
+        if (alreadySelectedMedicine.contains(medicine)) {
+            selectedMedicines.add(medicine)
             holder.selectedIcon.visibility = View.VISIBLE
         } else {
             holder.selectedIcon.visibility = View.GONE
@@ -42,14 +41,12 @@ class MedicineAdapter(
         holder.recCard.setOnClickListener {
             if (selectedMedicines.contains(medicine)) {
                 selectedMedicines.remove(medicine)
-                viewModel.removeMedicine(medicine)
                 holder.selectedIcon.visibility = View.GONE
 
                 // Log medicine removal
                 Log.d("MedicineListActivity", "Medicine Removed: ${medicine.name}")
             } else {
                 selectedMedicines.add(medicine)
-                viewModel.addMedicine(medicine)
                 holder.selectedIcon.visibility = View.VISIBLE
 
                 // Log medicine addition

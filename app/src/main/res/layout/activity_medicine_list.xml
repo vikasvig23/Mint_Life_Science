@@ -7,37 +7,41 @@
     tools:context=".doctorMedicine.MedicineListActivity">
 
     <androidx.appcompat.widget.SearchView
+        android:id="@+id/search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="12dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="12dp"
-        android:id="@+id/search"
-        app:iconifiedByDefault="false"
-        app:searchHintIcon="@null"
-        app:queryHint="Search..."
+        android:background="@drawable/blue_border"
         android:focusable="false"
         app:closeIcon="@drawable/baseline_clear_24"
-        app:searchIcon="@drawable/baseline_search_24"
-        android:background="@drawable/blue_border"/>
+        app:iconifiedByDefault="false"
+        app:queryHint="Search..."
+        app:searchHintIcon="@null"
+        app:searchIcon="@drawable/baseline_search_24" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginTop="10dp"
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/recyclerView"
         android:layout_below="@id/search"
-        android:scrollbars="vertical"/>
+        android:layout_marginTop="10dp"
+        android:scrollbars="vertical" />
 
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <Button
         android:id="@+id/done"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_margin="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginVertical="20dp"
         android:backgroundTint="#0080FF"
-        app:tint = "@color/white"
-        android:src="@drawable/baseline_done_24" />
+        android:paddingHorizontal="30dp"
+        android:paddingVertical="8dp"
+        android:text="Done"
+        android:textSize="25sp"
+        app:tint="@color/white" />
+
 </RelativeLayout>

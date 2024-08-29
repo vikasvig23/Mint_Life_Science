@@ -1,6 +1,5 @@
 package com.example.mintlifesciences.addDoctor
 
-import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent

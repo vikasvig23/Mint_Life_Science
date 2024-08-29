@@ -1,3 +1,5 @@
+package com.example.mintlifesciences.doctorMedicine
+
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -14,7 +16,6 @@ class DocMedicineViewModel(application: Application) : AndroidViewModel(applicat
     val selectedMedicines: LiveData<MutableList<Medicine>> get() = _selectedMedicines
 
     init {
-        // Initialize with an empty list if needed
         _selectedMedicines.value = mutableListOf()
     }
 

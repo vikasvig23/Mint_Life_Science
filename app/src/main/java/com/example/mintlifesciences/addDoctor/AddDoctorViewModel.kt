@@ -33,7 +33,7 @@ class AddDoctorViewModel(application: Application):AndroidViewModel(application)
     fun addDoctor(doctor:DoctorData){
         val updatedList= _docDate.value?.toMutableList()
         updatedList?.add(doctor)
-        _docDate.value=updatedList
+        _docDate.value=updatedList!!
 
     }
 
@@ -57,8 +57,6 @@ class AddDoctorViewModel(application: Application):AndroidViewModel(application)
                     else {
                         Log.e("FirebaseData", "Error parsing doctor data.")
                     }
-
-
 
                     //doctor?.let { doctorList.add(it) }
                 }
