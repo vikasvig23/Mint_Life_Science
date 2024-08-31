@@ -66,23 +66,9 @@ lateinit var toggle: ActionBarDrawerToggle
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
-        binding.navView.setNavigationItemSelectedListener{
+        binding.navView.setNavigationItemSelectedListener{menuItem->
 
-            when (it.itemId) {
-                R.id.nav_home -> {
-                    binding.drawerLayout.closeDrawer(GravityCompat.START)
-                    val intent = Intent(this, HomeActivity::class.java)
-                    startActivity(intent)
-                }
-
-                R.id.nav_rec_doc -> {
-                    binding.drawerLayout.closeDrawer(GravityCompat.START)
-                    val intent = Intent(this, RecentDoctorsActivity::class.java)
-                    startActivity(intent)
-                }
-
-
-            }
+            handleNavigation(menuItem)
             true
         }
 
@@ -109,6 +95,22 @@ lateinit var toggle: ActionBarDrawerToggle
 
     }
 
+    private fun handleNavigation(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.nav_home -> {
+                // If already on the HomeActivity, no need to navigate
+                if (this !is HomeActivity) {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                }
+            }
+            R.id.nav_rec_doc -> {
+                startActivity(Intent(this, RecentDoctorsActivity::class.java))
+            }
+            // Add more cases for other menu items if needed
+        }
+        binding.drawerLayout.closeDrawer(GravityCompat.START) // Close the drawer after selection
+    }
+
 
     private fun updateUI(items: List<String>?) {
         items?.let {
@@ -126,10 +128,11 @@ lateinit var toggle: ActionBarDrawerToggle
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        if (toggle.onOptionsItemSelected(item)){
-           return true
+        return if (toggle.onOptionsItemSelected(item)) {
+            true
+        } else {
+            super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
 

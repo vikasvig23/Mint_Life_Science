@@ -6,10 +6,6 @@
     >
 
 
-
-
-
-
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
@@ -25,6 +21,8 @@
             android:layout_gravity="start"
             app:headerLayout="@layout/header"
             android:fitsSystemWindows="true"
+            app:itemIconTint="@color/purple_500"
+            app:itemTextColor="@color/purple_500"
             app:menu="@menu/drawer_menu"
             />
 
