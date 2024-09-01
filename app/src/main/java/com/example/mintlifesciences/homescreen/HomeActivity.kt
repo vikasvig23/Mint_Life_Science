@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityHomeBinding
+import com.example.mintlifesciences.login.LoginActivity
+import com.example.mintlifesciences.login.LoginViewModel
 import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
 import com.google.android.material.navigation.NavigationView
 
@@ -25,6 +27,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var viewModel: HomeViewModel
     private lateinit var adapter: HomeAdapter
     private lateinit var drawerToggle: ActionBarDrawerToggle
+    private lateinit var loginViewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,12 +36,18 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         viewModel.init(this)
 
+
+        loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
+
+
         adapter = HomeAdapter(emptyList()) { item ->
             navigateToMainActivity(item)
         }
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
+
+
 
         viewModel.items.observe(this, Observer { items ->
             updateUI(items)
@@ -91,6 +100,8 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+
+
         when (item.itemId) {
             R.id.nav_home -> {
                 val intent = Intent(this, HomeActivity::class.java)
@@ -101,6 +112,10 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 // Open RecentDoctorsActivity
                 val intent = Intent(this, RecentDoctorsActivity::class.java)
                 startActivity(intent)
+            }
+
+            R.id.nav_logout->{
+                loginViewModel.logout()
             }
             // Add more cases here for other items if needed
         }
