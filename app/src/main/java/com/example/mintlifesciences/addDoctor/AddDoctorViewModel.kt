@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.Utility
+import com.example.mintlifesciences.recentDoctors.RecentDoctorData
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -40,6 +41,21 @@ class AddDoctorViewModel(application: Application):AndroidViewModel(application)
     fun saveDoctorData(selectedItem: String, doctor: DoctorData) {
         val databaseReference = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
         databaseReference.child(selectedItem).child("Doctors").child(doctor.docName).setValue(doctor)
+
+        saveInRecentDoctors(selectedItem,doctor)
+    }
+
+    fun saveInRecentDoctors(selectedItem: String, doctor: DoctorData) {
+
+        val recentDoctor = RecentDoctorData(
+            docName = doctor.docName,
+            docSpeciality = doctor.docSpeciality,
+            brandName = selectedItem
+        )
+
+        // Reference to the RecentDoctors node in Firebase
+        val databaseReference = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
+        databaseReference.child("RecentDoctors").child(recentDoctor.docName).setValue(recentDoctor)
     }
 
     fun loadDoctorData(selectedItem: String) {

@@ -1,51 +1,99 @@
 package com.example.mintlifesciences.recentDoctors
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.enableEdgeToEdge
+import android.view.MenuItem
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
-import com.example.mintlifesciences.addDoctor.AddDoctorAdapter
-import com.example.mintlifesciences.addDoctor.AddDoctorViewModel
 import com.example.mintlifesciences.databinding.ActivityRecentDoctorsBinding
+import com.example.mintlifesciences.homescreen.HomeActivity
+import com.google.android.material.navigation.NavigationView
+import com.google.firebase.database.*
 
-class RecentDoctorsActivity : AppCompatActivity() {
+class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var binding: ActivityRecentDoctorsBinding
-    private lateinit var selectedItem: String
-    private lateinit var viewModel: AddDoctorViewModel
-    private lateinit var adapter:RecentDoctorAdapter
+    private lateinit var adapter: RecentDoctorAdapter
+    private lateinit var databaseReference: DatabaseReference
+    private lateinit var drawerToggle: ActionBarDrawerToggle
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_recent_doctors)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        binding= DataBindingUtil.setContentView(this,R.layout.activity_recent_doctors)
-        //binding.btn.setOnClickListener(this)
-        binding.recDocView.layoutManager= LinearLayoutManager(this)
-        viewModel= ViewModelProvider(this)[AddDoctorViewModel::class.java]
-      //  viewModel.init(this)
-        selectedItem = intent.getStringExtra("SELECTED_ITEM") ?: ""
+        binding = ActivityRecentDoctorsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+
+        setSupportActionBar(binding.toolbar)
+        drawerToggle = ActionBarDrawerToggle(
+            this, binding.drawerLayout, binding.toolbar,
+            R.string.open_nav, R.string.close_nav
+        )
+        binding.drawerLayout.addDrawerListener(drawerToggle)
+        drawerToggle.syncState()
+
+        binding.navView.setNavigationItemSelectedListener(this)
+
+        // Set up RecyclerView
         adapter = RecentDoctorAdapter(emptyList())
-        binding.recDocView.adapter = adapter
         binding.recDocView.layoutManager = LinearLayoutManager(this)
+        binding.recDocView.adapter = adapter
 
+        // Initialize Firebase reference
+        databaseReference =
+            FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client/RecentDoctors")
 
-        viewModel.loadDoctorData(selectedItem)
+        // Load recent doctors from Firebase
+        loadRecentDoctors()
+    }
 
-        viewModel.docData.observe(this, Observer { doctors ->
-            Log.d("AddDoctorActivity", "Received data: $doctors")
-            adapter.updateList(doctors)
+    private fun loadRecentDoctors() {
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val doctors = mutableListOf<RecentDoctorData>()
+                for (data in snapshot.children) {
+                    val doctor = data.getValue(RecentDoctorData::class.java)
+                    if (doctor != null) {
+                        doctors.add(doctor)
+                    }
+                }
+                adapter.updateList(doctors)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("RecentDoctorsActivity", "Failed to load recent doctors", error.toException())
+            }
         })
+    }
 
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_home -> {
+                val intent = Intent(this, HomeActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+
+            R.id.nav_doctors -> {
+                // Open RecentDoctorsActivity
+                val intent = Intent(this, RecentDoctorsActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                startActivity(intent)
+            }
+            // Handle other menu items here
+        }
+
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
+        return true
+    }
+
+    override fun onBackPressed() {
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 }

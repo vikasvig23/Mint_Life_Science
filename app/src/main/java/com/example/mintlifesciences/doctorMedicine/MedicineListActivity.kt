@@ -12,6 +12,7 @@ import com.example.mintlifesciences.Model.Medicine
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.addDoctor.DoctorData
 import com.example.mintlifesciences.databinding.ActivityMedicineListBinding
+import com.example.mintlifesciences.recentDoctors.RecentDoctorData
 import com.google.firebase.database.*
 
 class MedicineListActivity : AppCompatActivity() {
@@ -57,7 +58,9 @@ class MedicineListActivity : AppCompatActivity() {
         })
 
         binding.done.setOnClickListener {
-            saveDoctorData()
+            if (selectedMedicines != alreadySelectedMedicine) {
+                saveDoctorData()
+            }
             finish()
         }
     }
@@ -114,15 +117,59 @@ class MedicineListActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 Log.d("MedicineListActivity", "Doctor data saved successfully!")
 
+
+                saveInRecentDoctors()
                 //empty the Selected Medicines
                 selectedMedicines.clear()
+
             }
             .addOnFailureListener { e ->
                 Log.e("MedicineListActivity", "Failed to save doctor data", e)
             }
     }
 
+    private fun saveInRecentDoctors() {
+        val databaseReference = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
+        val recentDoctorsRef = databaseReference.child("RecentDoctors")
 
+        // Save the selected medicines under the doctor's name
+        recentDoctorsRef.child(doctorName).child("medicines")
+            .setValue(selectedMedicines)
+            .addOnSuccessListener {
+                Log.d("MedicineListActivity", "Doctor data saved to RecentDoctors successfully!")
+
+                // Check if the number of children exceeds 20
+                recentDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        // Get the list of children (doctors) in RecentDoctors
+                        val children = snapshot.children.toMutableList()
+                        if (children.size > 20) {
+                            // Find and remove the oldest doctor (first child)
+                            val oldestChild = children.firstOrNull()
+                            oldestChild?.key?.let { oldestKey ->
+                                recentDoctorsRef.child(oldestKey).removeValue()
+                                    .addOnSuccessListener {
+                                        Log.d("MedicineListActivity", "Oldest doctor removed from RecentDoctors")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("MedicineListActivity", "Failed to remove oldest doctor", e)
+                                    }
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("MedicineListActivity", "Failed to retrieve data: ${error.message}")
+                    }
+                })
+            }
+            .addOnFailureListener { e ->
+                Log.e("MedicineListActivity", "Failed to save doctor data to RecentDoctors", e)
+            }
+    }
+
+
+    ///FUNCTION TO FETCH DOCTOR MEDICINES
     private fun fetchDoctorMedicines() {
         // Fetch doctor details from Firebase
         val db = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
