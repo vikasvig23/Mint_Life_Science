@@ -96,7 +96,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val intent = Intent(this, AddDoctorActivity::class.java)
         intent.putExtra("SELECTED_ITEM", item)
         startActivity(intent)
-        finish()
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

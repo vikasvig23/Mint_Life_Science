@@ -20,30 +20,26 @@ class DoctorMedicineAdapter(
         return MyViewHolder(view)
     }
 
-    // Bind data to ViewHolder
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val medicine = medicines[position] // Use the provided list
+        val medicine = medicines[position]
 
         holder.medicineTitle.text = medicine.name
+        holder.medicineDescription.text = medicine.description
 
-        // Handle item click if needed ( To handle expandable recylerview Item)
         holder.itemView.setOnClickListener {
 
         }
     }
 
-    override fun getItemCount(): Int {
-        return medicines.size // Use the provided list
-    }
+    override fun getItemCount(): Int = medicines.size
 
-    // Update the list and notify changes
     fun updateMedicineList(newList: List<Medicine>) {
         medicines = newList
         notifyDataSetChanged()
     }
 
-    // ViewHolder class
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val medicineTitle: TextView = itemView.findViewById(R.id.medicineTitle)
+        val medicineTitle: TextView = itemView.findViewById(R.id.medTitle)
+        val medicineDescription: TextView = itemView.findViewById(R.id.medicineSubtitle)
     }
 }

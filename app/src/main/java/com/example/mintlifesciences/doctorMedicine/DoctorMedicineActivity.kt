@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,6 +30,9 @@ class DoctorMedicineActivity : AppCompatActivity() {
         doctorName = intent.getStringExtra("doctorName") ?: ""
         brandName = intent.getStringExtra("brandName") ?: ""
 
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false) // Disable default title
+
         binding.docT.text = doctorName
 
         binding.medRec.layoutManager = LinearLayoutManager(this)
@@ -48,6 +52,20 @@ class DoctorMedicineActivity : AppCompatActivity() {
             intent.putExtra("doctorName", doctorName)
             startActivity(intent)
         }
+
+        // Handle back button click
+        binding.backArrow.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed() // Handle back button press
+        }
+
+        // Handle back button press on system back press
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Custom behavior for back press, if any
+                finish() // Finish the current activity
+            }
+        })
+
     }
 
     override fun onResume() {

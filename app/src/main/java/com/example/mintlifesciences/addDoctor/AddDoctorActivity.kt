@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.databinding.DataBindingUtil
@@ -43,10 +44,8 @@ class AddDoctorActivity : AppCompatActivity() {
         binding.recDocView.adapter = adapter
         binding.recDocView.layoutManager = LinearLayoutManager(this)
 
-        binding.backArrow.setOnClickListener {
-            onBackPressed()
-            true
-        }
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false) // Disable default title
 
         viewModel.loadDoctorData(selectedItem)
         viewModel.loadDoctorData(selectedItem)
@@ -59,14 +58,19 @@ class AddDoctorActivity : AppCompatActivity() {
         binding.btn.setOnClickListener {
             showDoctorDialog()
         }
-    }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        // Navigate back to MainActivity
-        val intent = Intent(this, HomeActivity::class.java)
-        startActivity(intent)
-        finish() // Destroy SecondActivity when navigating back to MainActivity
+        // Handle back button click
+        binding.backArrow.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed() // Handle back button press
+        }
+
+        // Handle back button press on system back press
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Custom behavior for back press, if any
+                finish() // Finish the current activity
+            }
+        })
     }
 
     private fun showDoctorDialog() {
@@ -87,17 +91,28 @@ class AddDoctorActivity : AppCompatActivity() {
             .create()
 
         dialogView.findViewById<AppCompatButton>(R.id.cnfrmBtn).setOnClickListener {
-            val name = docName.text.toString()
-            val speciality = docSpec.text.toString()
+            var name = docName.text.toString()
+            var speciality = docSpec.text.toString()
+
+            if (name.isNotEmpty()) {
+                name = name.replaceFirstChar { it.uppercase() }
+            }
+
+            if (speciality.isNotEmpty()) {
+                speciality = speciality.replaceFirstChar { it.uppercase() }
+            }
+
             if (name.isEmpty() || speciality.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+
             val doctor = DoctorData(name, speciality)
             viewModel.saveDoctorData(selectedItem, doctor)
             viewModel.addDoctor(DoctorData(name, speciality))
             dialog.dismiss()
         }
+
         dialog.show()
     }
 }
