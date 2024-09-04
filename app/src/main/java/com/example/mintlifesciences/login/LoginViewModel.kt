@@ -48,7 +48,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
                                 Toast.makeText(activity, "Login Successful", Toast.LENGTH_SHORT).show()
 
-                                // Navigate to the next screen
                                 val intent = Intent(activity, HomeActivity::class.java)
                                 activity.startActivity(intent)
                                 activity.finish()

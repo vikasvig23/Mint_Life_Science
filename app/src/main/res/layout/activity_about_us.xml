@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".aboutUs.AboutUsActivity">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+
+
+            <!-- Centered title -->
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="About Us"
+                android:textSize="25sp"
+                android:textColor="@android:color/white"
+                android:layout_gravity="center"
+                android:textStyle="normal" />
+        </androidx.appcompat.widget.Toolbar>
+
+        <ImageView
+            android:id="@+id/img_about"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/about"
+
+            android:padding="5dp"/>
+
+        <!-- TODO: Update blank fragment layout -->
+        <TextView
+            android:id="@+id/about_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about_us"
+            app:layout_constraintTop_toBottomOf="@+id/img_about"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            app:layout_constrainedWidth="true"
+            android:padding="22dp"
+            android:justificationMode="inter_word"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            app:layout_constraintHorizontal_bias="0.0"
+
+            android:textSize="18dp"
+
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

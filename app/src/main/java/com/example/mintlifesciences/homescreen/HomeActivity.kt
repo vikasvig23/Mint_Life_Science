@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
+import com.example.mintlifesciences.aboutUs.AboutUsActivity
 import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityHomeBinding
 import com.example.mintlifesciences.login.LoginActivity
@@ -110,6 +111,11 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_doctors -> {
                 // Open RecentDoctorsActivity
                 val intent = Intent(this, RecentDoctorsActivity::class.java)
+                startActivity(intent)
+            }
+
+            R.id.nav_about->{
+                val intent=Intent(this, AboutUsActivity::class.java)
                 startActivity(intent)
             }
 
