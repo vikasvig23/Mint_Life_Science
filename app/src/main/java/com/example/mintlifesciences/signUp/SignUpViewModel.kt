@@ -1,7 +1,9 @@
 package com.example.mintlifesciences.signUp
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -18,6 +20,9 @@ class SignUpViewModel(application: Application) : AndroidViewModel(application) 
     private val firebaseDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val databaseReference: DatabaseReference = firebaseDatabase.getReference("Users")
 
+    private val sharedPreferences: SharedPreferences =
+        application.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+
     fun init(activity: SignUpActivity) {
         this.activity = activity
         activity.binding.btn.background = Utility.createGeadientDrawable(
@@ -28,6 +33,11 @@ class SignUpViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun signUp(username: String, email: String, password: String) {
+        with(sharedPreferences.edit()) {
+            putString("userName", username)
+            putString("userEmail", email)
+            apply()
+        }
         val userId = databaseReference.push().key
         val userData = UserData(id = userId, username = username, email = email, password = password)
 
