@@ -1,10 +1,12 @@
 package com.example.mintlifesciences.homescreen
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
+import com.example.mintlifesciences.aboutUs.AboutUsActivity
 import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityHomeBinding
 import com.example.mintlifesciences.login.LoginActivity
@@ -38,6 +41,8 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
         loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
+
+        setupDrawer()
 
 
         adapter = HomeAdapter(emptyList()) { item ->
@@ -84,6 +89,31 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawerToggle.syncState()
 
         binding.navView.setNavigationItemSelectedListener(this)
+
+        val navigationView: NavigationView = findViewById(R.id.nav_view)
+
+        val headerView = navigationView.getHeaderView(0)
+     //   val versionTextView: TextView = headerView.findViewById(R.id.nav_header_version)
+        val versionName = packageManager.getPackageInfo(packageName, 0).versionName
+    //    versionTextView.text = "Version $versionName"
+
+        val versionMenuItem = navigationView.menu.findItem(R.id.nav_version)
+        versionMenuItem.title = "Version $versionName"
+    }
+
+    private fun setupDrawer() {
+        val headerView = binding.navView.getHeaderView(0)
+        val userNameTextView = headerView.findViewById<TextView>(R.id.nav_header_user_name)
+        val userEmailTextView = headerView.findViewById<TextView>(R.id.nav_header_user_email)
+
+        // Retrieve user details from SharedPreferences
+        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val userName = sharedPreferences.getString("userName", "User Name")
+        val userEmail = sharedPreferences.getString("userEmail", "user@example.com")
+
+        // Set user details in the header
+        userNameTextView.text = userName
+        userEmailTextView.text = userEmail
     }
 
     private fun updateUI(items: List<String>?) {
@@ -110,6 +140,11 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_doctors -> {
                 // Open RecentDoctorsActivity
                 val intent = Intent(this, RecentDoctorsActivity::class.java)
+                startActivity(intent)
+            }
+
+            R.id.nav_about->{
+                val intent=Intent(this, AboutUsActivity::class.java)
                 startActivity(intent)
             }
 

@@ -31,7 +31,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    fun login(email: String, password: String) {
+    fun login( email: String, password: String) {
         databaseReference.orderByChild("email").equalTo(email)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -48,10 +48,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
                                 Toast.makeText(activity, "Login Successful", Toast.LENGTH_SHORT).show()
 
-                                // Navigate to the next screen
                                 val intent = Intent(activity, HomeActivity::class.java)
-                                activity.startActivity(intent)
-                                activity.finish()
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                getApplication<Application>().startActivity(intent)
                             } else {
                                 Toast.makeText(activity, "Incorrect Password", Toast.LENGTH_SHORT).show()
                             }

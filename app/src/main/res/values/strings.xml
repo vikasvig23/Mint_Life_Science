@@ -46,5 +46,23 @@
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="about_us">
+       Mint Life Sciences Pvt. Ltd. excels in the manufacturing and distribution of a diverse array
+        of API, pharmaceutical and healthcare products. Our commitment to quality is underscored by
+        our ISO 9001:2015 Certification, and our advanced manufacturing facilities are fully compliant
+        with WHO-GMP standards. Within our extensive product portfolio, we offer a range of critical
+        healthcare solutions. This includes Injectable formulations, Tablets, Capsules, Soft Gelatin
+        Capsules, Oral Liquid preparations such as Syrups and Suspensions, as well as Oral Dry Syrups.
+        \n\n
+        Our offerings extend to External Liquids, Ointments, Creams, Beta lactum Products, General
+        Pharmaceuticals, Nutraceuticals, and even specialized products like Soaps, Shampoo, Eye Drops,
+        Ear Drops, and Oral Sachets and powders. Moreover, we proudly manufacture External Powders,
+        Cosmetics, and hospital grade disinfectants, reflecting our commitment to providing comprehensive
+        healthcare solutions for both humans and animals. With a dedication to excellence and a focus
+        on research-driven, high-quality production, we stand as a trusted partner in the pharmaceutical
+        industry, dedicated to improving health and well-being on a global scale. Our relentless pursuit
+        of innovation and adherence to strict quality standards sets us apart as a leader in the
+        pharmaceutical industry, ensuring that our products consistently meet the highest levels of
+        efficacy and safety.
+    </string>
 </resources>
