@@ -13,12 +13,14 @@
         android:theme="@style/Theme.MintLifeSciences"
         tools:targetApi="31">
         <activity
+            android:name=".medicineDetail.MedicineDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".recentDoctors.RecentDoctorsActivity"
             android:exported="false" />
         <activity
             android:name=".doctorMedicine.MedicineListActivity"
             android:exported="false" />
-
         <activity
             android:name=".doctorMedicine.DoctorMedicineActivity"
             android:exported="false" />
@@ -38,11 +40,13 @@
             android:name=".homescreen.HomeActivity"
             android:exported="false"
             android:launchMode="standard">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".signUp.SignUpActivity"
@@ -50,13 +54,11 @@
         <activity
             android:name=".login.LoginActivity"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-             <intent-filter>
-             <action android:name="android.intent.action.MAIN" />
-
-
-             <category android:name="android.intent.category.LAUNCHER" />
-             </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"

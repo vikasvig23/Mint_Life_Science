@@ -40,7 +40,7 @@ class AddDoctorActivity : AppCompatActivity() {
 
         selectedItem = intent.getStringExtra("SELECTED_ITEM") ?: ""
 
-        adapter = AddDoctorAdapter(this, emptyList(), selectedItem)
+        adapter = AddDoctorAdapter(this, emptyList(), selectedItem, viewModel)
         binding.recDocView.adapter = adapter
         binding.recDocView.layoutManager = LinearLayoutManager(this)
 
@@ -61,13 +61,12 @@ class AddDoctorActivity : AppCompatActivity() {
 
         // Handle back button click
         binding.backArrow.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed() // Handle back button press
+            onBackPressedDispatcher.onBackPressed()
         }
 
         // Handle back button press on system back press
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Custom behavior for back press, if any
                 finish() // Finish the current activity
             }
         })

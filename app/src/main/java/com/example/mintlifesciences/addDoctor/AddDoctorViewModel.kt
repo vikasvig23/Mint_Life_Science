@@ -54,8 +54,8 @@ class AddDoctorViewModel(application: Application):AndroidViewModel(application)
         )
 
         // Reference to the RecentDoctors node in Firebase
-        val databaseReference = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
-        databaseReference.child("RecentDoctors").child(recentDoctor.docName).setValue(recentDoctor)
+        val databaseReference = FirebaseDatabase.getInstance().getReference("RecentDoctors")
+        databaseReference.child(recentDoctor.docName).setValue(recentDoctor)
     }
 
     fun loadDoctorData(selectedItem: String) {
@@ -85,4 +85,19 @@ class AddDoctorViewModel(application: Application):AndroidViewModel(application)
             }
         })
     }
+
+    fun deleteDoctor(brandName: String, doctorName: String) {
+        val databaseReference = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client").child(brandName).child("Doctors")
+        val doctorRef = databaseReference.child(doctorName)
+
+        doctorRef.removeValue().addOnSuccessListener {
+            Log.d("DeleteDoctor", "Doctor $doctorName deleted successfully.")
+        }.addOnFailureListener { e ->
+            Log.e("DeleteDoctor", "Failed to delete doctor: $e")
+        }
+    }
+
+
+
+
 }

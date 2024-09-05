@@ -36,7 +36,7 @@ class DoctorMedicineActivity : AppCompatActivity() {
         binding.docT.text = doctorName
 
         binding.medRec.layoutManager = LinearLayoutManager(this)
-        doctorMedicineAdapter = DoctorMedicineAdapter(this, medicineList)
+        doctorMedicineAdapter = DoctorMedicineAdapter(this, medicineList,brandName)
         binding.medRec.adapter = doctorMedicineAdapter
 
         // Initialize Firebase Database

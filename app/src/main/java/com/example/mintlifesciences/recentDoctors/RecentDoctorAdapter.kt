@@ -22,7 +22,7 @@ class RecentDoctorAdapter(private var docList: List<RecentDoctorData>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecentDoctorViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.doctor_list, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.recent_doctor_list, parent, false)
         return RecentDoctorViewHolder(view)
     }
 

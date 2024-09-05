@@ -111,7 +111,8 @@ class MedicineListActivity : AppCompatActivity() {
 
     ///FUNCTION TO SAVE DOCTOR DATA
     private fun saveDoctorData() {
-        val databaseReference =FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
+        val databaseReference =
+            FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
         databaseReference.child(brandName).child("Doctors").child(doctorName).child("medicines")
             .setValue(selectedMedicines)
             .addOnSuccessListener {
@@ -129,17 +130,16 @@ class MedicineListActivity : AppCompatActivity() {
     }
 
     private fun saveInRecentDoctors() {
-        val databaseReference = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
-        val recentDoctorsRef = databaseReference.child("RecentDoctors")
+        val databaseReference = FirebaseDatabase.getInstance().getReference("RecentDoctors")
 
         // Save the selected medicines under the doctor's name
-        recentDoctorsRef.child(doctorName).child("medicines")
+        databaseReference.child(doctorName).child("medicines")
             .setValue(selectedMedicines)
             .addOnSuccessListener {
                 Log.d("MedicineListActivity", "Doctor data saved to RecentDoctors successfully!")
 
                 // Check if the number of children exceeds 20
-                recentDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         // Get the list of children (doctors) in RecentDoctors
                         val children = snapshot.children.toMutableList()
@@ -147,12 +147,19 @@ class MedicineListActivity : AppCompatActivity() {
                             // Find and remove the oldest doctor (first child)
                             val oldestChild = children.firstOrNull()
                             oldestChild?.key?.let { oldestKey ->
-                                recentDoctorsRef.child(oldestKey).removeValue()
+                                databaseReference.child(oldestKey).removeValue()
                                     .addOnSuccessListener {
-                                        Log.d("MedicineListActivity", "Oldest doctor removed from RecentDoctors")
+                                        Log.d(
+                                            "MedicineListActivity",
+                                            "Oldest doctor removed from RecentDoctors"
+                                        )
                                     }
                                     .addOnFailureListener { e ->
-                                        Log.e("MedicineListActivity", "Failed to remove oldest doctor", e)
+                                        Log.e(
+                                            "MedicineListActivity",
+                                            "Failed to remove oldest doctor",
+                                            e
+                                        )
                                     }
                             }
                         }

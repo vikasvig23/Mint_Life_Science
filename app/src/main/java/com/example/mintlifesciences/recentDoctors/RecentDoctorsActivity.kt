@@ -43,7 +43,7 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
 
         // Initialize Firebase reference
         databaseReference =
-            FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client/RecentDoctors")
+            FirebaseDatabase.getInstance().getReference("RecentDoctors")
 
         // Load recent doctors from Firebase
         loadRecentDoctors()
