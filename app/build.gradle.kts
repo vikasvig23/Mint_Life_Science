@@ -68,6 +68,10 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
+    implementation ("com.codesgood:justifiedtextview:1.1.0")
+
+
+
     implementation(libs.glide)
 
 }

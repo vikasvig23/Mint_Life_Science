@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
+import com.example.mintlifesciences.UserData
 import com.example.mintlifesciences.aboutUs.AboutUsActivity
 import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityHomeBinding
@@ -23,6 +24,12 @@ import com.example.mintlifesciences.login.LoginActivity
 import com.example.mintlifesciences.login.LoginViewModel
 import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.childEvents
 
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -106,14 +113,27 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val userNameTextView = headerView.findViewById<TextView>(R.id.nav_header_user_name)
         val userEmailTextView = headerView.findViewById<TextView>(R.id.nav_header_user_email)
 
-        // Retrieve user details from SharedPreferences
+
         val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-        val userName = sharedPreferences.getString("userName", "User Name")
+        var userName = sharedPreferences.getString("userName", null)
         val userEmail = sharedPreferences.getString("userEmail", "user@example.com")
 
-        // Set user details in the header
-        userNameTextView.text = userName
-        userEmailTextView.text = userEmail
+       if(userName==null && userEmail!=null){
+
+           loginViewModel.fetchUserName(userEmail){ fetchUser->
+               fetchUser?.let { name->
+                   with(sharedPreferences.edit()){
+                       putString("userName",name)
+                       apply()
+                   }
+                   userNameTextView.text=name
+               }
+           }
+       }
+        else{
+            userNameTextView.text=userName
+       }
+        userEmailTextView.text=userEmail
     }
 
     private fun updateUI(items: List<String>?) {
@@ -150,6 +170,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             R.id.nav_logout->{
                 loginViewModel.logout()
+
             }
             // Add more cases here for other items if needed
         }

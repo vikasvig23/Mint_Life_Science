@@ -43,12 +43,14 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                                 with(sharedPreferences.edit()) {
                                     putBoolean("isLoggedIn", true)
                                     putString("userEmail", email)
+                                    //putString("username",user.username)
                                     apply()
                                 }
 
                                 Toast.makeText(activity, "Login Successful", Toast.LENGTH_SHORT).show()
 
                                 val intent = Intent(activity, HomeActivity::class.java)
+
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                 getApplication<Application>().startActivity(intent)
                             } else {
@@ -66,11 +68,35 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             })
     }
 
+    fun fetchUserName(email:String, onComplete:(String)->Unit){
+        databaseReference.orderByChild("email").equalTo(email)
+            .addListenerForSingleValueEvent(object:ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if(snapshot.exists()){
+                        for(userSnapshot in snapshot.children){
+                            val user =  userSnapshot.getValue(UserData::class.java)
+                            user?.username?.let { onComplete(it) }
+                        }
+                    }
+                    else{
+                        onComplete(null.toString())
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    onComplete(null.toString())
+                }
+
+            })
+
+    }
+
     fun logout() {
 
         with(sharedPreferences.edit()) {
             putBoolean("isLoggedIn", false)
             remove("userEmail")
+            remove("userName")
             apply()
         }
 

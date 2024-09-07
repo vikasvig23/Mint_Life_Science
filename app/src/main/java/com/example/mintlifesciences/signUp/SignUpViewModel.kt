@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -11,8 +12,11 @@ import com.example.mintlifesciences.R
 import com.example.mintlifesciences.UserData
 import com.example.mintlifesciences.Utility
 import com.example.mintlifesciences.homescreen.HomeActivity
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class SignUpViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -32,26 +36,38 @@ class SignUpViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
-    fun signUp(username: String, email: String, password: String) {
-        with(sharedPreferences.edit()) {
-            putString("userName", username)
-            putString("userEmail", email)
-            apply()
-        }
-        val userId = databaseReference.push().key
-        val userData = UserData(id = userId, username = username, email = email, password = password)
 
-        userId?.let {
-            databaseReference.child(it).setValue(userData).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(activity, "Sign Up Successful", Toast.LENGTH_SHORT).show()
-                    val intent= Intent(activity,HomeActivity::class.java)
-                    activity.startActivity(intent)
-                    activity.finish()
+    fun signUp(username: String, email: String, password: String) {
+
+        databaseReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    Toast.makeText(activity, "Email already exists", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(activity, "Sign Up Failed", Toast.LENGTH_SHORT).show()
+
+                    val userId = databaseReference.push().key
+                    val userData = UserData(id = userId, username = username, email = email, password = password)
+
+                    userId?.let {
+                        databaseReference.child(it).setValue(userData).addOnCompleteListener { saveTask ->
+                            if (saveTask.isSuccessful) {
+                                Toast.makeText(activity, "Sign Up Successful", Toast.LENGTH_SHORT).show()
+
+                                val intent = Intent(activity, HomeActivity::class.java)
+                                activity.startActivity(intent)
+                                activity.finish()
+                            } else {
+                                Toast.makeText(activity, "Sign Up Failed", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 }
             }
-        }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(activity, "Failed to check email: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }
