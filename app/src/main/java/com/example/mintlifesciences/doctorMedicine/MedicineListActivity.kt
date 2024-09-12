@@ -32,7 +32,6 @@ class MedicineListActivity : AppCompatActivity() {
         binding = ActivityMedicineListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         medicineAdapter =
             MedicineAdapter(this, medicineList, selectedMedicines, alreadySelectedMedicine)
@@ -74,7 +73,8 @@ class MedicineListActivity : AppCompatActivity() {
         dialog.show()
 
         // Initialize Firebase Database
-        database = FirebaseDatabase.getInstance().getReference("brands").child(brandName)
+        database =
+            FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Admin").child(brandName)
 
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -204,63 +204,192 @@ class MedicineListActivity : AppCompatActivity() {
 }
 
 
-//method to add sample medicine fast
-//private fun addSampleMedicines() {
 //
-//    val imageUrl = "https://firebasestorage.googleapis.com/v0/b/mint-life-sciences-admin-app.appspot.com/o/Medicine%20Images%2F1767693582?alt=media&token=8454b9fd-48ed-4295-89c6-b5b5f8657445"
+//    //method to add sample medicine fast
+//    private fun addSampleMedicines() {
 //
-//    val criticalCareMedicines = listOf(
-//        Medicine(
-//            image = "https://firebasestorage.googleapis.com/v0/b/mint-life-sciences-admin-app.appspot.com/o/Medicine%20Images%2F1767693582?alt=media&token=8454b9fd-48ed-4295-89c6-b5b5f8657445",
-//            name = "Bvrol 1000",
-//            salt = "Methylprednisolone 1000mg",
-//            description = "20ml vial",
-//            uses = "Used for various medical conditions",
-//            mrp = "1000"
-//        ),
-//        Medicine(
-//            image = "https://firebasestorage.googleapis.com/v0/b/mint-life-sciences-admin-app.appspot.com/o/Medicine%20Images%2F1767693582?alt=media&token=8454b9fd-48ed-4295-89c6-b5b5f8657445",
-//            name = "Bvrol 40",
-//            salt = "Methylprednisolone 40mg",
-//            description = "10ml vial",
-//            uses = "Used for various medical conditions",
-//            mrp = "400"
-//        ),
-//        // Continue with the rest of the medicines
-//        Medicine(
-//            image = "https://firebasestorage.googleapis.com/v0/b/mint-life-sciences-admin-app.appspot.com/o/Medicine%20Images%2F1767693582?alt=media&token=8454b9fd-48ed-4295-89c6-b5b5f8657445",
-//            name = "Hepamint 25000",
-//            salt = "Heparin 25000 Iu",
-//            description = "4 Thousand IU",
-//            uses = "Used for blood clot prevention",
-//            mrp = "2500"
-//        ),    Medicine(imageUrl, "Izocin 100", "Amikacin (100 Mg/ 2 Ml)", "Antibiotic injection", "Treats bacterial infections", "200"),
-//        Medicine(imageUrl, "Izocin 250", "Amikacin 250 Mg / 2 Ml", "Antibiotic injection", "Treats bacterial infections", "400"),
-//        Medicine(imageUrl, "Izocin 500", "Amikacin 500 Mg Inj / 2 Ml", "Antibiotic injection", "Treats bacterial infections", "800"),
-//        Medicine(imageUrl, "Izodime 1gm", "Ceftazidime 1 Gm", "Antibiotic injection", "Treats bacterial infections", "1000"),
-//        Medicine(imageUrl, "Izoflox Iv 500", "Levofloxacin 500 Mgiv", "Antibiotic injection", "Treats bacterial infections", "500"),
-//        Medicine(imageUrl, "Izomet 500", "Metronidazole 500mg", "Antibiotic injection", "Treats bacterial infections", "250"),
-//        Medicine(imageUrl, "Izone S 1.5", "Cefoperazone 1000 Mg + Sulbactum 500 Mg", "Antibiotic injection", "Treats bacterial infections", "1500"),
-//        Medicine(imageUrl, "Izone S 2Gm", "Cefoperazone 1 Gm + Sulbactum 1 Gm", "Antibiotic injection", "Treats bacterial infections", "2000"),
-//        Medicine(imageUrl, "Izopen C 1gm", "Imipenem 500mg + Cilastatin 500mg", "Antibiotic injection", "Treats bacterial infections", "1800"),
-//        Medicine(imageUrl, "Izopime 1Gm", "Cefepime 1gm Mmg", "Antibiotic injection", "Treats bacterial infections", "1000"),
-//        Medicine(imageUrl, "Izopime T 1.125", "Cefepime 1000 Mg + Tazobactum 125 Mg", "Antibiotic injection", "Treats bacterial infections", "1125"),
-//        Medicine(imageUrl, "Izovox 600", "Linezolid 600 Mg", "Antibiotic injection", "Treats bacterial infections", "600"),
-//        Medicine(imageUrl, "Levemin 500", "Levetiracetam 500mg", "Anticonvulsant injection", "Treats seizures", "500"),
-//        Medicine(imageUrl, "Lexidol", "Tramadol Injection 50mg/ml", "Pain reliever injection", "Treats moderate to severe pain", "50"),
-//        Medicine(imageUrl, "Mint Dex 10", "Dextrose 10%", "Intravenous solution", "Restores blood sugar levels", "10"),
-//        Medicine(imageUrl, "Mint Dex 5", "Dextrose 5%", "Intravenous solution", "Restores blood sugar levels", "5"),
-//        Medicine(imageUrl, "Mint Ns 0.9 (100ml)", "Sodium Chloride 0.9%", "Intravenous solution", "Restores electrolytes", "100"),
-//        Medicine(imageUrl, "Mint Ns 0.9 (500ml)", "Sodium Chloride 0.9%", "Intravenous solution", "Restores electrolytes", "500")
-//    )
+//        val imageUrl =
+//            "https://firebasestorage.googleapis.com/v0/b/mint-life-sciences-admin-app.appspot.com/o/Medicine%20Images%2F1767693582?alt=media&token=8454b9fd-48ed-4295-89c6-b5b5f8657445"
 //
-//    criticalCareMedicines.forEach { medicine ->
-//        database.child(medicine.name!!).setValue(medicine)
-//            .addOnSuccessListener {
-//                println("${medicine.name} added successfully!")
-//            }
-//            .addOnFailureListener { e ->
-//                println("Failed to add ${medicine.name}: ${e.message}")
-//            }
+//        val criticalCareMedicines = listOf(
+//            Medicine(
+//                image = "https://firebasestorage.googleapis.com/v0/b/mint-life-sciences-admin-app.appspot.com/o/Medicine%20Images%2F1767693582?alt=media&token=8454b9fd-48ed-4295-89c6-b5b5f8657445",
+//                name = "Bvrol 1000",
+//                salt = "Methylprednisolone 1000mg",
+//                description = "20ml vial",
+//                uses = "Used for various medical conditions",
+//                mrp = "1000"
+//            ),
+//            Medicine(
+//                image = "https://firebasestorage.googleapis.com/v0/b/mint-life-sciences-admin-app.appspot.com/o/Medicine%20Images%2F1767693582?alt=media&token=8454b9fd-48ed-4295-89c6-b5b5f8657445",
+//                name = "Bvrol 40",
+//                salt = "Methylprednisolone 40mg",
+//                description = "10ml vial",
+//                uses = "Used for various medical conditions",
+//                mrp = "400"
+//            ),
+//            // Continue with the rest of the medicines
+//            Medicine(
+//                image = "https://firebasestorage.googleapis.com/v0/b/mint-life-sciences-admin-app.appspot.com/o/Medicine%20Images%2F1767693582?alt=media&token=8454b9fd-48ed-4295-89c6-b5b5f8657445",
+//                name = "Hepamint 25000",
+//                salt = "Heparin 25000 Iu",
+//                description = "4 Thousand IU",
+//                uses = "Used for blood clot prevention",
+//                mrp = "2500"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izocin 100",
+//                "Amikacin (100 Mg/ 2 Ml)",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "200"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izocin 250",
+//                "Amikacin 250 Mg / 2 Ml",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "400"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izocin 500",
+//                "Amikacin 500 Mg Inj / 2 Ml",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "800"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izodime 1gm",
+//                "Ceftazidime 1 Gm",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "1000"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izoflox Iv 500",
+//                "Levofloxacin 500 Mgiv",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "500"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izomet 500",
+//                "Metronidazole 500mg",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "250"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izone S 1.5",
+//                "Cefoperazone 1000 Mg + Sulbactum 500 Mg",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "1500"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izone S 2Gm",
+//                "Cefoperazone 1 Gm + Sulbactum 1 Gm",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "2000"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izopen C 1gm",
+//                "Imipenem 500mg + Cilastatin 500mg",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "1800"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izopime 1Gm",
+//                "Cefepime 1gm Mmg",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "1000"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izopime T 1.125",
+//                "Cefepime 1000 Mg + Tazobactum 125 Mg",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "1125"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Izovox 600",
+//                "Linezolid 600 Mg",
+//                "Antibiotic injection",
+//                "Treats bacterial infections",
+//                "600"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Levemin 500",
+//                "Levetiracetam 500mg",
+//                "Anticonvulsant injection",
+//                "Treats seizures",
+//                "500"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Lexidol",
+//                "Tramadol Injection 50mg/ml",
+//                "Pain reliever injection",
+//                "Treats moderate to severe pain",
+//                "50"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Mint Dex 10",
+//                "Dextrose 10%",
+//                "Intravenous solution",
+//                "Restores blood sugar levels",
+//                "10"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Mint Dex 5",
+//                "Dextrose 5%",
+//                "Intravenous solution",
+//                "Restores blood sugar levels",
+//                "5"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Mint Ns 0.9 (100ml)",
+//                "Sodium Chloride 0.9%",
+//                "Intravenous solution",
+//                "Restores electrolytes",
+//                "100"
+//            ),
+//            Medicine(
+//                imageUrl,
+//                "Mint Ns 0.9 (500ml)",
+//                "Sodium Chloride 0.9%",
+//                "Intravenous solution",
+//                "Restores electrolytes",
+//                "500"
+//            )
+//        )
+//
+//        criticalCareMedicines.forEach { medicine ->
+//            database.child(medicine.name!!).setValue(medicine)
+//                .addOnSuccessListener {
+//                    println("${medicine.name} added successfully!")
+//                }
+//                .addOnFailureListener { e ->
+//                    println("Failed to add ${medicine.name}: ${e.message}")
+//                }
+//        }
 //    }
-//}
