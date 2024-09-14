@@ -87,17 +87,38 @@ class AddDoctorViewModel(application: Application):AndroidViewModel(application)
     }
 
     fun deleteDoctor(brandName: String, doctorName: String) {
-        val databaseReference = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client").child(brandName).child("Doctors")
-        val doctorRef = databaseReference.child(doctorName)
+        val databaseReference = FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Client")
+        val doctorRef = databaseReference.child(brandName).child("Doctors").child(doctorName)
+
 
         doctorRef.removeValue().addOnSuccessListener {
             Log.d("DeleteDoctor", "Doctor $doctorName deleted successfully.")
+
+
+            val brandDoctorsRef = databaseReference.child(brandName).child("Doctors")
+            brandDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!snapshot.exists() || snapshot.childrenCount == 0L) {
+
+                        brandDoctorsRef.child("no_doctors").setValue(true)
+                            .addOnSuccessListener {
+                                Log.d("DeleteDoctor", "Placeholder added under $brandName to preserve the brand.")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("DeleteDoctor", "Failed to add placeholder: $e")
+                            }
+                    } else {
+                        Log.d("DeleteDoctor", "Doctors still exist under brand: $brandName.")
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("DeleteDoctor", "Failed to check remaining doctors: ${error.message}")
+                }
+            })
         }.addOnFailureListener { e ->
             Log.e("DeleteDoctor", "Failed to delete doctor: $e")
         }
     }
-
-
-
 
 }
