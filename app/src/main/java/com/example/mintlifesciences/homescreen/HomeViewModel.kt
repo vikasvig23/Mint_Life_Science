@@ -72,6 +72,7 @@ class HomeViewModel (application: Application) : AndroidViewModel(application) {
                         _items.value = initialList
                         saveInitialListToFirebase(initialList)
                     }
+
                     _loading.value = false
                 }
 
