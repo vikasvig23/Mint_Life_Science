@@ -1,4 +1,4 @@
-package com.example.mintlifesciences.Adapters
+package com.example.mintlifesciences.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.mintlifesciences.Model.Medicine
+import com.example.mintlifesciences.model.Medicine
 import com.example.mintlifesciences.R
 
 class DoctorMedicineAdapter(

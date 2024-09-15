@@ -1,4 +1,4 @@
-package com.example.mintlifesciences.Model
+package com.example.mintlifesciences.model
 
 data class Medicine(
     var image: String? = "",

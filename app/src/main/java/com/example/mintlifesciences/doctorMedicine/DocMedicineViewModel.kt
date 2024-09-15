@@ -6,7 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.mintlifesciences.Model.Medicine
+import com.example.mintlifesciences.model.Medicine
 import kotlinx.coroutines.launch
 
 class DocMedicineViewModel(application: Application) : AndroidViewModel(application) {

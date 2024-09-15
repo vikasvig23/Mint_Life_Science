@@ -8,8 +8,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.mintlifesciences.Adapters.DoctorMedicineAdapter
-import com.example.mintlifesciences.Model.Medicine
+import com.example.mintlifesciences.adapters.DoctorMedicineAdapter
+import com.example.mintlifesciences.model.Medicine
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.addDoctor.DoctorData
 import com.example.mintlifesciences.databinding.ActivityDoctorMedicineBinding

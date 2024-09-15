@@ -1,6 +1,6 @@
 package com.example.mintlifesciences.addDoctor
 
-import com.example.mintlifesciences.Model.Medicine
+import com.example.mintlifesciences.model.Medicine
 
 data class DoctorData(
     val docName: String = "",

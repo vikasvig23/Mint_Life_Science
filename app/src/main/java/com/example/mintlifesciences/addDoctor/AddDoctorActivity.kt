@@ -29,7 +29,6 @@ class AddDoctorActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_doctor)
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         supportActionBar?.setDisplayShowTitleEnabled(false)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_add_doctor)
 

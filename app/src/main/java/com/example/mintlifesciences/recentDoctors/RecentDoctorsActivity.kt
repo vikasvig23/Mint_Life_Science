@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -54,6 +55,19 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
 
         // Load recent doctors from Firebase
         loadRecentDoctors()
+
+        // Handle back button press on system back press
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                } else {
+                    // Custom behavior for back press, if any
+                    finish() // Finish the current activity
+                }
+            }
+        })
+
     }
 
     private fun loadRecentDoctors() {
@@ -90,12 +104,12 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
                 startActivity(intent)
             }
             // Handle other menu items here
-            R.id.nav_about->{
-                val intent=Intent(this, AboutUsActivity::class.java)
+            R.id.nav_about -> {
+                val intent = Intent(this, AboutUsActivity::class.java)
                 startActivity(intent)
             }
 
-            R.id.nav_logout->{
+            R.id.nav_logout -> {
                 loginViewModel.logout()
             }
         }
@@ -104,11 +118,5 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         return true
     }
 
-    override fun onBackPressed() {
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
-    }
+
 }

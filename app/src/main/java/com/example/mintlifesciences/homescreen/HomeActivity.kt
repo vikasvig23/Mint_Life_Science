@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -106,6 +107,19 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val versionMenuItem = navigationView.menu.findItem(R.id.nav_version)
         versionMenuItem.title = "Version $versionName"
+
+        // Handle back button press on system back press
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                } else {
+                    // Custom behavior for back press, if any
+                    finish() // Finish the current activity
+                }
+            }
+        })
+
     }
 
     private fun setupDrawer() {
@@ -178,15 +192,4 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            // Close the drawer if it is open
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            // Handle back press as usual
-            onBackPressedDispatcher.onBackPressed()
-        }
-    }
 }

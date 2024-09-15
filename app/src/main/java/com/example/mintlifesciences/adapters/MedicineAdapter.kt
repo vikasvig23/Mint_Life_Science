@@ -1,4 +1,4 @@
-package com.example.mintlifesciences.Adapters
+package com.example.mintlifesciences.adapters
 
 import android.content.Context
 import android.util.Log
@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mintlifesciences.Model.Medicine
+import com.example.mintlifesciences.model.Medicine
 import com.example.mintlifesciences.R
 
 class MedicineAdapter(
