@@ -89,8 +89,8 @@ class AddDoctorActivity : AppCompatActivity() {
             .create()
 
         dialogView.findViewById<AppCompatButton>(R.id.cnfrmBtn).setOnClickListener {
-            var name = docName.text.toString()
-            var speciality = docSpec.text.toString()
+            var name = docName.text.toString().trim()
+            var speciality = docSpec.text.toString().trim()
 
             if (name.isNotEmpty()) {
                 name = name.replaceFirstChar { it.uppercase() }

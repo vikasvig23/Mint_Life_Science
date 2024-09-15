@@ -65,6 +65,8 @@ class AddDoctorViewModel(application: Application):AndroidViewModel(application)
             override fun onDataChange(snapshot: DataSnapshot) {
                 val doctorList = mutableListOf<DoctorData>()
                 for (doctorSnapshot in snapshot.children) {
+
+                    if (doctorSnapshot.key != "no_doctors") {
                     val doctor = doctorSnapshot.getValue(DoctorData::class.java)
                     if(doctor!=null){
                         Log.d("FirebaseData","Doctor: $doctor")
@@ -73,6 +75,9 @@ class AddDoctorViewModel(application: Application):AndroidViewModel(application)
                     else {
                         Log.e("FirebaseData", "Error parsing doctor data.")
                     }
+                       } else {
+                            Log.d("FirebaseData", "Skipping placeholder value.")
+                        }
 
                     //doctor?.let { doctorList.add(it) }
                 }
