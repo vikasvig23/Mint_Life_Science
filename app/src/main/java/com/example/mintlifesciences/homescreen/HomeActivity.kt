@@ -2,6 +2,7 @@ package com.example.mintlifesciences.homescreen
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -26,6 +27,7 @@ import com.example.mintlifesciences.databinding.ActivityHomeBinding
 import com.example.mintlifesciences.login.LoginActivity
 import com.example.mintlifesciences.login.LoginViewModel
 import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
+import com.example.mintlifesciences.utils.AppUtils
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -100,7 +102,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         binding.navView.setNavigationItemSelectedListener(this)
 
-        val navigationView: NavigationView = findViewById(R.id.nav_view)
 
 //        val headerView = navigationView.getHeaderView(0)
 //     //   val versionTextView: TextView = headerView.findViewById(R.id.nav_header_version)
@@ -110,19 +111,18 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //        val versionMenuItem = navigationView.menu.findItem(R.id.nav_version)
 //        versionMenuItem.title = "Version $versionName"
 
-        val versionName = try {
-            val packageInfo: PackageInfo = packageManager.getPackageInfo(packageName, 0)
-            packageInfo.versionName
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-            "1.0.0"
-        }
+//        val versionName = try {
+//            val packageInfo: PackageInfo = packageManager.getPackageInfo(packageName, 0)
+//            packageInfo.versionName
+//        } catch (e: PackageManager.NameNotFoundException) {
+//            e.printStackTrace()
+//            "1.0.0"
+//        }
 
 
+        val versionName = AppUtils.getAppVersion(this)
         val navView = findViewById<NavigationView>(R.id.nav_view)
-
         val versionTextView = navView.findViewById<TextView>(R.id.nav_ver)
-
         versionTextView.text = "MintLifeSciences $versionName"
 
 
@@ -193,6 +193,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 // Open RecentDoctorsActivity
                 val intent = Intent(this, RecentDoctorsActivity::class.java)
                 startActivity(intent)
+                finish()
             }
 
             R.id.nav_about->{
@@ -208,6 +209,16 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    private fun getAppVersionName(): String {
+        return try {
+            val packageInfo: PackageInfo = packageManager.getPackageInfo(packageName, 0)
+            packageInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+            "1.0.0" // Default version in case of an error
+        }
     }
 
 }

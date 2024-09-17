@@ -17,7 +17,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-
 class SignUpViewModel(application: Application) : AndroidViewModel(application) {
 
     private lateinit var activity: SignUpActivity
@@ -36,7 +35,6 @@ class SignUpViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
-
     fun signUp(username: String, email: String, password: String) {
 
         databaseReference.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object :
@@ -52,8 +50,12 @@ class SignUpViewModel(application: Application) : AndroidViewModel(application) 
                     userId?.let {
                         databaseReference.child(it).setValue(userData).addOnCompleteListener { saveTask ->
                             if (saveTask.isSuccessful) {
+                                // Store userId in SharedPreferences
+                                sharedPreferences.edit().putString("userId", it).apply()
+
                                 Toast.makeText(activity, "Sign Up Successful", Toast.LENGTH_SHORT).show()
 
+                                // Start HomeActivity
                                 val intent = Intent(activity, HomeActivity::class.java)
                                 activity.startActivity(intent)
                                 activity.finish()

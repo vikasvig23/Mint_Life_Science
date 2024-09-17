@@ -1,9 +1,14 @@
 package com.example.mintlifesciences.recentDoctors
 
+import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +19,9 @@ import com.example.mintlifesciences.R
 import com.example.mintlifesciences.aboutUs.AboutUsActivity
 import com.example.mintlifesciences.databinding.ActivityRecentDoctorsBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
+import com.example.mintlifesciences.login.LoginActivity
 import com.example.mintlifesciences.login.LoginViewModel
+import com.example.mintlifesciences.utils.AppUtils
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.database.*
 
@@ -25,6 +32,7 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var loginViewModel: LoginViewModel
 
+    private lateinit var userId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,8 +41,19 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
 
         loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
+        // Retrieve userId from SharedPreferences
+        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        userId = sharedPreferences.getString("userId", "null") ?: "null"
+
+        if (userId.isNullOrEmpty()) {
+            Log.e("RecentDoctorsActivity", "User ID is null or empty, cannot load recent doctors.")
+            loginViewModel.logout()
+            return
+        }
 
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.title = "Recent Doctors"
+
         drawerToggle = ActionBarDrawerToggle(
             this, binding.drawerLayout, binding.toolbar,
             R.string.open_nav, R.string.close_nav
@@ -42,7 +61,12 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         binding.drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
 
-        binding.navView.setNavigationItemSelectedListener(this)
+        binding.recentNavView.setNavigationItemSelectedListener(this)
+
+        val versionName = AppUtils.getAppVersion(this)
+        val navView = findViewById<NavigationView>(R.id.recent_nav_view)
+        val versionTextView = navView.findViewById<TextView>(R.id.recent_nav_ver)
+        versionTextView.text = "MintLifeSciences $versionName"
 
         // Set up RecyclerView
         adapter = RecentDoctorAdapter(emptyList())
@@ -50,8 +74,8 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         binding.recDocView.adapter = adapter
 
         // Initialize Firebase reference
-        databaseReference =
-            FirebaseDatabase.getInstance().getReference("RecentDoctors")
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users")
+            .child(userId).child("RecentDoctors")
 
         // Load recent doctors from Firebase
         loadRecentDoctors()
@@ -62,24 +86,33 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
                 if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     binding.drawerLayout.closeDrawer(GravityCompat.START)
                 } else {
-                    // Custom behavior for back press, if any
                     finish() // Finish the current activity
                 }
             }
         })
-
     }
 
+    // Load recent doctors from Firebase
     private fun loadRecentDoctors() {
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val doctors = mutableListOf<RecentDoctorData>()
+
+                // Iterate through each child node under RecentDoctors
                 for (data in snapshot.children) {
                     val doctor = data.getValue(RecentDoctorData::class.java)
                     if (doctor != null) {
                         doctors.add(doctor)
+                    } else {
+                        Log.e("RecentDoctorsActivity", "Invalid doctor data at: ${data.key}")
                     }
                 }
+
+                if (doctors.isEmpty()) {
+                    Log.d("RecentDoctorsActivity", "No recent doctors found")
+                }
+
+                // Update the adapter with the list of doctors
                 adapter.updateList(doctors)
             }
 
@@ -98,12 +131,11 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
             }
 
             R.id.nav_doctors -> {
-                // Open RecentDoctorsActivity
                 val intent = Intent(this, RecentDoctorsActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 startActivity(intent)
             }
-            // Handle other menu items here
+
             R.id.nav_about -> {
                 val intent = Intent(this, AboutUsActivity::class.java)
                 startActivity(intent)
@@ -117,6 +149,4 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
-
-
 }

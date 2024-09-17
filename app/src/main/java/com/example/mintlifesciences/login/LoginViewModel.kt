@@ -14,6 +14,7 @@ import com.example.mintlifesciences.Utility
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.google.firebase.database.*
 
+
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private lateinit var activity: LoginActivity
@@ -31,7 +32,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    fun login( email: String, password: String) {
+    fun login(email: String, password: String) {
         databaseReference.orderByChild("email").equalTo(email)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -39,18 +40,17 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                         for (userSnapshot in snapshot.children) {
                             val user = userSnapshot.getValue(UserData::class.java)
                             if (user?.password == password) {
-                                // Save login state
+                                // Save login state and userId
                                 with(sharedPreferences.edit()) {
                                     putBoolean("isLoggedIn", true)
                                     putString("userEmail", email)
-                                    //putString("username",user.username)
+                                    putString("userId", user.id)  // Save userId
                                     apply()
                                 }
 
                                 Toast.makeText(activity, "Login Successful", Toast.LENGTH_SHORT).show()
 
                                 val intent = Intent(activity, HomeActivity::class.java)
-
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                 getApplication<Application>().startActivity(intent)
                             } else {
@@ -68,17 +68,16 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             })
     }
 
-    fun fetchUserName(email:String, onComplete:(String)->Unit){
+    fun fetchUserName(email: String, onComplete: (String) -> Unit) {
         databaseReference.orderByChild("email").equalTo(email)
-            .addListenerForSingleValueEvent(object:ValueEventListener{
+            .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if(snapshot.exists()){
-                        for(userSnapshot in snapshot.children){
-                            val user =  userSnapshot.getValue(UserData::class.java)
+                    if (snapshot.exists()) {
+                        for (userSnapshot in snapshot.children) {
+                            val user = userSnapshot.getValue(UserData::class.java)
                             user?.username?.let { onComplete(it) }
                         }
-                    }
-                    else{
+                    } else {
                         onComplete(null.toString())
                     }
                 }
@@ -86,17 +85,14 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 override fun onCancelled(error: DatabaseError) {
                     onComplete(null.toString())
                 }
-
             })
-
     }
 
     fun logout() {
-
         with(sharedPreferences.edit()) {
             putBoolean("isLoggedIn", false)
             remove("userEmail")
-            remove("userName")
+            remove("userId") // Remove userId on logout
             apply()
         }
 

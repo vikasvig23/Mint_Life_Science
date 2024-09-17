@@ -26,13 +26,13 @@ class AddDoctorActivity : AppCompatActivity() {
     private lateinit var viewModel: AddDoctorViewModel
     private lateinit var adapter: AddDoctorAdapter
     private lateinit var selectedItem: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_doctor)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_add_doctor)
 
-        //binding.btn.setOnClickListener(this)
         binding.recDocView.layoutManager = LinearLayoutManager(this)
         viewModel = ViewModelProvider(this)[AddDoctorViewModel::class.java]
         viewModel.init(this)
@@ -41,16 +41,14 @@ class AddDoctorActivity : AppCompatActivity() {
 
         adapter = AddDoctorAdapter(this, emptyList(), selectedItem, viewModel)
         binding.recDocView.adapter = adapter
-        binding.recDocView.layoutManager = LinearLayoutManager(this)
 
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false) // Disable default title
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        viewModel.loadDoctorData(selectedItem)
         viewModel.loadDoctorData(selectedItem)
 
         viewModel.docData.observe(this, Observer { doctors ->
-            Log.d("MainActivity", "Received data: $doctors")
+            Log.d("AddDoctorActivity", "Received data: $doctors")
             adapter.updateList(doctors)
         })
 
@@ -58,12 +56,10 @@ class AddDoctorActivity : AppCompatActivity() {
             showDoctorDialog()
         }
 
-        // Handle back button click
         binding.backArrow.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        // Handle back button press on system back press
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 finish() // Finish the current activity
@@ -77,28 +73,17 @@ class AddDoctorActivity : AppCompatActivity() {
         dialogView.setOnClickListener {
             val intent = Intent(this, DoctorMedicineActivity::class.java)
             startActivity(intent)
-            finish()
         }
 
         val docName = dialogView.findViewById<TextInputEditText>(R.id.doc_edit)
         val docSpec = dialogView.findViewById<TextInputEditText>(R.id.spec_edit)
         val dialog = AlertDialog.Builder(this)
-            // .setTitle("Add Person")
             .setView(dialogView)
-            //  .setNegativeButton("Cancel", null)
             .create()
 
         dialogView.findViewById<AppCompatButton>(R.id.cnfrmBtn).setOnClickListener {
-            var name = docName.text.toString().trim()
-            var speciality = docSpec.text.toString().trim()
-
-            if (name.isNotEmpty()) {
-                name = name.replaceFirstChar { it.uppercase() }
-            }
-
-            if (speciality.isNotEmpty()) {
-                speciality = speciality.replaceFirstChar { it.uppercase() }
-            }
+            val name = docName.text?.toString()?.trim()?.split(" ")?.joinToString(" ") { it.capitalize() } ?: ""
+            val speciality = docSpec.text?.toString()?.trim()?.split(" ")?.joinToString(" ") { it.capitalize() } ?: ""
 
             if (name.isEmpty() || speciality.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
@@ -107,7 +92,7 @@ class AddDoctorActivity : AppCompatActivity() {
 
             val doctor = DoctorData(name, speciality)
             viewModel.saveDoctorData(selectedItem, doctor)
-            viewModel.addDoctor(DoctorData(name, speciality))
+            viewModel.addDoctor(doctor)  // Ensure both methods are necessary
             dialog.dismiss()
         }
 

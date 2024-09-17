@@ -19,7 +19,7 @@
             android:name=".recentDoctors.RecentDoctorsActivity"
             android:exported="false" />
         <activity
-            android:name=".doctorMedicine.MedicineListActivity"
+            android:name=".Medicine.MedicineListActivity"
             android:exported="false" />
         <activity
             android:name=".doctorMedicine.DoctorMedicineActivity"
