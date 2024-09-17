@@ -102,24 +102,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         binding.navView.setNavigationItemSelectedListener(this)
 
-
-//        val headerView = navigationView.getHeaderView(0)
-//     //   val versionTextView: TextView = headerView.findViewById(R.id.nav_header_version)
-//        val versionName = packageManager.getPackageInfo(packageName, 0).versionName
-//    //    versionTextView.text = "Version $versionName"
-//
-//        val versionMenuItem = navigationView.menu.findItem(R.id.nav_version)
-//        versionMenuItem.title = "Version $versionName"
-
-//        val versionName = try {
-//            val packageInfo: PackageInfo = packageManager.getPackageInfo(packageName, 0)
-//            packageInfo.versionName
-//        } catch (e: PackageManager.NameNotFoundException) {
-//            e.printStackTrace()
-//            "1.0.0"
-//        }
-
-
         val versionName = AppUtils.getAppVersion(this)
         val navView = findViewById<NavigationView>(R.id.nav_view)
         val versionTextView = navView.findViewById<TextView>(R.id.nav_ver)
@@ -209,16 +191,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    private fun getAppVersionName(): String {
-        return try {
-            val packageInfo: PackageInfo = packageManager.getPackageInfo(packageName, 0)
-            packageInfo.versionName
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-            "1.0.0" // Default version in case of an error
-        }
     }
 
 }
