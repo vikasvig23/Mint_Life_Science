@@ -12,6 +12,7 @@ import com.example.mintlifesciences.R
 import com.example.mintlifesciences.UserData
 import com.example.mintlifesciences.Utility
 import com.example.mintlifesciences.homescreen.HomeActivity
+import com.example.mintlifesciences.login.LoginActivity
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -53,10 +54,10 @@ class SignUpViewModel(application: Application) : AndroidViewModel(application) 
                                 // Store userId in SharedPreferences
                                 sharedPreferences.edit().putString("userId", it).apply()
 
-                                Toast.makeText(activity, "Sign Up Successful", Toast.LENGTH_SHORT).show()
+                           //     Toast.makeText(activity, "Sign Up Successful", Toast.LENGTH_SHORT).show()
 
                                 // Start HomeActivity
-                                val intent = Intent(activity, HomeActivity::class.java)
+                                val intent = Intent(activity, LoginActivity::class.java)
                                 activity.startActivity(intent)
                                 activity.finish()
                             } else {

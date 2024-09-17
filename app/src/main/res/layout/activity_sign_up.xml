@@ -82,6 +82,7 @@
             app:layout_constraintTop_toBottomOf="@+id/emailInputLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:passwordToggleEnabled="true"
             android:layout_marginTop="10dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -108,7 +109,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="10dp"
-            android:text="login"/>
+            android:text="Sign Up"/>
 
         <TextView
             android:id="@+id/txt2"
@@ -119,7 +120,7 @@
             app:layout_constraintEnd_toStartOf="@+id/txt3"
             android:layout_marginTop="40dp"
             android:layout_marginStart="55dp"
-            android:text="Already Have an Acount?"
+            android:text="Already Have an Account?"
             />
         <TextView
             android:id="@+id/txt3"

@@ -1,5 +1,6 @@
 package com.example.mintlifesciences.homescreen
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -70,26 +71,26 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             updateUI(items)
         })
 
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.refreshData()
-            Handler().postDelayed({
-                binding.swipeRefreshLayout.isRefreshing = false
-            }, 5000)
-        }
+//        binding.swipeRefreshLayout.setOnRefreshListener {
+//            viewModel.refreshData()
+//            Handler().postDelayed({
+//                binding.swipeRefreshLayout.isRefreshing = false
+//            }, 5000)
+//        }
 
-        viewModel.loading.observe(this, Observer { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            if (!isLoading) {
-                binding.swipeRefreshLayout.isRefreshing = false
-            }
-        })
-
-        viewModel.error.observe(this, Observer { errorMessage ->
-            errorMessage?.let {
-                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-                viewModel.errorHandled()
-            }
-        })
+//        viewModel.loading.observe(this, Observer { isLoading ->
+//            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+//            if (!isLoading) {
+//                binding.swipeRefreshLayout.isRefreshing = false
+//            }
+//        })
+//
+//        viewModel.error.observe(this, Observer { errorMessage ->
+//            errorMessage?.let {
+//                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+//                viewModel.errorHandled()
+//            }
+//        })
 
         // Navigation drawer setup
         setSupportActionBar(binding.toolbar)
@@ -157,9 +158,14 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun navigateToMainActivity(item: String) {
+        if (viewModel.isNetworkAvailable(getApplication().applicationContext)){
         val intent = Intent(this, AddDoctorActivity::class.java)
         intent.putExtra("SELECTED_ITEM", item)
         startActivity(intent)
+    }
+        else {
+            Toast.makeText(this,"Please Check Your Internet Connection",Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

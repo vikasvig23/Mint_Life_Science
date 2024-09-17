@@ -64,6 +64,7 @@
             app:layout_constraintTop_toBottomOf="@+id/emailInputLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:passwordToggleEnabled="true"
             android:layout_marginTop="10dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -102,7 +103,7 @@
             app:layout_constraintEnd_toStartOf="@+id/txt3"
             android:layout_marginTop="40dp"
             android:layout_marginStart="65dp"
-            android:text="Not Yet Register?"
+            android:text="Not Yet Registered?"
             />
         <TextView
             android:id="@+id/txt3"

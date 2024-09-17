@@ -42,53 +42,63 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     // Initialize the ViewModel
     fun init(activity: HomeActivity) {
-        fetchDataFromFirebase()
+     //   fetchDataFromFirebase()
         this.activity = activity
+
+        val initialList = listOf(
+            "Mini Life Sciences Pvt Ltd",
+            "USP Life Sciences",
+            "USP Medicraft",
+            "Critical Care",
+            "Gyno Care",
+            "Bv-Clean"
+        )
+        _items.value = initialList
     }
 
-    fun refreshData() {
-        fetchDataFromFirebase()
-    }
+//    fun refreshData() {
+//        fetchDataFromFirebase()
+//    }
 
-    private fun fetchDataFromFirebase() {
-        _loading.value = true
-
-        if (!isNetworkAvailable(getApplication<Application>().applicationContext)) {
-            _loading.value = false
-            _error.value = "No Internet Connection"
-            return
-        }
-
-        databaseRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    val itemList = mutableListOf<String>()
-                    for (itemSnapshot in snapshot.children) {
-                        itemSnapshot.key?.let { itemList.add(it) }
-                    }
-                    _items.value = itemList
-                } else {
-                    val initialList = listOf(
-                        "Mini Life Sciences Pvt Ltd",
-                        "USP Life Sciences",
-                        "USP Medicraft",
-                        "Critical Care",
-                        "Gyno Care",
-                        "Bv-Clean"
-                    )
-                    _items.value = initialList
-                    saveInitialListToFirebase(initialList)
-                }
-
-                _loading.value = false
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                _loading.value = false
-                _error.value = error.message
-            }
-        })
-    }
+//    private fun fetchDataFromFirebase() {
+//        _loading.value = true
+//
+//        if (!isNetworkAvailable(getApplication<Application>().applicationContext)) {
+//            _loading.value = false
+//            _error.value = "No Internet Connection"
+//            return
+//        }
+//
+//        databaseRef.addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                if (snapshot.exists()) {
+//                    val itemList = mutableListOf<String>()
+//                    for (itemSnapshot in snapshot.children) {
+//                        itemSnapshot.key?.let { itemList.add(it) }
+//                    }
+//                    _items.value = itemList
+//                } else {
+//                    val initialList = listOf(
+//                        "Mini Life Sciences Pvt Ltd",
+//                        "USP Life Sciences",
+//                        "USP Medicraft",
+//                        "Critical Care",
+//                        "Gyno Care",
+//                        "Bv-Clean"
+//                    )
+//                    _items.value = initialList
+//                    saveInitialListToFirebase(initialList)
+//                }
+//
+//                _loading.value = false
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//                _loading.value = false
+//                _error.value = error.message
+//            }
+//        })
+//    }
 
     private fun saveInitialListToFirebase(initialList: List<String>) {
         for (item in initialList) {
