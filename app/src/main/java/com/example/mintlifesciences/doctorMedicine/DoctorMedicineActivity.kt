@@ -61,7 +61,7 @@ class DoctorMedicineActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false) // Disable default title
 
-        binding.docT.text = doctorName
+        //binding.docT.text = doctorName
 
         // Set up RecyclerView
         binding.medRec.layoutManager = LinearLayoutManager(this)
@@ -71,7 +71,7 @@ class DoctorMedicineActivity : AppCompatActivity() {
         // Initialize Firebase Database reference
         database = FirebaseDatabase.getInstance().getReference("Users")
             .child(userId).child("Mint_Life_Science_Client")
-            .child(brandName).child("Doctors").child(doctorName)
+            .child("Doctors").child(doctorName)
 
         // Fetch doctor details and medicines
         fetchDoctorDetails()
@@ -108,24 +108,28 @@ class DoctorMedicineActivity : AppCompatActivity() {
         database.get().addOnSuccessListener { dataSnapshot ->
             val doctorData = dataSnapshot.getValue(DoctorData::class.java)
             if (doctorData != null) {
-                // Fetch medicines from the "medicines" node
-                val medicinesSnapshot = dataSnapshot.child("medicines")
+                val brandSnapshot = dataSnapshot.child("medicines").child(brandName)
+
                 medicineList.clear()
 
-                for (medicineSnapshot in medicinesSnapshot.children) {
-                    val medicine = medicineSnapshot.getValue(Medicine::class.java)
-                    if (medicine != null) {
-                        medicineList.add(medicine)
+                if (brandSnapshot.exists()) {
+                    for (medicineSnapshot in brandSnapshot.children) {
+                        val medicine = medicineSnapshot.getValue(Medicine::class.java)
+                        if (medicine != null) {
+                            medicineList.add(medicine)
+                        }
+                    }
+
+                    if (medicineList.isNotEmpty()) {
+                        doctorMedicineAdapter.updateMedicineList(medicineList)
+                    } else {
+                        Toast.makeText(this, "No medicines found for the selected brand", Toast.LENGTH_SHORT).show()
                     }
                 }
-
-                // Notify the adapter
-                doctorMedicineAdapter.updateMedicineList(medicineList)
-            } else {
-                Toast.makeText(this, "No doctor data found", Toast.LENGTH_SHORT).show()
             }
         }.addOnFailureListener { e ->
-            Log.e("DoctorMedicineActivity", "Failed to fetch doctor data", e)
+            Log.e("DoctorMedicineActivity", "Failed to fetch medicines", e)
+            Toast.makeText(this, "Failed to load medicines", Toast.LENGTH_SHORT).show()
         }
     }
 }

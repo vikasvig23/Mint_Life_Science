@@ -33,7 +33,6 @@ class DoctorMedicineAdapter(
 
         holder.medicineDescription.text = medicine.description
         holder.medicineSalt.text = "Salt: ${medicine.salt}"
-
         Glide.with(context)
             .load(medicine.image)
             .placeholder(R.drawable.logo)

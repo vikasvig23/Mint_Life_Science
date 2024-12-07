@@ -11,6 +11,7 @@ import com.example.mintlifesciences.MainActivity // Replace with your target act
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.UserData
 import com.example.mintlifesciences.Utility
+import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.google.firebase.database.*
 
@@ -50,7 +51,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
                                // Toast.makeText(activity, "Login Successful", Toast.LENGTH_SHORT).show()
 
-                                val intent = Intent(activity, HomeActivity::class.java)
+                                val intent = Intent(activity, AddDoctorActivity::class.java)
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                 getApplication<Application>().startActivity(intent)
                             } else {

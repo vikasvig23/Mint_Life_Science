@@ -2,69 +2,125 @@ package com.example.mintlifesciences.addDoctor
 
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
+import com.example.mintlifesciences.aboutUs.AboutUsActivity
 import com.example.mintlifesciences.databinding.ActivityAddDoctorBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
+import com.example.mintlifesciences.login.LoginViewModel
+import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
+import com.example.mintlifesciences.utils.AppUtils
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import org.w3c.dom.Text
 
-class AddDoctorActivity : AppCompatActivity() {
+class AddDoctorActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSelectedListener {
     lateinit var binding: ActivityAddDoctorBinding
     private lateinit var viewModel: AddDoctorViewModel
+    private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var adapter: AddDoctorAdapter
-    private lateinit var selectedItem: String
+    private lateinit var loginViewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_doctor)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_add_doctor)
-
-        binding.recDocView.layoutManager = LinearLayoutManager(this)
-        viewModel = ViewModelProvider(this)[AddDoctorViewModel::class.java]
-        viewModel.init(this)
-
-        selectedItem = intent.getStringExtra("SELECTED_ITEM") ?: ""
-
-        adapter = AddDoctorAdapter(this, emptyList(), selectedItem, viewModel)
-        binding.recDocView.adapter = adapter
-
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        viewModel.loadDoctorData(selectedItem)
+        // Initialize ViewModel
+        viewModel = ViewModelProvider(this)[AddDoctorViewModel::class.java]
+        viewModel.init(this)
+        loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
-        viewModel.docData.observe(this, Observer { doctors ->
+        // Setup RecyclerView
+        binding.recDocView.layoutManager = LinearLayoutManager(this)
+        adapter = AddDoctorAdapter(this, emptyList(), viewModel)
+        binding.recDocView.adapter = adapter
+
+        // Observe Doctor Data
+        viewModel.loadDoctorData()
+        viewModel.docData.observe(this) { doctors ->
             Log.d("AddDoctorActivity", "Received data: $doctors")
             adapter.updateList(doctors)
-        })
-
-        binding.btn.setOnClickListener {
-            showDoctorDialog()
         }
 
-        binding.backArrow.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
+        // Set up button listener
+        binding.btn.setOnClickListener { showDoctorDialog() }
 
+        setupDrawer()
+
+        // Navigation drawer setup
+        drawerToggle = ActionBarDrawerToggle(
+            this, binding.drawerLayout, binding.toolbar,
+            R.string.open_nav, R.string.close_nav
+        )
+        binding.drawerLayout.addDrawerListener(drawerToggle)
+        drawerToggle.syncState()
+
+        binding.navView.setNavigationItemSelectedListener(this)
+
+        val versionName = AppUtils.getAppVersion(this)
+        val navView = findViewById<NavigationView>(R.id.nav_view)
+        val versionTextView = navView.findViewById<TextView>(R.id.nav_ver)
+        versionTextView.text = "MintLifeSciences $versionName"
+
+        // Handle back button press on system back press
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                finish() // Finish the current activity
+                if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                } else {
+                    // Custom behavior for back press, if any
+                    finish() // Finish the current activity
+                }
             }
         })
+    }
+
+
+    private fun setupDrawer() {
+        val headerView = binding.navView.getHeaderView(0)
+        val userNameTextView = headerView.findViewById<TextView>(R.id.nav_header_user_name)
+        val userEmailTextView = headerView.findViewById<TextView>(R.id.nav_header_user_email)
+
+        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        var userName = sharedPreferences.getString("userName", null)
+        val userEmail = sharedPreferences.getString("userEmail", "user@example.com")
+
+        if(userName==null && userEmail!=null){
+
+            loginViewModel.fetchUserName(userEmail){ fetchUser->
+                fetchUser?.let { name->
+                    with(sharedPreferences.edit()){
+                        putString("userName",name)
+                        apply()
+                    }
+                    userNameTextView.text=name
+                }
+            }
+        }
+        else{
+            userNameTextView.text=userName
+        }
+        userEmailTextView.text=userEmail
     }
 
     private fun showDoctorDialog() {
@@ -91,11 +147,36 @@ class AddDoctorActivity : AppCompatActivity() {
             }
 
             val doctor = DoctorData(name, speciality)
-            viewModel.saveDoctorData(selectedItem, doctor)
+            viewModel.saveDoctorData(doctor)
             viewModel.addDoctor(doctor)  // Ensure both methods are necessary
             dialog.dismiss()
         }
-
         dialog.show()
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_home -> {
+                val intent = Intent(this, AddDoctorActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                startActivity(intent)
+            }
+            R.id.nav_doctors -> {
+                val intent = Intent(this, RecentDoctorsActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+
+            R.id.nav_about->{
+                val intent=Intent(this, AboutUsActivity::class.java)
+                startActivity(intent)
+            }
+
+            R.id.nav_logout->{
+                loginViewModel.logout()
+            }
+        }
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
+        return true
     }
 }

@@ -43,21 +43,20 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
         _docDate.value = updatedList!!
     }
 
-    fun saveDoctorData(selectedItem: String, doctor: DoctorData) {
+    fun saveDoctorData(doctor: DoctorData) {
         userId?.let { id ->
             val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
-            databaseReference.child(id).child("Mint_Life_Science_Client").child(selectedItem)
+            databaseReference.child(id).child("Mint_Life_Science_Client")
                 .child("Doctors").child(doctor.docName).setValue(doctor)
-            saveInRecentDoctors(selectedItem, doctor)
+            saveInRecentDoctors(doctor)
         } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot save doctor data.")
     }
 
-    fun saveInRecentDoctors(selectedItem: String, doctor: DoctorData) {
+    fun saveInRecentDoctors(doctor: DoctorData) {
         userId?.let { id ->
             val recentDoctor = RecentDoctorData(
                 docName = doctor.docName,
                 docSpeciality = doctor.docSpeciality,
-                brandName = selectedItem
             )
             val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
             databaseReference.child(id).child("RecentDoctors").child(recentDoctor.docName)
@@ -65,10 +64,10 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
         } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot save recent doctor data.")
     }
 
-    fun loadDoctorData(selectedItem: String) {
+    fun loadDoctorData() {
         userId?.let { id ->
             val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
-            databaseReference.child(id).child("Mint_Life_Science_Client").child(selectedItem)
+            databaseReference.child(id).child("Mint_Life_Science_Client")
                 .child("Doctors").addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val doctorList = mutableListOf<DoctorData>()
@@ -96,18 +95,18 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
         } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot load doctor data.")
     }
 
-    fun deleteDoctor(brandName: String, doctorName: String) {
+    fun deleteDoctor(doctorName: String) {
         userId?.let { id ->
             val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
             val doctorRef =
-                databaseReference.child(id).child("Mint_Life_Science_Client").child(brandName)
+                databaseReference.child(id).child("Mint_Life_Science_Client")
                     .child("Doctors").child(doctorName)
 
             doctorRef.removeValue().addOnSuccessListener {
                 Log.d("DeleteDoctor", "Doctor $doctorName deleted successfully.")
 
                 val brandDoctorsRef =
-                    databaseReference.child(id).child("Mint_Life_Science_Client").child(brandName)
+                    databaseReference.child(id).child("Mint_Life_Science_Client")
                         .child("Doctors")
                 brandDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
@@ -116,14 +115,14 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
                                 .addOnSuccessListener {
                                     Log.d(
                                         "DeleteDoctor",
-                                        "Placeholder added under $brandName to preserve the brand."
+                                        "Placeholder added under to preserve the brand."
                                     )
                                 }
                                 .addOnFailureListener { e ->
                                     Log.e("DeleteDoctor", "Failed to add placeholder: $e")
                                 }
                         } else {
-                            Log.d("DeleteDoctor", "Doctors still exist under brand: $brandName.")
+                            Log.d("DeleteDoctor", "Doctors still exist.")
                         }
                     }
 

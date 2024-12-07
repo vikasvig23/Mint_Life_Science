@@ -13,13 +13,14 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mintlifesciences.Presentation.Presentation_Screen
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
+import com.example.mintlifesciences.homescreen.HomeActivity
 
 class AddDoctorAdapter(
     private val context: Context,
     var docList: List<DoctorData>,
-    private val brandName: String,
     private val viewModel: AddDoctorViewModel // Pass the ViewModel to handle deletion
 ) : RecyclerView.Adapter<AddDoctorAdapter.DoctorViewHolder>() {
 
@@ -44,11 +45,13 @@ class AddDoctorAdapter(
         holder.docName.text = itemViewModel.docName
         holder.docSpeciality.text = itemViewModel.docSpeciality
 
-        // Handle click event for viewing doctor's medicines
         holder.carddoc.setOnClickListener {
-            val intent = Intent(context, DoctorMedicineActivity::class.java)
-            intent.putExtra("doctorName", itemViewModel.docName)
-            intent.putExtra("brandName", brandName)
+            val intent: Intent = if (itemViewModel.havePresentation) {
+                Intent(context, Presentation_Screen::class.java)
+            } else {
+                Intent(context, HomeActivity::class.java)
+            }
+            intent.putExtra("doctorName", itemViewModel.docName) // Pass doctorName
             context.startActivity(intent)
         }
 
@@ -60,7 +63,7 @@ class AddDoctorAdapter(
                 .setMessage("Are you sure you want to delete this doctor?")
                 .setPositiveButton("Yes") { dialog, _ ->
                     // Call ViewModel to delete the doctor from Firebase
-                    viewModel.deleteDoctor(brandName, itemViewModel.docName)
+                    viewModel.deleteDoctor(itemViewModel.docName)
                     // Remove the doctor from the local list and notify the adapter
                     val updatedList = docList.toMutableList().apply { removeAt(position) }
                     updateList(updatedList)

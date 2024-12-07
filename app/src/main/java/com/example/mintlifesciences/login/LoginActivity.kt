@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.mintlifesciences.MainActivity
+import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityLoginBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.signUp.SignUpActivity
@@ -31,8 +32,7 @@ class LoginActivity : AppCompatActivity() {
 
         val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
         if (isLoggedIn) {
-
-            val intent = Intent(this, HomeActivity::class.java)
+            val intent = Intent(this, AddDoctorActivity::class.java)
             startActivity(intent)
             finish()
         }

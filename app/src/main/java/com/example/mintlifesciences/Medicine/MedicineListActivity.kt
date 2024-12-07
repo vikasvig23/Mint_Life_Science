@@ -31,7 +31,6 @@ class MedicineListActivity : AppCompatActivity() {
     private var alreadySelectedMedicine: MutableList<Medicine> = mutableListOf()
     private lateinit var userId: String
 
-
     private lateinit var loginViewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,10 +45,8 @@ class MedicineListActivity : AppCompatActivity() {
 
         loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
-
         brandName = intent.getStringExtra("brand_name") ?: ""
         doctorName = intent.getStringExtra("doctorName") ?: ""
-
 
         // Initialize SharedPreferences inside onCreate
         val sharedPreferences: SharedPreferences =
@@ -144,7 +141,7 @@ class MedicineListActivity : AppCompatActivity() {
     private fun saveDoctorData() {
         val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
         val doctorMedicinesRef = databaseReference.child(userId).child("Mint_Life_Science_Client")
-            .child(brandName).child("Doctors").child(doctorName).child("medicines")
+            .child("Doctors").child(doctorName).child("medicines").child(brandName)
 
         doctorMedicinesRef.setValue(selectedMedicines)
             .addOnSuccessListener {
@@ -161,7 +158,7 @@ class MedicineListActivity : AppCompatActivity() {
         val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
         val recentDoctorsRef =
             databaseReference.child(userId).child("RecentDoctors").child(doctorName)
-                .child("medicines")
+                .child("medicines").child(brandName)
 
         recentDoctorsRef.setValue(selectedMedicines)
             .addOnSuccessListener {
@@ -209,16 +206,15 @@ class MedicineListActivity : AppCompatActivity() {
     private fun fetchDoctorMedicines() {
         // Fetch doctor details from Firebase
         val db = FirebaseDatabase.getInstance().getReference("Users")
-            .child(userId).child("Mint_Life_Science_Client").child(brandName).child("Doctors")
+            .child(userId).child("Mint_Life_Science_Client").child("Doctors")
             .child(doctorName)
 
         db.get().addOnSuccessListener { dataSnapshot ->
             val doctorData = dataSnapshot.getValue(DoctorData::class.java)
             if (doctorData != null) {
-                // Fetch medicines from the "medicines" node
-                val medicinesSnapshot = dataSnapshot.child("medicines")
+                val brandSnapshot = dataSnapshot.child("medicines").child(brandName)
                 alreadySelectedMedicine.clear()
-                for (medicineSnapshot in medicinesSnapshot.children) {
+                for (medicineSnapshot in brandSnapshot.children) {
                     val medicine = medicineSnapshot.getValue(Medicine::class.java)
                     if (medicine != null) {
                         alreadySelectedMedicine.add(medicine)

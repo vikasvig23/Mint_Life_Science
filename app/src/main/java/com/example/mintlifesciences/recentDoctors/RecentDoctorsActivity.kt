@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.aboutUs.AboutUsActivity
+import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.databinding.ActivityRecentDoctorsBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.login.LoginActivity
@@ -38,6 +39,8 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         super.onCreate(savedInstanceState)
         binding = ActivityRecentDoctorsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
@@ -50,9 +53,6 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
             loginViewModel.logout()
             return
         }
-
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.title = "Recent Doctors"
 
         drawerToggle = ActionBarDrawerToggle(
             this, binding.drawerLayout, binding.toolbar,
@@ -125,7 +125,7 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_home -> {
-                val intent = Intent(this, HomeActivity::class.java)
+                val intent = Intent(this, AddDoctorActivity::class.java)
                 startActivity(intent)
                 finish()
             }
