@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.aboutUs.AboutUsActivity
 import com.example.mintlifesciences.addDoctor.AddDoctorActivity
+import com.example.mintlifesciences.addDoctor.DoctorData
 import com.example.mintlifesciences.databinding.ActivityRecentDoctorsBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.login.LoginActivity
@@ -96,11 +97,11 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
     private fun loadRecentDoctors() {
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val doctors = mutableListOf<RecentDoctorData>()
+                val doctors = mutableListOf<DoctorData>()
 
                 // Iterate through each child node under RecentDoctors
                 for (data in snapshot.children) {
-                    val doctor = data.getValue(RecentDoctorData::class.java)
+                    val doctor = data.getValue(DoctorData::class.java)
                     if (doctor != null) {
                         doctors.add(doctor)
                     } else {

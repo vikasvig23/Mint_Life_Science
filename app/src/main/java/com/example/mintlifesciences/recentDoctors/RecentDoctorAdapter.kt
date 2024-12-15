@@ -11,8 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.addDoctor.DoctorData
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
+import com.example.mintlifesciences.homescreen.HomeActivity
 
-class RecentDoctorAdapter(private var docList: List<RecentDoctorData>) :
+class RecentDoctorAdapter(private var docList: List<DoctorData>) :
     RecyclerView.Adapter<RecentDoctorAdapter.RecentDoctorViewHolder>() {
 
     class RecentDoctorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -37,15 +38,14 @@ class RecentDoctorAdapter(private var docList: List<RecentDoctorData>) :
 
         holder.cardDoc.setOnClickListener {
             val context = holder.itemView.context
-            val intent = Intent(context, DoctorMedicineActivity::class.java).apply {
+            val intent = Intent(context, HomeActivity::class.java).apply {
                 putExtra("doctorName", doctorData.docName)
-                putExtra("brandName", doctorData.brandName)
             }
             context.startActivity(intent)
         }
     }
 
-    fun updateList(newDocList: List<RecentDoctorData>) {
+    fun updateList(newDocList: List<DoctorData>) {
         docList = newDocList
         notifyDataSetChanged()
         Log.d("RecyclerViewBinding", "List updated: $newDocList")

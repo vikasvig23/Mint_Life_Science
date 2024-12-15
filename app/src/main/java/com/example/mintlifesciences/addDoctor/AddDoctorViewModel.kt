@@ -54,13 +54,9 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun saveInRecentDoctors(doctor: DoctorData) {
         userId?.let { id ->
-            val recentDoctor = RecentDoctorData(
-                docName = doctor.docName,
-                docSpeciality = doctor.docSpeciality,
-            )
             val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
-            databaseReference.child(id).child("RecentDoctors").child(recentDoctor.docName)
-                .setValue(recentDoctor)
+            databaseReference.child(id).child("RecentDoctors").child(doctor.docName)
+                .setValue(doctor)
         } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot save recent doctor data.")
     }
 
