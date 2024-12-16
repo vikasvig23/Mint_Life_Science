@@ -12,6 +12,7 @@ import com.example.mintlifesciences.R
 import com.example.mintlifesciences.addDoctor.DoctorData
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import com.example.mintlifesciences.homescreen.HomeActivity
+import com.example.mintlifesciences.medicinePresentation.MedicineScreenActivity
 
 class RecentDoctorAdapter(private var docList: List<DoctorData>) :
     RecyclerView.Adapter<RecentDoctorAdapter.RecentDoctorViewHolder>() {
@@ -38,9 +39,10 @@ class RecentDoctorAdapter(private var docList: List<DoctorData>) :
 
         holder.cardDoc.setOnClickListener {
             val context = holder.itemView.context
-            val intent = Intent(context, HomeActivity::class.java).apply {
-                putExtra("doctorName", doctorData.docName)
-            }
+            val intent = Intent(context, MedicineScreenActivity::class.java)
+//            val intent = Intent(context, HomeActivity::class.java).apply {
+//                putExtra("doctorName", doctorData.docName)
+//            }
             context.startActivity(intent)
         }
     }

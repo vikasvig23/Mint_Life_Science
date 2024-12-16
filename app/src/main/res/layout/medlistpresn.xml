@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        app:cardBackgroundColor="#EDE3E3"
+        app:cardCornerRadius="5dp">
+
+        <ImageView
+            android:id="@+id/play_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/outline_play_circle_24"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:layout_marginEnd="48dp"
+            />
+
+        <ImageView
+            android:id="@+id/share_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_share_24"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:padding="5dp"
+            android:layout_marginEnd="12dp"
+            />
+
+        <ImageView
+            android:id="@+id/cardImage"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:src="@drawable/baseline_image_24"
+            />
+
+        <ImageView
+            android:id="@+id/next_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_navigate_next_24"
+            android:layout_gravity="end"
+            android:layout_marginTop="150dp"
+            android:clickable="true"
+            android:layout_marginEnd="5dp"
+            />
+
+        <ImageView
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_arrow_back_ios_new_24"
+            android:layout_marginTop="150dp"
+            android:layout_marginStart="5dp"
+            android:clickable="true"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:padding="10dp"
+            android:layout_marginTop="220dp"
+            android:hint="Description"
+            android:textSize="22dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PDF"
+            android:textColor="#E71313"
+            android:clickable="true"
+            android:layout_gravity="end"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="315dp"
+            android:textSize="20dp"/>
+
+
+
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+

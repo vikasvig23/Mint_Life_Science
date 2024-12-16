@@ -16,6 +16,12 @@
             android:name=".Presentation.Presentation_Screen"
             android:exported="false" />
         <activity
+            android:name=".medicinePresentation.MediaPlayerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".medicinePresentation.MedicineScreenActivity"
+            android:exported="false" />
+        <activity
             android:name=".aboutUs.AboutUsActivity"
             android:exported="false" />
         <activity

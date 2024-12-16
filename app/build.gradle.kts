@@ -1,11 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id ("kotlin-kapt")
+    id("kotlin-kapt")
     id("com.google.gms.google-services")
-
 }
-
 android {
     namespace = "com.example.mintlifesciences"
     compileSdk = 34
@@ -16,7 +14,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -29,25 +26,22 @@ android {
             )
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17 // Update for Java 17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17" // Change to 17 if using Java 17
     }
-    dataBinding {
-       enable = true
-    }
+
     buildFeatures {
         viewBinding = true
+        dataBinding = true
     }
-
-
-
 }
+
 
 dependencies {
 
@@ -58,20 +52,26 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.firebase.database.ktx)
+
+    // Firebase dependencies
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
+
+        implementation ("com.google.firebase:firebase-storage:20.2.1")
+
+
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+
+
+    // Other dependencies
+    implementation("com.codesgood:justifiedtextview:1.1.0")
+    implementation(libs.glide)
+    implementation(libs.firebase.storage.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
-    implementation ("androidx.recyclerview:recyclerview:1.3.2")
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation ("com.google.firebase:firebase-database:20.0.5")
-    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
-    implementation("com.google.firebase:firebase-analytics")
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
-    implementation ("com.codesgood:justifiedtextview:1.1.0")
-
-
-
-    implementation(libs.glide)
-
+    implementation ("com.google.android.exoplayer:exoplayer:2.18.1")
 }
