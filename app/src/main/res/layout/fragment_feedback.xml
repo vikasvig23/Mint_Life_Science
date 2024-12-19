@@ -28,6 +28,7 @@
             android:textSize="25dp"
             android:paddingStart="25dp"
             android:paddingEnd="25dp"
+            android:textColor="@color/white"
             android:paddingTop="5dp"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="25dp"
@@ -42,9 +43,10 @@
             android:layout_height="wrap_content"
             android:text="Schedule Meet Again"
             android:textSize="18dp"
+            app:layout_constraintEnd_toStartOf="@+id/date"
             app:layout_constraintTop_toBottomOf="@+id/feedback"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="25dp"
+
             android:layout_marginTop="45dp"/>
 
         <TextView
@@ -56,14 +58,14 @@
             android:textSize="18dp"
             android:textColor="@color/white"
             android:layout_marginTop="38dp"
-            android:paddingStart="29dp"
-            android:paddingEnd="25dp"
-            android:paddingTop="5dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="13dp"
+            android:paddingTop="7dp"
             android:clickable="true"
             android:focusable="true"
             app:layout_constraintStart_toEndOf="@+id/schedule"
             app:layout_constraintEnd_toEndOf="parent"
-            android:paddingBottom="5dp"
+            android:paddingBottom="7dp"
             android:background="@drawable/corner_back"
             
             />
@@ -79,8 +81,9 @@
             app:layout_constraintTop_toBottomOf="@+id/schedule"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="24dp"
-            android:layout_marginStart="36dp"
-            android:padding="22dp"/>
+            app:layout_constraintEnd_toStartOf="@+id/mm"
+
+            android:padding="18dp"/>
 
         <TextView
             android:id="@+id/mm"
@@ -93,8 +96,9 @@
             app:layout_constraintTop_toBottomOf="@+id/schedule"
             app:layout_constraintStart_toEndOf="@+id/dd"
             android:layout_marginTop="24dp"
-            android:layout_marginStart="37dp"
-            android:padding="22dp"/>
+            android:layout_marginStart="20dp"
+            app:layout_constraintEnd_toStartOf="@+id/yy"
+            android:padding="18dp"/>
 
         <TextView
             android:id="@+id/yy"
@@ -107,8 +111,9 @@
             app:layout_constraintTop_toBottomOf="@+id/schedule"
             app:layout_constraintStart_toEndOf="@+id/mm"
             android:layout_marginTop="24dp"
-            android:layout_marginStart="37dp"
-            android:padding="22dp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="20dp"
+            android:padding="18dp"/>
 
         <EditText
             android:id="@+id/response"
@@ -116,14 +121,15 @@
             android:layout_height="220dp"
             android:background="@drawable/date_block"
             android:hint="Give Your Feedback here"
+            android:gravity="top"
             android:textSize="18dp"
-
+app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mm"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="24dp"
-            android:layout_marginStart="28dp"
-            android:layout_marginEnd="24dp"
-            android:padding="22dp"/>
+            android:layout_marginStart="17dp"
+            android:layout_marginEnd="17dp"
+            android:padding="15dp"/>
 
         <Button
             android:layout_width="wrap_content"

@@ -43,6 +43,15 @@ class MedicineScreenActivity : AppCompatActivity() {
 
         loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
+        supportFragmentManager.addOnBackStackChangedListener {
+            if (supportFragmentManager.backStackEntryCount == 0) {
+                // Restore views when fragment is removed
+                binding.viewPager.visibility = View.VISIBLE
+                binding.toolbar.visibility = View.VISIBLE
+            }
+        }
+
+
         // Initialize SharedPreferences inside onCreate
         val sharedPreferences: SharedPreferences =
             getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
@@ -120,9 +129,17 @@ class MedicineScreenActivity : AppCompatActivity() {
             }
 
             R.id.action_edit_feedback -> {
-                // Handle edit feedback action
-                return true
+                // Hide other views
+                binding.viewPager.visibility = View.GONE
+                binding.toolbar.visibility = View.GONE
+
+                val fragment = FeedbackFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
+
         }
         return super.onOptionsItemSelected(item)
     }
