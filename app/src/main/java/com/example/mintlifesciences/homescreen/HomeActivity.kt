@@ -122,6 +122,7 @@ class HomeActivity : AppCompatActivity(){
                     intent.putExtra("doctorName", doctorName)
                     intent.putExtra("isPresentation", true)
                     startActivity(intent)
+                    finish()
                     true
                 }
                 else -> false

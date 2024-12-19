@@ -8,7 +8,8 @@ data class DoctorData(
     val docSpeciality: String = "",
     val groups: List<Group> = emptyList(),
     var scheduleMeet: String = "",
-    var havePresentation: Boolean = false
+    var havePresentation: Boolean = false,
+    var feedback: String = ""
 )
 
 data class Group(

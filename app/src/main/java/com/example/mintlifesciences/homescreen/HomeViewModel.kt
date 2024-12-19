@@ -153,4 +153,25 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+
 }
+
+
+
+
+//fun updateDoctorPresentationStatusInRecentDoctor(doctorName: String, isPresentation: Boolean) {
+//    userId?.let { id ->
+//        val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
+//        databaseReference.child(id)
+//            .child("RecentDoctors")
+//            .child(doctorName)
+//            .child("havePresentation")
+//            .setValue(isPresentation)
+//            .addOnSuccessListener {
+//                Log.d("HomeViewModel", "Presentation status updated successfully for $doctorName")
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e("HomeViewModel", "Failed to update presentation status for $doctorName", exception)
+//            }
+//    } ?: Log.e("HomeViewModel", "User ID is null, cannot update presentation status.")
+//}
