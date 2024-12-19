@@ -2,6 +2,9 @@ package com.example.mintlifesciences.homescreen
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -15,6 +18,7 @@ import com.example.mintlifesciences.R
 import com.example.mintlifesciences.databinding.ActivityHomeBinding
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import com.example.mintlifesciences.login.LoginViewModel
+import com.example.mintlifesciences.medicinePresentation.MedicineScreenActivity
 
 class HomeActivity : AppCompatActivity(){
 
@@ -79,7 +83,9 @@ class HomeActivity : AppCompatActivity(){
 //        })
 
 
-
+        binding.menu.setOnClickListener {
+            openMenu()
+        }
     }
 
     private fun updateUI(items: List<String>?) {
@@ -99,5 +105,29 @@ class HomeActivity : AppCompatActivity(){
             Toast.makeText(this,"Please Check Your Internet Connection",Toast.LENGTH_LONG).show()
         }
     }
+
+    private fun openMenu() {
+        val popupMenu = PopupMenu(this, binding.menu)
+        menuInflater.inflate(R.menu.home_menu, popupMenu.menu)
+        popupMenu.show()
+
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.make_presentation -> {
+                    // Set isPresentation to true for the doctor
+                    viewModel.updateDoctorPresentationStatus(doctorName, true)
+
+                    // Navigate to MedicineScreenActivity
+                    val intent = Intent(this, MedicineScreenActivity::class.java)
+                    intent.putExtra("doctorName", doctorName)
+                    intent.putExtra("isPresentation", true)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
 
 }

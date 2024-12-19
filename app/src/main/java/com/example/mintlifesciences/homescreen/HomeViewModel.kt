@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.AndroidViewModel
@@ -30,6 +31,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val databaseRef: DatabaseReference =
         FirebaseDatabase.getInstance().getReference("Users").child(userId ?: "unknown_user").child("Mint_Life_Science_Client")
 
+
+    val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
 
     private val _items = MutableLiveData<List<String>>()
     val items: LiveData<List<String>> get() = _items
@@ -130,4 +133,24 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun errorHandled() {
         _error.value = null
     }
+
+    fun updateDoctorPresentationStatus(doctorName: String, isPresentation: Boolean) {
+        userId?.let { id ->
+            val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
+            databaseReference.child(id)
+                .child("Mint_Life_Science_Client")
+                .child("Doctors")
+                .child(doctorName)
+                .child("havePresentation")
+                .setValue(isPresentation)
+                .addOnSuccessListener {
+                    Log.d("HomeViewModel", "Presentation status updated successfully for $doctorName")
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("HomeViewModel", "Failed to update presentation status for $doctorName", exception)
+                }
+        } ?: Log.e("HomeViewModel", "User ID is null, cannot update presentation status.")
+    }
+
+
 }

@@ -13,9 +13,6 @@
         android:theme="@style/Theme.MintLifeSciences"
         tools:targetApi="31">
         <activity
-            android:name=".Presentation.Presentation_Screen"
-            android:exported="false" />
-        <activity
             android:name=".medicinePresentation.MediaPlayerActivity"
             android:exported="false" />
         <activity

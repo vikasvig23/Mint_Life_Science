@@ -44,7 +44,6 @@ android {
 
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -57,12 +56,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
-
-        implementation ("com.google.firebase:firebase-storage:20.2.1")
-
-
+    implementation ("com.google.firebase:firebase-storage:20.2.1")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-
 
 
     // Other dependencies

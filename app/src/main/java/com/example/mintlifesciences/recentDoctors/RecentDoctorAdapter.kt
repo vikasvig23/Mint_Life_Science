@@ -37,12 +37,23 @@ class RecentDoctorAdapter(private var docList: List<DoctorData>) :
         holder.docName.text = doctorData.docName
         holder.docSpeciality.text = doctorData.docSpeciality
 
+//        holder.cardDoc.setOnClickListener {
+//            val context = holder.itemView.context
+//            val intent = Intent(context, MedicineScreenActivity::class.java)
+////            val intent = Intent(context, HomeActivity::class.java).apply {
+////                putExtra("doctorName", doctorData.docName)
+////            }
+//            context.startActivity(intent)
+//        }
+
         holder.cardDoc.setOnClickListener {
             val context = holder.itemView.context
-            val intent = Intent(context, MedicineScreenActivity::class.java)
-//            val intent = Intent(context, HomeActivity::class.java).apply {
-//                putExtra("doctorName", doctorData.docName)
-//            }
+            val intent: Intent = if (doctorData.havePresentation) {
+                Intent(context, MedicineScreenActivity::class.java)
+            } else {
+                Intent(context, HomeActivity::class.java)
+            }
+            intent.putExtra("doctorName", doctorData.docName) // Pass doctorName
             context.startActivity(intent)
         }
     }

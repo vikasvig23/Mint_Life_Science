@@ -13,10 +13,10 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mintlifesciences.Presentation.Presentation_Screen
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import com.example.mintlifesciences.homescreen.HomeActivity
+import com.example.mintlifesciences.medicinePresentation.MedicineScreenActivity
 
 class AddDoctorAdapter(
     private val context: Context,
@@ -47,7 +47,7 @@ class AddDoctorAdapter(
 
         holder.carddoc.setOnClickListener {
             val intent: Intent = if (itemViewModel.havePresentation) {
-                Intent(context, Presentation_Screen::class.java)
+                Intent(context, MedicineScreenActivity::class.java)
             } else {
                 Intent(context, HomeActivity::class.java)
             }

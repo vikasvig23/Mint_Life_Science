@@ -11,6 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="350dp"
         app:cardBackgroundColor="#EDE3E3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:cardCornerRadius="5dp">
 
         <ImageView
@@ -21,7 +25,7 @@
             android:layout_gravity="end"
             android:layout_marginTop="10dp"
             android:clickable="true"
-            android:layout_marginEnd="48dp"
+            android:layout_marginEnd="58dp"
             />
 
         <ImageView
@@ -33,7 +37,7 @@
             android:layout_marginTop="10dp"
             android:clickable="true"
             android:padding="5dp"
-            android:layout_marginEnd="12dp"
+            android:layout_marginEnd="20dp"
             />
 
         <ImageView
@@ -68,6 +72,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="130dp"
+            android:id="@+id/descriptionTextView"
             android:padding="10dp"
             android:layout_marginTop="220dp"
             android:hint="Description"
@@ -76,11 +81,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/pdfTextView"
             android:text="PDF"
             android:textColor="#E71313"
             android:clickable="true"
             android:layout_gravity="end"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="20dp"
             android:layout_marginTop="315dp"
             android:textSize="20dp"/>
 

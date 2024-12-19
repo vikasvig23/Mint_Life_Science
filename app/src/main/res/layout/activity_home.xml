@@ -36,6 +36,15 @@
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="Back"
+                android:src="@drawable/baseline_more_vert_24" />
         </androidx.appcompat.widget.Toolbar>
 
         <!-- Main content area -->
