@@ -49,9 +49,9 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         setupRecyclerView()
         setupVersionInfo()
 
-        // Observe the LiveData from AddDoctorViewModel
         addDoctorViewModel.docData.observe(this) { doctors ->
-            adapter.updateList(doctors ?: emptyList())
+            val recentDoctors = doctors?.sortedByDescending { it.lastAdded }?.take(20) ?: emptyList()
+            adapter.updateList(recentDoctors)
         }
 
         // Load data into ViewModel if not already loaded

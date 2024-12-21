@@ -1,7 +1,6 @@
 package com.example.mintlifesciences.addDoctor
 
 import com.example.mintlifesciences.model.Medicine
-import java.util.Date
 
 data class DoctorData(
     val docName: String = "",
@@ -9,7 +8,8 @@ data class DoctorData(
     val groups: List<Group> = emptyList(),
     var scheduleMeet: String = "",
     var havePresentation: Boolean = false,
-    var feedback: String = ""
+    var feedback: String = "",
+    var lastAdded: Long = System.currentTimeMillis() // Timestamp for ordering
 )
 
 data class Group(
