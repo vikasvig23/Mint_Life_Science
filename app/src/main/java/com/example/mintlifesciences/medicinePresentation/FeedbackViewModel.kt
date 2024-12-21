@@ -1,15 +1,17 @@
 package com.example.mintlifesciences.medicinePresentation
 
-import android.app.Application
-import android.app.DatePickerDialog
-import android.content.Context
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import java.util.Calendar
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
-class FeedbackViewModel(application: Application) : AndroidViewModel(application) {
+class FeedbackViewModel : ViewModel() {
 
-    val selectedDate: MutableLiveData<String> = MutableLiveData()
+    private val _selectedDate = MutableLiveData<String>()
+    val selectedDate: LiveData<String> get() = _selectedDate
+
+    fun setSelectedDate(date: String) {
+        _selectedDate.value = date
+    }
 }

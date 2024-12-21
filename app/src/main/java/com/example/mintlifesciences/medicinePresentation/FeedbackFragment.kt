@@ -1,51 +1,90 @@
 package com.example.mintlifesciences.medicinePresentation
 
+
 import android.app.DatePickerDialog
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
-import com.example.mintlifesciences.R
 import com.example.mintlifesciences.databinding.FragmentFeedbackBinding
+import com.google.firebase.database.DatabaseReference
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [FeedbackFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class FeedbackFragment : Fragment() {
+
     private lateinit var binding: FragmentFeedbackBinding
-    private lateinit var viewModel: FeedbackViewModel
+    private val viewModel: FeedbackViewModel by viewModels()
+    private lateinit var doctorRef: DatabaseReference
+
+    // Variables to hold fragment arguments
+    private var doctorFeedback: String? = null
+    private var scheduleMeetDate: String? = null
+    private val activityViewModel: MedicineScreenViewModel by activityViewModels()
+
+
+    companion object {
+        // Factory method to create a new instance of this fragment with arguments
+        fun newInstance(feedback: String, date: String): FeedbackFragment {
+            val fragment = FeedbackFragment()
+            val args = Bundle().apply {
+                putString("doctorFeedback", feedback)
+                putString("scheduleMeetDate", date)
+            }
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            doctorFeedback = it.getString("doctorFeedback")
+            scheduleMeetDate = it.getString("scheduleMeetDate")
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View{
         binding = FragmentFeedbackBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this).get(FeedbackViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
+        binding.viewModel = viewModel
 
 
-        viewModel.selectedDate.observe(viewLifecycleOwner) { date ->
+        // Pre-fill the feedback and date fields
+        binding.response.setText(doctorFeedback)
+        scheduleMeetDate?.let { date ->
             val parts = date.split("-")
             binding.dd.text = parts[0]
             binding.mm.text = parts[1]
             binding.yy.text = parts[2]
         }
 
+        // Set up date picker
         binding.date.setOnClickListener {
             openDatePicker()
         }
 
+        // Set up submit button click listener
+        binding.submitButton.setOnClickListener {
+            onSubmitClicked()
+        }
+
+        // Observe the selected date
+        viewModel.selectedDate.observe(viewLifecycleOwner) { date ->
+            val parts = date.split("-")
+            binding.dd.text = parts[0]
+            binding.mm.text = parts[1]
+            binding.yy.text = parts[2]
+        }
         return binding.root
     }
 
@@ -55,18 +94,251 @@ class FeedbackFragment : Fragment() {
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        val datePicker = DatePickerDialog(
+        DatePickerDialog(
             requireContext(),
             { _, selectedYear, selectedMonth, selectedDay ->
-
-                binding.dd.text = selectedDay.toString().padStart(2, '0')
-                binding.mm.text = (selectedMonth + 1).toString().padStart(2, '0')
-                binding.yy.text = selectedYear.toString()
+                val formattedDate = String.format(
+                    "%02d-%02d-%04d", selectedDay, selectedMonth + 1, selectedYear
+                )
+                viewModel.setSelectedDate(formattedDate)
             },
             year,
             month,
             day
-        )
-        datePicker.show()
+        ).show()
     }
+
+    private fun onSubmitClicked() {
+        val feedbackText = binding.response.text.toString()
+
+        if (feedbackText.isBlank()) {
+            Toast.makeText(requireContext(), "Feedback cannot be empty", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Use selectedDate from ViewModel if set, otherwise fallback to scheduleMeetDate
+        val selectedDate = viewModel.selectedDate.value ?: scheduleMeetDate
+
+        if (selectedDate == null) {
+            Toast.makeText(requireContext(), "Please select a date", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val currentDate = Calendar.getInstance().time
+        val selectedDateParsed = parseDate(selectedDate)
+
+        if (selectedDateParsed != null) {
+            if (selectedDateParsed >= currentDate) {
+                updateDoctorData(selectedDate, feedbackText)
+            } else {
+                Toast.makeText(requireContext(), "Selected date must be today or in the future", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(requireContext(), "Invalid selected date", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    private fun parseDate(dateString: String): Date? {
+        return try {
+            SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(dateString)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun updateDoctorData(selectedDate: String, feedbackText: String) {
+        activityViewModel.updateDoctorData(selectedDate, feedbackText)
+        //Toast.makeText(requireContext(), "Feedback and schedule updated successfully", Toast.LENGTH_SHORT).show()
+
+        requireActivity().supportFragmentManager.popBackStack()
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//import android.app.DatePickerDialog
+//import android.os.Bundle
+//import android.view.LayoutInflater
+//import android.view.MotionEvent
+//import android.view.View
+//import android.view.ViewGroup
+//import android.widget.Toast
+//import androidx.fragment.app.activityViewModels
+//import androidx.fragment.app.viewModels
+//import com.example.mintlifesciences.databinding.FragmentFeedbackBinding
+//import com.google.firebase.database.DatabaseReference
+//import java.text.SimpleDateFormat
+//import java.util.Calendar
+//import java.util.Date
+//import java.util.Locale
+//
+//class FeedbackFragment : androidx.fragment.app.DialogFragment() {
+//
+//    private lateinit var binding: FragmentFeedbackBinding
+//    private val viewModel: FeedbackViewModel by viewModels()
+//    private lateinit var doctorRef: DatabaseReference
+//
+//    // Variables to hold fragment arguments
+//    private var doctorFeedback: String? = null
+//    private var scheduleMeetDate: String? = null
+//    private val activityViewModel: MedicineScreenViewModel by activityViewModels()
+//
+//    companion object {
+//        // Factory method to create a new instance of this fragment with arguments
+//        fun newInstance(feedback: String, date: String): FeedbackFragment {
+//            val fragment = FeedbackFragment()
+//            val args = Bundle().apply {
+//                putString("doctorFeedback", feedback)
+//                putString("scheduleMeetDate", date)
+//            }
+//            fragment.arguments = args
+//            return fragment
+//        }
+//    }
+//
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        arguments?.let {
+//            doctorFeedback = it.getString("doctorFeedback")
+//            scheduleMeetDate = it.getString("scheduleMeetDate")
+//        }
+//    }
+//
+//    override fun onCreateView(
+//        inflater: LayoutInflater, container: ViewGroup?,
+//        savedInstanceState: Bundle?
+//    ): View {
+//        binding = FragmentFeedbackBinding.inflate(inflater, container, false)
+//        binding.lifecycleOwner = viewLifecycleOwner
+//        binding.viewModel = viewModel
+//
+//        // Pre-fill the feedback and date fields
+//        binding.response.setText(doctorFeedback)
+//        scheduleMeetDate?.let { date ->
+//            val parts = date.split("-")
+//            binding.dd.text = parts[0]
+//            binding.mm.text = parts[1]
+//            binding.yy.text = parts[2]
+//        }
+//
+//        // Set up date picker
+//        binding.date.setOnClickListener {
+//            openDatePicker()
+//        }
+//
+//        // Set up submit button click listener
+//        binding.submitButton.setOnClickListener {
+//            onSubmitClicked()
+//        }
+//
+//        // Observe the selected date
+//        viewModel.selectedDate.observe(viewLifecycleOwner) { date ->
+//            val parts = date.split("-")
+//            binding.dd.text = parts[0]
+//            binding.mm.text = parts[1]
+//            binding.yy.text = parts[2]
+//        }
+//
+//        return binding.root
+//    }
+//
+//    private fun openDatePicker() {
+//        val calendar = Calendar.getInstance()
+//        val year = calendar.get(Calendar.YEAR)
+//        val month = calendar.get(Calendar.MONTH)
+//        val day = calendar.get(Calendar.DAY_OF_MONTH)
+//
+//        DatePickerDialog(
+//            requireContext(),
+//            { _, selectedYear, selectedMonth, selectedDay ->
+//                val formattedDate = String.format(
+//                    "%02d-%02d-%04d", selectedDay, selectedMonth + 1, selectedYear
+//                )
+//                viewModel.setSelectedDate(formattedDate)
+//            },
+//            year,
+//            month,
+//            day
+//        ).show()
+//    }
+//
+//    private fun onSubmitClicked() {
+//        val feedbackText = binding.response.text.toString()
+//
+//        // Check if feedback is empty
+//        if (feedbackText.isBlank()) {
+//            Toast.makeText(requireContext(), "Feedback cannot be empty", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        // Use selectedDate from ViewModel if set, otherwise fallback to scheduleMeetDate
+//        val selectedDate = viewModel.selectedDate.value ?: scheduleMeetDate
+//
+//        // If no date is selected or provided, show an error
+//        if (selectedDate == null) {
+//            Toast.makeText(requireContext(), "Please select a date", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        // Parse the date
+//        val currentDate = Calendar.getInstance().time
+//        val selectedDateParsed = parseDate(selectedDate)
+//
+//        if (selectedDateParsed != null) {
+//            // Validate that the selected date is today or in the future
+//            if (selectedDateParsed >= currentDate) {
+//                updateDoctorData(selectedDate, feedbackText)
+//            } else {
+//                Toast.makeText(requireContext(), "Selected date must be today or in the future", Toast.LENGTH_SHORT).show()
+//            }
+//        } else {
+//            Toast.makeText(requireContext(), "Invalid selected date", Toast.LENGTH_SHORT).show()
+//        }
+//    }
+//
+//    private fun parseDate(dateString: String): Date? {
+//        return try {
+//            SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(dateString)
+//        } catch (e: Exception) {
+//            null
+//        }
+//    }
+//
+//    private fun updateDoctorData(selectedDate: String, feedbackText: String) {
+//        activityViewModel.updateDoctorData(selectedDate, feedbackText)
+//        Toast.makeText(requireContext(), "Feedback and schedule updated successfully", Toast.LENGTH_SHORT).show()
+//
+//        dismiss() // Close the DialogFragment
+//    }
+//
+//    // Optional: To disable the dismiss on outside click (if you want to keep it)
+//    override fun onTouchEvent(event: MotionEvent): Boolean {
+//        if (event.action == MotionEvent.ACTION_OUTSIDE) {
+//            // Optionally you can add custom behavior here if needed
+//            return true // To prevent dismiss, or return false to allow dismiss
+//        }
+//        return super.onTouchEvent(event)
+//    }
+//}
+//
+

@@ -1,151 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<layout>
-<androidx.constraintlayout.widget.ConstraintLayout android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.mintlifesciences.medicinePresentation.FeedbackViewModel" />
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="600dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@drawable/corners"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        >
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent">
 
-        <TextView
-            android:id="@+id/feedback"
-            android:layout_width="wrap_content"
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/feedback_container"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/corners"
             app:layout_constraintTop_toTopOf="parent"
-            android:text="Give Feedback"
-            android:textSize="25dp"
-            android:paddingStart="25dp"
-            android:paddingEnd="25dp"
-            android:textColor="@color/white"
-            android:paddingTop="5dp"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="25dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:paddingBottom="5dp"
-            android:background="@drawable/corner_back"
-            />
-
-        <TextView
-            android:id="@+id/schedule"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Schedule Meet Again"
-            android:textSize="18dp"
-            app:layout_constraintEnd_toStartOf="@+id/date"
-            app:layout_constraintTop_toBottomOf="@+id/feedback"
-            app:layout_constraintStart_toStartOf="parent"
-
-            android:layout_marginTop="45dp"/>
-
-        <TextView
-            android:id="@+id/date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/feedback"
-            android:text="Select Date"
-            android:textSize="18dp"
-            android:textColor="@color/white"
-            android:layout_marginTop="38dp"
-            android:paddingStart="15dp"
-            android:paddingEnd="13dp"
-            android:paddingTop="7dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintStart_toEndOf="@+id/schedule"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:paddingBottom="7dp"
-            android:background="@drawable/corner_back"
-            
-            />
-
-        <TextView
-            android:id="@+id/dd"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/date_block"
-            android:hint="dd"
-            android:textAlignment="center"
-            android:textSize="18dp"
-            app:layout_constraintTop_toBottomOf="@+id/schedule"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="24dp"
-            app:layout_constraintEnd_toStartOf="@+id/mm"
-
-            android:padding="18dp"/>
-
-        <TextView
-            android:id="@+id/mm"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/date_block"
-            android:hint="mm"
-            android:textAlignment="center"
-            android:textSize="18dp"
-            app:layout_constraintTop_toBottomOf="@+id/schedule"
-            app:layout_constraintStart_toEndOf="@+id/dd"
-            android:layout_marginTop="24dp"
-            android:layout_marginStart="20dp"
-            app:layout_constraintEnd_toStartOf="@+id/yy"
-            android:padding="18dp"/>
-
-        <TextView
-            android:id="@+id/yy"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/date_block"
-            android:hint="yyyy"
-            android:textSize="18dp"
-            android:textAlignment="center"
-            app:layout_constraintTop_toBottomOf="@+id/schedule"
-            app:layout_constraintStart_toEndOf="@+id/mm"
-            android:layout_marginTop="24dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginStart="20dp"
-            android:padding="18dp"/>
-
-        <EditText
-            android:id="@+id/response"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:background="@drawable/date_block"
-            android:hint="Give Your Feedback here"
-            android:gravity="top"
-            android:textSize="18dp"
-app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mm"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="24dp"
-            android:layout_marginStart="17dp"
-            android:layout_marginEnd="17dp"
-            android:padding="15dp"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/response"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:text="SUBMIT"
-            android:backgroundTint="#5367E5"
-            android:paddingStart="30dp"
-            android:paddingEnd="30dp"
-            android:textSize="18dp"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
+            <TextView
+                android:id="@+id/feedback"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:paddingStart="25dp"
+                android:paddingEnd="25dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:background="@drawable/corner_back"
+                android:text="Give Feedback"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
+            <TextView
+                android:id="@+id/schedule"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="45dp"
+                android:layout_marginStart="30dp"
+                android:text="Schedule Meet Again"
+                android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@id/feedback"
+                app:layout_constraintStart_toStartOf="parent" />
 
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="38dp"
+                android:background="@drawable/corner_back"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="15dp"
+                android:paddingEnd="13dp"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"
+                android:text="Select Date"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@id/schedule"
+                app:layout_constraintTop_toBottomOf="@id/feedback"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/dd"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/date_block"
+                android:hint="dd"
+                android:padding="18dp"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@id/date"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/mm" />
+
+            <TextView
+                android:id="@+id/mm"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/date_block"
+                android:hint="mm"
+                android:padding="18dp"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@id/date"
+                app:layout_constraintStart_toEndOf="@id/dd"
+                app:layout_constraintEnd_toStartOf="@id/yy" />
+
+            <TextView
+                android:id="@+id/yy"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/date_block"
+                android:hint="yyyy"
+                android:padding="18dp"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@id/date"
+                app:layout_constraintStart_toEndOf="@id/mm"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <EditText
+                android:id="@+id/response"
+                android:layout_width="0dp"
+                android:layout_height="90dp"
+                android:layout_marginStart="17dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="17dp"
+                android:background="@drawable/date_block"
+                android:gravity="top"
+                android:hint="Give Your Feedback here"
+                android:padding="15dp"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/yy" />
+
+            <Button
+                android:id="@+id/submit_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="#5367E5"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:text="Submit"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/response" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
