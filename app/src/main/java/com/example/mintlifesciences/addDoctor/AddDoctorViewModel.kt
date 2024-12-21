@@ -45,14 +45,9 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
     fun saveDoctorData(doctor: DoctorData) {
         userId?.let { id ->
             val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
-            val doctorRef = databaseReference.child(id).child("Mint_Life_Science_Client")
-                .child("Doctors").push() // Generates a unique key based on timestamp
-
-            doctorRef.setValue(doctor).addOnSuccessListener {
-                Log.d("SaveDoctor", "Doctor ${doctor.docName} saved successfully.")
-            }.addOnFailureListener { e ->
-                Log.e("SaveDoctor", "Failed to save doctor: $e")
-            }
+            val doctorWithTimestamp = doctor.copy(lastAdded = System.currentTimeMillis())
+            databaseReference.child(id).child("Mint_Life_Science_Client")
+                .child("Doctors").child(doctor.docName).setValue(doctorWithTimestamp)
         } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot save doctor data.")
     }
 
@@ -60,20 +55,17 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
         userId?.let { id ->
             val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
             databaseReference.child(id).child("Mint_Life_Science_Client")
-                .child("Doctors").addListenerForSingleValueEvent(object : ValueEventListener {
+                .child("Doctors").orderByChild("lastAdded")
+                .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        val reversedList = snapshot.children.reversed() // Reverse the order
                         val doctorList = mutableListOf<DoctorData>()
-                        for (doctorSnapshot in reversedList) {
+                        for (doctorSnapshot in snapshot.children) {
                             val doctor = doctorSnapshot.getValue(DoctorData::class.java)
                             if (doctor != null) {
                                 doctorList.add(doctor)
-                            } else {
-                                Log.e("FirebaseData", "Error parsing doctor data.")
                             }
                         }
-                        _docDate.value = doctorList
-                        Log.d("FirebaseData", "Doctor list updated: $doctorList")
+                        _docDate.value = doctorList.reversed()
                     }
 
                     override fun onCancelled(error: DatabaseError) {
@@ -83,54 +75,45 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
         } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot load doctor data.")
     }
 
+
     fun deleteDoctor(doctorName: String) {
         userId?.let { id ->
             val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
             val doctorRef =
                 databaseReference.child(id).child("Mint_Life_Science_Client")
-                    .child("Doctors").orderByChild("docName").equalTo(doctorName)
+                    .child("Doctors").child(doctorName)
 
-            doctorRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (doctorSnapshot in snapshot.children) {
-                        doctorSnapshot.ref.removeValue().addOnSuccessListener {
-                            Log.d("DeleteDoctor", "Doctor $doctorName deleted successfully.")
+            doctorRef.removeValue().addOnSuccessListener {
+                Log.d("DeleteDoctor", "Doctor $doctorName deleted successfully.")
 
-                            val brandDoctorsRef =
-                                databaseReference.child(id).child("Mint_Life_Science_Client")
-                                    .child("Doctors")
-                            brandDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                                override fun onDataChange(snapshot: DataSnapshot) {
-                                    if (!snapshot.exists() || snapshot.childrenCount == 0L) {
-                                        brandDoctorsRef.child("no_doctors").setValue(true)
-                                            .addOnSuccessListener {
-                                                Log.d(
-                                                    "DeleteDoctor",
-                                                    "Placeholder added under to preserve the brand."
-                                                )
-                                            }
-                                            .addOnFailureListener { e ->
-                                                Log.e("DeleteDoctor", "Failed to add placeholder: $e")
-                                            }
-                                    } else {
-                                        Log.d("DeleteDoctor", "Doctors still exist.")
-                                    }
+                val brandDoctorsRef =
+                    databaseReference.child(id).child("Mint_Life_Science_Client")
+                        .child("Doctors")
+                brandDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (!snapshot.exists() || snapshot.childrenCount == 0L) {
+                            brandDoctorsRef.child("no_doctors").setValue(true)
+                                .addOnSuccessListener {
+                                    Log.d(
+                                        "DeleteDoctor",
+                                        "Placeholder added under to preserve the brand."
+                                    )
                                 }
-
-                                override fun onCancelled(error: DatabaseError) {
-                                    Log.e("DeleteDoctor", "Failed to check remaining doctors: ${error.message}")
+                                .addOnFailureListener { e ->
+                                    Log.e("DeleteDoctor", "Failed to add placeholder: $e")
                                 }
-                            })
-                        }.addOnFailureListener { e ->
-                            Log.e("DeleteDoctor", "Failed to delete doctor: $e")
+                        } else {
+                            Log.d("DeleteDoctor", "Doctors still exist.")
                         }
                     }
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                    Log.e("DeleteDoctor", "Failed to find doctor for deletion: ${error.message}")
-                }
-            })
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("DeleteDoctor", "Failed to check remaining doctors: ${error.message}")
+                    }
+                })
+            }.addOnFailureListener { e ->
+                Log.e("DeleteDoctor", "Failed to delete doctor: $e")
+            }
         } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot delete doctor.")
     }
 }
