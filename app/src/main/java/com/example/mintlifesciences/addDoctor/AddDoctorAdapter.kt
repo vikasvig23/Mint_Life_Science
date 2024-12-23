@@ -52,6 +52,7 @@ class AddDoctorAdapter(
                 Intent(context, HomeActivity::class.java)
             }
             intent.putExtra("doctorName", itemViewModel.docName) // Pass doctorName
+            intent.putExtra("recentDoctor", false) // Pass doctorName
             context.startActivity(intent)
         }
 

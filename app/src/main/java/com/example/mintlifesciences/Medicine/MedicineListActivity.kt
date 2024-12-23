@@ -146,60 +146,12 @@ class MedicineListActivity : AppCompatActivity() {
         doctorMedicinesRef.setValue(selectedMedicines)
             .addOnSuccessListener {
                 Log.d("MedicineListActivity", "Doctor data saved successfully!")
-                saveInRecentDoctors()
+                //saveInRecentDoctors()
                 selectedMedicines.clear()
             }
             .addOnFailureListener { e ->
                 Log.e("MedicineListActivity", "Failed to save doctor data", e)
             }
-    }
-
-    private fun saveInRecentDoctors() {
-        val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
-        val recentDoctorsRef =
-            databaseReference.child(userId).child("RecentDoctors").child(doctorName)
-                .child("medicines").child(brandName)
-
-        recentDoctorsRef.setValue(selectedMedicines)
-            .addOnSuccessListener {
-                Log.d("MedicineListActivity", "Doctor data saved to RecentDoctors successfully!")
-                limitRecentDoctors()
-            }
-            .addOnFailureListener { e ->
-                Log.e("MedicineListActivity", "Failed to save doctor data to RecentDoctors", e)
-            }
-    }
-
-    private fun limitRecentDoctors() {
-        val recentDoctorsRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
-            .child("RecentDoctors")
-        recentDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val children = snapshot.children.toList()
-                if (children.size > 20) {
-                    val oldestChild = children.firstOrNull()
-                    oldestChild?.key?.let { oldestKey ->
-                        recentDoctorsRef.child(oldestKey).removeValue()
-                            .addOnSuccessListener {
-                                Log.d(
-                                    "MedicineListActivity",
-                                    "Oldest doctor removed from RecentDoctors"
-                                )
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e("MedicineListActivity", "Failed to remove oldest doctor", e)
-                            }
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e(
-                    "MedicineListActivity",
-                    "Failed to retrieve RecentDoctors data: ${error.message}"
-                )
-            }
-        })
     }
 
     /// FUNCTION TO FETCH DOCTOR MEDICINES
@@ -247,3 +199,53 @@ class MedicineListActivity : AppCompatActivity() {
 //The scroll listener checks if the user has scrolled near the end of the list.
 //When the user reaches the end, it calls fetchMedicines() with isLoadMore = true to append more items.
 //The pagination is handled smoothly, fetching 20 items at a time and appending them to the list.
+
+
+
+//private fun saveInRecentDoctors() {
+//        val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
+//        val recentDoctorsRef =
+//            databaseReference.child(userId).child("RecentDoctors").child(doctorName)
+//                .child("medicines").child(brandName)
+//
+//        recentDoctorsRef.setValue(selectedMedicines)
+//            .addOnSuccessListener {
+//                Log.d("MedicineListActivity", "Doctor data saved to RecentDoctors successfully!")
+//                limitRecentDoctors()
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e("MedicineListActivity", "Failed to save doctor data to RecentDoctors", e)
+//            }
+//    }
+//
+//    private fun limitRecentDoctors() {
+//        val recentDoctorsRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
+//            .child("RecentDoctors")
+//        recentDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                val children = snapshot.children.toList()
+//                if (children.size > 20) {
+//                    val oldestChild = children.firstOrNull()
+//                    oldestChild?.key?.let { oldestKey ->
+//                        recentDoctorsRef.child(oldestKey).removeValue()
+//                            .addOnSuccessListener {
+//                                Log.d(
+//                                    "MedicineListActivity",
+//                                    "Oldest doctor removed from RecentDoctors"
+//                                )
+//                            }
+//                            .addOnFailureListener { e ->
+//                                Log.e("MedicineListActivity", "Failed to remove oldest doctor", e)
+//                            }
+//                    }
+//                }
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//                Log.e(
+//                    "MedicineListActivity",
+//                    "Failed to retrieve RecentDoctors data: ${error.message}"
+//                )
+//            }
+//        })
+//    }

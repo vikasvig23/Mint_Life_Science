@@ -2,6 +2,7 @@ package com.example.mintlifesciences.medicinePresentation
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,7 @@ import com.example.mintlifesciences.model.Medicine
 class PresentationAdapter(
     private val items: List<Medicine>,
     private val viewPager: ViewPager2,
-    private val context: Context
+    private val context: Context,
 ) : RecyclerView.Adapter<PresentationAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -25,8 +26,10 @@ class PresentationAdapter(
         val backButton: ImageView = view.findViewById(R.id.back_button)
         val playButton: ImageView = view.findViewById(R.id.play_button)
         val shareButton: ImageView = view.findViewById(R.id.share_button)
-        val pdfTextView: TextView = view.findViewById(R.id.pdfTextView) // Assuming a TextView for PDF link
+        val pdfTextView: TextView = view.findViewById(R.id.pdfTextView)
         val descriptionTextView: TextView = view.findViewById(R.id.descriptionTextView)
+        val medicineName: TextView = view.findViewById(R.id.medicineName)
+        val medicineSaltDescription: TextView = view.findViewById(R.id.medicineSaltDescription)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -36,49 +39,64 @@ class PresentationAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
+
         // Load image using Glide
         Glide.with(context)
             .load(item.image)
-            .placeholder(R.drawable.baseline_image_24) // Placeholder image while the image loads
-            .error(R.drawable.baseline_image_24) // Error image in case loading fails
+            .placeholder(R.drawable.baseline_image_24)
+            .error(R.drawable.baseline_image_24)
             .into(holder.cardImage)
 
+        // Set text for medicine name and salt description
+        holder.medicineName.text = item.name ?: "Unknown Medicine"
+        holder.medicineSaltDescription.text = item.salt ?: "Unknown Salt"
+
+        // Set description
+        holder.descriptionTextView.text = item.description ?: "No description available"
+
+        // Handle play button click
         holder.playButton.setOnClickListener {
-            val intent = Intent(context, MediaPlayerActivity::class.java)
-            intent.putExtra("MEDIA_URL", item.videoUrl ?: "")
+            val intent = Intent(context, MediaPlayerActivity::class.java).apply {
+                putExtra("MEDIA_URL", item.videoUrl ?: "")
+            }
             context.startActivity(intent)
         }
 
+        // Handle share button click
         holder.shareButton.setOnClickListener {
-            // Create an intent for sharing
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain" // MIME type
+                type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, "Check this out: ${item.videoUrl}")
             }
-
-            // Launch the intent
             val chooserIntent = Intent.createChooser(shareIntent, "Share via")
             context.startActivity(chooserIntent)
         }
 
+        // Handle next button click
         holder.nextButton.setOnClickListener {
             if (position < items.size - 1) {
                 viewPager.setCurrentItem(position + 1, true)
             }
         }
 
+        // Handle back button click
         holder.backButton.setOnClickListener {
             if (position > 0) {
                 viewPager.setCurrentItem(position - 1, true)
             }
         }
 
-        // Set description and PDF link
-        holder.descriptionTextView.text = item.description ?: "No description available"
-        holder.pdfTextView.text = item.pdfUrl ?: "No PDF available"
+        // Handle PDF TextView click
+        if (item.pdfUrl.isNullOrEmpty()) {
+            holder.pdfTextView.visibility = View.GONE
+        } else {
+            holder.pdfTextView.visibility = View.VISIBLE
+            holder.pdfTextView.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.pdfUrl))
+                context.startActivity(intent)
+            }
+        }
     }
 
-    override fun getItemCount(): Int {
-        return items.size
-    }
+    override fun getItemCount(): Int = items.size
 }

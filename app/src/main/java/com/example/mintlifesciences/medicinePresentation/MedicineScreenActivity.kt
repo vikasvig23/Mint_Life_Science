@@ -26,6 +26,7 @@ import com.example.mintlifesciences.databinding.ActivityMedicineScreenBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.login.LoginViewModel
 import com.example.mintlifesciences.model.Medicine
+import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
 import com.google.firebase.database.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -46,6 +47,7 @@ class MedicineScreenActivity : AppCompatActivity() {
     private lateinit var medicineScreenViewModel: MedicineScreenViewModel
     private lateinit var feedback:String
     private lateinit var selectedDate : String
+    private  var recentDoctor : Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +58,7 @@ class MedicineScreenActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
+        recentDoctor = intent.getBooleanExtra("recentDoctor", false)
         doctorName = intent.getStringExtra("doctorName") ?: ""
 
         loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
@@ -89,8 +92,13 @@ class MedicineScreenActivity : AppCompatActivity() {
         medicineScreenViewModel.setDoctorReference(db)
 
         binding.backArrow.setOnClickListener {
-            val intent = Intent(this, AddDoctorActivity::class.java)
-            startActivity(intent)
+            if(recentDoctor){
+                val intent = Intent(this, RecentDoctorsActivity::class.java)
+                startActivity(intent)
+            }else {
+                val intent = Intent(this, AddDoctorActivity::class.java)
+                startActivity(intent)
+            }
         }
 
         fetchDoctorData()

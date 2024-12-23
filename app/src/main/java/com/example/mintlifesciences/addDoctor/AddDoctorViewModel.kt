@@ -3,6 +3,9 @@ package com.example.mintlifesciences.addDoctor
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -22,6 +25,9 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
     private val sharedPreferences: SharedPreferences =
         application.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
     private val userId: String? = sharedPreferences.getString("userId", null)
 
     private var _docDate = MutableLiveData<List<DoctorData>>()
@@ -34,6 +40,10 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
             ContextCompat.getColor(activity, R.color.purple_500),
             ContextCompat.getColor(activity, R.color.purple_500)
         )
+    }
+
+    fun setLoadingState(isLoading: Boolean) {
+        _isLoading.value = isLoading
     }
 
     fun addDoctor(doctor: DoctorData) {
@@ -51,7 +61,9 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
         } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot save doctor data.")
     }
 
+
     fun loadDoctorData() {
+        _isLoading.value = true // Show progress bar
         userId?.let { id ->
             val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
             databaseReference.child(id).child("Mint_Life_Science_Client")
@@ -66,13 +78,18 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
                             }
                         }
                         _docDate.value = doctorList.reversed()
+                        _isLoading.value = false // Hide progress bar
                     }
 
                     override fun onCancelled(error: DatabaseError) {
                         Log.e("FirebaseData", "Failed to retrieve data: ${error.message}")
+                        _isLoading.value = false // Hide progress bar on error
                     }
                 })
-        } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot load doctor data.")
+        } ?: run {
+            Log.e("AddDoctorViewModel", "User ID is null, cannot load doctor data.")
+            _isLoading.value = false // Hide progress bar on error
+        }
     }
 
 
@@ -116,4 +133,21 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
             }
         } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot delete doctor.")
     }
+
+    fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val networkCapabilities =
+                connectivityManager.getNetworkCapabilities(network) ?: return false
+            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } else {
+            @Suppress("DEPRECATION")
+            val networkInfo = connectivityManager.activeNetworkInfo
+            @Suppress("DEPRECATION")
+            networkInfo != null && networkInfo.isConnected
+        }
+    }
+
 }

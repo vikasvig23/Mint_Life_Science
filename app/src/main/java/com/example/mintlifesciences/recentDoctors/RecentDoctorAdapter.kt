@@ -45,6 +45,7 @@ class RecentDoctorAdapter(private var docList: List<DoctorData>) :
                 Intent(context, HomeActivity::class.java)
             }
             intent.putExtra("doctorName", doctorData.docName) // Pass doctorName
+            intent.putExtra("recentDoctor", true) // Pass doctorName
             context.startActivity(intent)
         }
     }
