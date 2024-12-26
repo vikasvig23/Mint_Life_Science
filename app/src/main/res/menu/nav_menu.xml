@@ -18,6 +18,11 @@
             android:title="Recent Doctors"/>
 
         <item
+            android:id="@+id/nav_presentation"
+            android:icon="@drawable/baseline_insert_drive_file_24"
+            android:title="All Presentations"/>
+
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/baseline_info_24"
             android:title="About Us"/>

@@ -22,6 +22,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.addDoctor.DoctorData
+import com.example.mintlifesciences.allPresentation.All_Presentation
 import com.example.mintlifesciences.databinding.ActivityMedicineScreenBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.login.LoginViewModel
@@ -48,6 +49,7 @@ class MedicineScreenActivity : AppCompatActivity() {
     private lateinit var feedback:String
     private lateinit var selectedDate : String
     private  var recentDoctor : Boolean = false
+    private  var allPresentation : Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +61,7 @@ class MedicineScreenActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         recentDoctor = intent.getBooleanExtra("recentDoctor", false)
+        allPresentation = intent.getBooleanExtra("allPresentation", false)
         doctorName = intent.getStringExtra("doctorName") ?: ""
 
         loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
@@ -95,10 +98,15 @@ class MedicineScreenActivity : AppCompatActivity() {
             if(recentDoctor){
                 val intent = Intent(this, RecentDoctorsActivity::class.java)
                 startActivity(intent)
-            }else {
+            }else if(allPresentation) {
+                val intent = Intent(this, All_Presentation::class.java)
+                startActivity(intent)
+            }
+            else{
                 val intent = Intent(this, AddDoctorActivity::class.java)
                 startActivity(intent)
             }
+            finish()
         }
 
         fetchDoctorData()
@@ -107,6 +115,29 @@ class MedicineScreenActivity : AppCompatActivity() {
         adapter = PresentationAdapter(items, binding.viewPager, this)
         binding.viewPager.adapter = adapter
         binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+
+
+        //Handle the submit
+        binding.submitPresentation.setOnClickListener {
+            binding.dimOverlay.visibility = View.VISIBLE
+
+            if (selectedDate.isEmpty()) {
+                selectedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+            }
+
+            if (feedback.isEmpty()) {
+                Toast.makeText(this, "Please add the feedback.", Toast.LENGTH_SHORT).show()
+                // Launch FeedbackFragment to collect feedback
+                val fragment = FeedbackFragment.newInstance(feedback, selectedDate)
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            } else {
+                // Navigate back to the previous activity and finish this one
+                finish()
+            }
+        }
     }
 
 
@@ -176,7 +207,7 @@ class MedicineScreenActivity : AppCompatActivity() {
                     .addToBackStack(null)
                     .commit()
 
-                true
+                return true
             }
 
 

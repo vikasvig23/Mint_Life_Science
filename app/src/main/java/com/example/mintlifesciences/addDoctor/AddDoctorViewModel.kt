@@ -150,4 +150,31 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun fetchUserDetails() {
+        userId?.let { id ->
+            val databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(id)
+
+            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    // Retrieve username and email from the snapshot
+                    val username = dataSnapshot.child("username").getValue(String::class.java)
+                    val email = dataSnapshot.child("email").getValue(String::class.java)
+
+
+                    with(sharedPreferences.edit()) {
+                        putString("userName", username)
+                        putString("userEmail", email)
+                        apply() // Asynchronously save changes
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    // Handle possible errors.
+                    Log.e("fetchUserDetails", "Database error: ${databaseError.message}")
+                }
+            })
+        }
+    }
+
+
 }

@@ -1,4 +1,4 @@
-package com.example.mintlifesciences.utils
+package com.example.mintlifesciences.helperUtils
 
 import android.content.Context
 import android.content.pm.PackageInfo

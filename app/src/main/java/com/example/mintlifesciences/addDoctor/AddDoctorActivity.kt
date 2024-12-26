@@ -25,13 +25,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.Utils.NetworkChangeReceiver
 import com.example.mintlifesciences.aboutUs.AboutUsActivity
+import com.example.mintlifesciences.allPresentation.All_Presentation
 import com.example.mintlifesciences.databinding.ActivityAddDoctorBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.login.LoginViewModel
 import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
-import com.example.mintlifesciences.utils.AppUtils
+import com.example.mintlifesciences.helperUtils.AppUtils
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.database.FirebaseDatabase
 import org.w3c.dom.Text
 
 class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -94,7 +96,6 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         // Set up button listener
         binding.btn.setOnClickListener { showDoctorDialog() }
 
-        setupDrawer()
 
         // Navigation drawer setup
         drawerToggle = ActionBarDrawerToggle(
@@ -121,13 +122,15 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 }
             }
         })
+
+        viewModel.fetchUserDetails()
+        setupDrawer()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(networkChangeReceiver)
     }
-
 
 
     private fun setupDrawer() {
@@ -207,6 +210,11 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
             R.id.nav_about -> {
                 val intent = Intent(this, AboutUsActivity::class.java)
+                startActivity(intent)
+            }
+
+            R.id.nav_presentation -> {
+                val intent = Intent(this, All_Presentation::class.java)
                 startActivity(intent)
             }
 

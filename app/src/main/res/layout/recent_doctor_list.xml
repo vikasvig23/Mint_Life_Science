@@ -20,9 +20,9 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="5dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:paddingStart="5dp">
 
             <TextView
                 android:id="@+id/tvName"
@@ -43,6 +43,28 @@
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/scheduleMeet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_blue"
+                android:gravity="center"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="8dp"
+                android:text="18/12/2024"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
