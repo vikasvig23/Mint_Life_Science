@@ -104,6 +104,7 @@ class MedicineScreenActivity : AppCompatActivity() {
         fetchDoctorData()
         fetchDoctorDetails()
 
+
         adapter = PresentationAdapter(items, binding.viewPager, this)
         binding.viewPager.adapter = adapter
         binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
@@ -111,38 +112,36 @@ class MedicineScreenActivity : AppCompatActivity() {
 
 
     private fun fetchDoctorData() {
-        // Show loading indicator while fetching data
         binding.progressBar.visibility = View.VISIBLE
 
-        // The reference path should be corrected based on actual Firebase structure
-        val dbs = FirebaseDatabase.getInstance().getReference("Users")
-            .child(userId).child("Mint_Life_Science_Client").child("Doctors")
-            .child(doctorName).child("medicines")
-
+        val dbs = db.child("medicines")
         dbs.get().addOnSuccessListener { dataSnapshot ->
-            binding.progressBar.visibility = View.GONE  // Hide loading indicator
-
+            binding.progressBar.visibility = View.GONE
             if (dataSnapshot.exists()) {
                 items.clear()
-
-                // Iterate through each brand and add medicines to items
                 for (brandSnapshot in dataSnapshot.children) {
                     for (medicineSnapshot in brandSnapshot.children) {
                         val medicine = medicineSnapshot.getValue(Medicine::class.java)
-                        if (medicine != null) {
+                        medicine?.videoUrl =
+                            medicineSnapshot.child("videoUrl").getValue(String::class.java) ?: ""
+                        if (medicine != null && medicine.videoUrl!!.isNotEmpty()) {
                             items.add(medicine)
+                        } else {
+                            Log.e(
+                                "MedicineScreenActivity",
+                                "Media URL is null or empty for ${medicineSnapshot.key}"
+                            )
                         }
                     }
                 }
-
-                adapter.notifyDataSetChanged()
+                binding.viewPager.adapter?.notifyDataSetChanged()
             } else {
-                Toast.makeText(this@MedicineScreenActivity, "No medicines found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "No medicines found", Toast.LENGTH_SHORT).show()
             }
         }.addOnFailureListener { e ->
-            binding.progressBar.visibility = View.GONE  // Hide loading indicator
+            binding.progressBar.visibility = View.GONE
             Log.e("MedicineScreenActivity", "Failed to fetch doctor data", e)
-            Toast.makeText(this@MedicineScreenActivity, "Failed to fetch data. Please try again.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Failed to fetch data. Please try again.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -194,13 +193,33 @@ class MedicineScreenActivity : AppCompatActivity() {
             }
     }
 
+//    private fun fetchDoctorDetails() {
+//        db.child("feedback").get().addOnSuccessListener { feedbackSnapshot ->
+//            feedback = feedbackSnapshot.getValue(String::class.java) ?: "No feedback available"
+//
+//            db.child("scheduleMeet").get().addOnSuccessListener { dateSnapshot ->
+//                selectedDate = dateSnapshot.getValue(String::class.java) ?: ""
+//
+//            }.addOnFailureListener { e ->
+//                Log.e("MedicineScreenActivity", "Failed to fetch schedule date", e)
+//            }
+//        }.addOnFailureListener { e ->
+//            Log.e("MedicineScreenActivity", "Failed to fetch feedback", e)
+//        }
+//    }
+
     private fun fetchDoctorDetails() {
         db.child("feedback").get().addOnSuccessListener { feedbackSnapshot ->
-            feedback = feedbackSnapshot.getValue(String::class.java) ?: "No feedback available"
+            feedback = feedbackSnapshot.getValue(String::class.java) ?: ""
+
+            if (feedback.isNotEmpty() && feedback != "") {
+             //   binding.response.setText(feedback)
+            } else {
+              //  binding.response.setText("")
+            }
 
             db.child("scheduleMeet").get().addOnSuccessListener { dateSnapshot ->
                 selectedDate = dateSnapshot.getValue(String::class.java) ?: ""
-
             }.addOnFailureListener { e ->
                 Log.e("MedicineScreenActivity", "Failed to fetch schedule date", e)
             }
@@ -208,6 +227,5 @@ class MedicineScreenActivity : AppCompatActivity() {
             Log.e("MedicineScreenActivity", "Failed to fetch feedback", e)
         }
     }
-
 
 }

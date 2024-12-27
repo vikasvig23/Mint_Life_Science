@@ -2,8 +2,10 @@ package com.example.mintlifesciences.medicinePresentation
 
 
 import android.app.DatePickerDialog
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -58,6 +60,18 @@ class FeedbackFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
+        binding.root.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                val bounds = Rect()
+                binding.fragmentContainer.getGlobalVisibleRect(bounds)
+                if (!bounds.contains(event.rawX.toInt(), event.rawY.toInt())) {
+                    // Dismiss the fragment
+                    parentFragmentManager.popBackStack()
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
 
         // Pre-fill the feedback and date fields
         binding.response.setText(doctorFeedback)
@@ -94,18 +108,19 @@ class FeedbackFragment : Fragment() {
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        DatePickerDialog(
+        val datePicker = DatePickerDialog(
             requireContext(),
             { _, selectedYear, selectedMonth, selectedDay ->
-                val formattedDate = String.format(
-                    "%02d-%02d-%04d", selectedDay, selectedMonth + 1, selectedYear
-                )
-                viewModel.setSelectedDate(formattedDate)
+
+                binding.dd.text = selectedDay.toString().padStart(2, '0')
+                binding.mm.text = (selectedMonth + 1).toString().padStart(2, '0')
+                binding.yy.text = selectedYear.toString()
             },
             year,
             month,
             day
-        ).show()
+        )
+        datePicker.show()
     }
 
     private fun onSubmitClicked() {
@@ -124,12 +139,19 @@ class FeedbackFragment : Fragment() {
             return
         }
 
-        val currentDate = Calendar.getInstance().time
+        val currentDate = Calendar.getInstance()
+        currentDate.set(Calendar.HOUR_OF_DAY, 0)
+        currentDate.set(Calendar.MINUTE, 0)
+        currentDate.set(Calendar.SECOND, 0)
+        currentDate.set(Calendar.MILLISECOND, 0)
+
         val selectedDateParsed = parseDate(selectedDate)
 
         if (selectedDateParsed != null) {
-            if (selectedDateParsed >= currentDate) {
+            // Validate that the selected date is today or in the future
+            if (selectedDateParsed >= currentDate.time) {
                 updateDoctorData(selectedDate, feedbackText)
+                Toast.makeText(requireContext(), "Thank you for your feedback", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(requireContext(), "Selected date must be today or in the future", Toast.LENGTH_SHORT).show()
             }
@@ -138,7 +160,6 @@ class FeedbackFragment : Fragment() {
         }
     }
 
-
     private fun parseDate(dateString: String): Date? {
         return try {
             SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(dateString)
@@ -146,6 +167,8 @@ class FeedbackFragment : Fragment() {
             null
         }
     }
+
+
 
     private fun updateDoctorData(selectedDate: String, feedbackText: String) {
         activityViewModel.updateDoctorData(selectedDate, feedbackText)

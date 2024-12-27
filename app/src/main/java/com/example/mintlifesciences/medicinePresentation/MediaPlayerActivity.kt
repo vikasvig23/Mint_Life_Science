@@ -1,7 +1,9 @@
 package com.example.mintlifesciences.medicinePresentation
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -20,29 +22,55 @@ class MediaPlayerActivity : AppCompatActivity() {
 
         playerView = findViewById(R.id.player_view)
 
+        // Retrieve the media URL from the intent
         val mediaUrl = intent.getStringExtra("MEDIA_URL")
+        Log.d("MediaPlayerActivity", "Received media URL: $mediaUrl")
 
-        if (mediaUrl != null) {
+        if (!mediaUrl.isNullOrEmpty()) {
             initializePlayer(mediaUrl)
         } else {
             Toast.makeText(this, "Media URL is missing!", Toast.LENGTH_SHORT).show()
+            Log.e("MediaPlayerActivity", "Media URL is null or empty!")
         }
     }
 
     private fun initializePlayer(mediaUrl: String) {
-        // Create ExoPlayer instance
-        exoPlayer = ExoPlayer.Builder(this).build()
+        try {
+            // Check if the URL is a YouTube link
+            if (mediaUrl.contains("youtube.com") || mediaUrl.contains("youtu.be")) {
+                // Redirect to YouTube app
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mediaUrl))
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.setPackage("com.google.android.youtube")
 
-        // Bind the ExoPlayer instance to the PlayerView
-        playerView.player = exoPlayer
+                // Check if YouTube app is installed
+                if (intent.resolveActivity(packageManager) != null) {
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this, "YouTube app is not installed", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                // Play the media using ExoPlayer
+                exoPlayer = ExoPlayer.Builder(this).build()
 
-        // Create media source from the URL
-        val mediaItem = MediaItem.fromUri(Uri.parse(mediaUrl))
-        exoPlayer?.setMediaItem(mediaItem)
+                // Bind the ExoPlayer instance to the PlayerView
+                playerView.player = exoPlayer
 
-        // Prepare and start the player
-        exoPlayer?.prepare()
-        exoPlayer?.playWhenReady = true
+                // Log media URL
+                Log.d("MediaPlayerActivity", "Initializing ExoPlayer with URL: $mediaUrl")
+
+                // Create media source from the URL
+                val mediaItem = MediaItem.fromUri(Uri.parse(mediaUrl))
+                exoPlayer?.setMediaItem(mediaItem)
+
+                // Prepare and start the player
+                exoPlayer?.prepare()
+                exoPlayer?.playWhenReady = true
+            }
+        } catch (e: Exception) {
+            Log.e("MediaPlayerActivity", "Error initializing ExoPlayer", e)
+            Toast.makeText(this, "Error initializing media player", Toast.LENGTH_SHORT).show()
+        }
     }
 
 
@@ -50,5 +78,14 @@ class MediaPlayerActivity : AppCompatActivity() {
         super.onStop()
         // Release the player when the activity is stopped
         exoPlayer?.release()
+        exoPlayer = null
+        Log.d("MediaPlayerActivity", "ExoPlayer released")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Additional cleanup if required
+        exoPlayer?.release()
+        exoPlayer = null
     }
 }

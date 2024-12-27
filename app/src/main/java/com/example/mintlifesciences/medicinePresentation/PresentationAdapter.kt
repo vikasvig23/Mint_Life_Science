@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
@@ -54,13 +55,18 @@ class PresentationAdapter(
         // Set description
         holder.descriptionTextView.text = item.description ?: "No description available"
 
-        // Handle play button click
+
         holder.playButton.setOnClickListener {
-            val intent = Intent(context, MediaPlayerActivity::class.java).apply {
-                putExtra("MEDIA_URL", item.videoUrl ?: "")
+            if (!item.videoUrl.isNullOrEmpty()) {
+                val intent = Intent(context, MediaPlayerActivity::class.java).apply {
+                    putExtra("MEDIA_URL", item.videoUrl)
+                }
+                context.startActivity(intent)
+            } else {
+                Toast.makeText(context, "No video available for this item.", Toast.LENGTH_SHORT).show()
             }
-            context.startActivity(intent)
         }
+
 
         // Handle share button click
         holder.shareButton.setOnClickListener {
