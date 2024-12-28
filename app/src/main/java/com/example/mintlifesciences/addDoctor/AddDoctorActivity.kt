@@ -23,10 +23,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.aboutUs.AboutUsActivity
 import com.example.mintlifesciences.databinding.ActivityAddDoctorBinding
+import com.example.mintlifesciences.helperUtils.AppUtils
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.login.LoginViewModel
 import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
-import com.example.mintlifesciences.utils.AppUtils
+
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import org.w3c.dom.Text
