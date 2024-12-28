@@ -1,4 +1,4 @@
-package com.example.mintlifesciences.recentDoctors
+package com.example.mintlifesciences.allPresentation
 
 import android.content.Intent
 import android.util.Log
@@ -15,27 +15,27 @@ import com.example.mintlifesciences.medicinePresentation.MedicineScreenActivity
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class RecentDoctorAdapter(private var docList: List<DoctorData>) :
-    RecyclerView.Adapter<RecentDoctorAdapter.RecentDoctorViewHolder>() {
+class AllPresentationAdapter(private var presentationList: List<DoctorData>) :
+    RecyclerView.Adapter<AllPresentationAdapter.AllPresentationViewHolder>() {
 
-    class RecentDoctorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class AllPresentationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val cardDoc: CardView = itemView.findViewById(R.id.card_doc)
         val docName: TextView = itemView.findViewById(R.id.tvName)
         val docSpeciality: TextView = itemView.findViewById(R.id.tvClass)
         val scheduleMeet : TextView = itemView.findViewById(R.id.scheduleMeet)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecentDoctorViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AllPresentationViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.recent_doctor_list, parent, false)
-        return RecentDoctorViewHolder(view)
+        return AllPresentationViewHolder(view)
     }
 
     override fun getItemCount(): Int {
-        return docList.size
+        return presentationList.size
     }
 
-    override fun onBindViewHolder(holder: RecentDoctorViewHolder, position: Int) {
-        val doctorData = docList[position]
+    override fun onBindViewHolder(holder: AllPresentationViewHolder, position: Int) {
+        val doctorData = presentationList[position]
         holder.docName.text = doctorData.docName
         holder.docSpeciality.text = doctorData.docSpeciality
 
@@ -60,8 +60,7 @@ class RecentDoctorAdapter(private var docList: List<DoctorData>) :
                 }
 
                 holder.scheduleMeet.visibility = View.VISIBLE
-            }
-            else {
+            } else {
                 holder.scheduleMeet.visibility = View.GONE
             }
         }
@@ -75,13 +74,14 @@ class RecentDoctorAdapter(private var docList: List<DoctorData>) :
                 Intent(context, HomeActivity::class.java)
             }
             intent.putExtra("doctorName", doctorData.docName) // Pass doctorName
-            intent.putExtra("recentDoctor", true) // Pass doctorName
+            intent.putExtra("allPresentation", true) // Pass doctorName
             context.startActivity(intent)
         }
     }
 
+
     fun updateList(newDocList: List<DoctorData>) {
-        docList = newDocList
+        presentationList = newDocList
         notifyDataSetChanged()
         Log.d("RecyclerViewBinding", "List updated: $newDocList")
     }

@@ -4,8 +4,6 @@ import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,7 +21,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
-import com.example.mintlifesciences.Utils.NetworkChangeReceiver
 import com.example.mintlifesciences.aboutUs.AboutUsActivity
 import com.example.mintlifesciences.databinding.ActivityAddDoctorBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
@@ -34,17 +31,16 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import org.w3c.dom.Text
 
-class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class AddDoctorActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSelectedListener {
     lateinit var binding: ActivityAddDoctorBinding
     private lateinit var viewModel: AddDoctorViewModel
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var adapter: AddDoctorAdapter
     private lateinit var loginViewModel: LoginViewModel
-    private lateinit var networkChangeReceiver: NetworkChangeReceiver
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_add_doctor)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_add_doctor)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -59,33 +55,8 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         adapter = AddDoctorAdapter(this, emptyList(), viewModel)
         binding.recDocView.adapter = adapter
 
-        // Initialize the BroadcastReceiver
-        networkChangeReceiver = NetworkChangeReceiver {
-            // This block executes when internet is available
-            viewModel.setLoadingState(true) // Show progress bar
-            viewModel.loadDoctorData() // Fetch doctor data
-        }
-
-        // Register the receiver to listen for network changes
-        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        registerReceiver(networkChangeReceiver, filter)
-
-        // Observe isLoading LiveData to show/hide the progress bar
-        viewModel.isLoading.observe(this) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        }
-
-        viewModel.setLoadingState(true)
-
-        if (viewModel.isNetworkAvailable(applicationContext)) {
-            viewModel.loadDoctorData()
-        } else {
-            viewModel.setLoadingState(false)
-            Toast.makeText(this, "Please Check Your Internet Connection", Toast.LENGTH_LONG).show()
-        }
-
-
         // Observe Doctor Data
+        viewModel.loadDoctorData()
         viewModel.docData.observe(this) { doctors ->
             Log.d("AddDoctorActivity", "Received data: $doctors")
             adapter.updateList(doctors)
@@ -117,17 +88,12 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     binding.drawerLayout.closeDrawer(GravityCompat.START)
                 } else {
-                    finish()
+                    // Custom behavior for back press, if any
+                    finish() // Finish the current activity
                 }
             }
         })
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(networkChangeReceiver)
-    }
-
 
 
     private fun setupDrawer() {
@@ -139,21 +105,22 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         var userName = sharedPreferences.getString("userName", null)
         val userEmail = sharedPreferences.getString("userEmail", "user@example.com")
 
-        if (userName == null && userEmail != null) {
+        if(userName==null && userEmail!=null){
 
-            loginViewModel.fetchUserName(userEmail) { fetchUser ->
-                fetchUser?.let { name ->
-                    with(sharedPreferences.edit()) {
-                        putString("userName", name)
+            loginViewModel.fetchUserName(userEmail){ fetchUser->
+                fetchUser?.let { name->
+                    with(sharedPreferences.edit()){
+                        putString("userName",name)
                         apply()
                     }
-                    userNameTextView.text = name
+                    userNameTextView.text=name
                 }
             }
-        } else {
-            userNameTextView.text = userName
         }
-        userEmailTextView.text = userEmail
+        else{
+            userNameTextView.text=userName
+        }
+        userEmailTextView.text=userEmail
     }
 
     private fun showDoctorDialog() {
@@ -171,12 +138,8 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             .create()
 
         dialogView.findViewById<AppCompatButton>(R.id.cnfrmBtn).setOnClickListener {
-            val name =
-                docName.text?.toString()?.trim()?.split(" ")?.joinToString(" ") { it.capitalize() }
-                    ?: ""
-            val speciality =
-                docSpec.text?.toString()?.trim()?.split(" ")?.joinToString(" ") { it.capitalize() }
-                    ?: ""
+            val name = docName.text?.toString()?.trim()?.split(" ")?.joinToString(" ") { it.capitalize() } ?: ""
+            val speciality = docSpec.text?.toString()?.trim()?.split(" ")?.joinToString(" ") { it.capitalize() } ?: ""
 
             if (name.isEmpty() || speciality.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
@@ -198,19 +161,18 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 startActivity(intent)
             }
-
             R.id.nav_doctors -> {
                 val intent = Intent(this, RecentDoctorsActivity::class.java)
                 startActivity(intent)
                 finish()
             }
 
-            R.id.nav_about -> {
-                val intent = Intent(this, AboutUsActivity::class.java)
+            R.id.nav_about->{
+                val intent=Intent(this, AboutUsActivity::class.java)
                 startActivity(intent)
             }
 
-            R.id.nav_logout -> {
+            R.id.nav_logout->{
                 loginViewModel.logout()
             }
         }

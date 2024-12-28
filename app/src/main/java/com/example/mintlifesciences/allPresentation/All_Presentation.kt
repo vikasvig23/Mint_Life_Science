@@ -1,4 +1,4 @@
-package com.example.mintlifesciences.recentDoctors
+package com.example.mintlifesciences.allPresentation
 
 import android.content.Context
 import android.content.Intent
@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -16,24 +17,23 @@ import com.example.mintlifesciences.R
 import com.example.mintlifesciences.aboutUs.AboutUsActivity
 import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.addDoctor.AddDoctorViewModel
-import com.example.mintlifesciences.allPresentation.All_Presentation
-import com.example.mintlifesciences.databinding.ActivityRecentDoctorsBinding
-import com.example.mintlifesciences.homescreen.HomeActivity
+import com.example.mintlifesciences.databinding.ActivityAllPresentationBinding
 import com.example.mintlifesciences.login.LoginViewModel
+import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
 import com.example.mintlifesciences.helperUtils.AppUtils
 import com.google.android.material.navigation.NavigationView
 
-class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class All_Presentation : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var binding: ActivityRecentDoctorsBinding
-    private lateinit var adapter: RecentDoctorAdapter
+    private lateinit var binding: ActivityAllPresentationBinding
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var loginViewModel: LoginViewModel
+    private lateinit var adapter: AllPresentationAdapter
     private lateinit var addDoctorViewModel: AddDoctorViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityRecentDoctorsBinding.inflate(layoutInflater)
+        binding = ActivityAllPresentationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -51,8 +51,8 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         setupVersionInfo()
 
         addDoctorViewModel.docData.observe(this) { doctors ->
-            val recentDoctors = doctors?.sortedByDescending { it.lastAdded }?.take(20) ?: emptyList()
-            adapter.updateList(recentDoctors)
+            val filteredDoctors = doctors?.filter { it.havePresentation } ?: emptyList()
+            adapter.updateList(filteredDoctors)
         }
 
         // Load data into ViewModel if not already loaded
@@ -70,9 +70,10 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         )
         binding.drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
-        binding.recentNavView.setNavigationItemSelectedListener(this)
+        binding.navigationView.setNavigationItemSelectedListener(this)
 
-        val headerView = binding.recentNavView.getHeaderView(0)
+
+        val headerView = binding.navigationView.getHeaderView(0)
         val userNameTextView = headerView.findViewById<TextView>(R.id.nav_header_user_name)
         val userEmailTextView = headerView.findViewById<TextView>(R.id.nav_header_user_email)
 
@@ -98,15 +99,15 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
     }
 
     private fun setupRecyclerView() {
-        adapter = RecentDoctorAdapter(emptyList())
-        binding.recDocView.layoutManager = LinearLayoutManager(this)
-        binding.recDocView.adapter = adapter
+        adapter = AllPresentationAdapter(emptyList())
+        binding.mainRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.mainRecyclerView.adapter = adapter
     }
 
     private fun setupVersionInfo() {
         val versionName = AppUtils.getAppVersion(this)
-        val navView = findViewById<NavigationView>(R.id.recent_nav_view)
-        val versionTextView = navView.findViewById<TextView>(R.id.recent_nav_ver)
+        val navView = findViewById<NavigationView>(R.id.navigation_view) // Updated ID
+        val versionTextView = navView.findViewById<TextView>(R.id.nav_ver) // Updated ID
         versionTextView.text = "MintLifeSciences $versionName"
     }
 
@@ -116,7 +117,7 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
                 if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     binding.drawerLayout.closeDrawer(GravityCompat.START)
                 } else {
-                    finish() // Finish the current activity
+                    finish()
                 }
             }
         })
@@ -131,7 +132,6 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
             }
             R.id.nav_doctors -> {
                 val intent = Intent(this, RecentDoctorsActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 startActivity(intent)
             }
             R.id.nav_about -> {
@@ -140,6 +140,7 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
             }
             R.id.nav_presentation -> {
                 val intent = Intent(this, All_Presentation::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 startActivity(intent)
             }
             R.id.nav_logout -> {

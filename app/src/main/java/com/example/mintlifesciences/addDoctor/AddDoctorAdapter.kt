@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,8 @@ import com.example.mintlifesciences.R
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.medicinePresentation.MedicineScreenActivity
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class AddDoctorAdapter(
     private val context: Context,
@@ -28,7 +31,8 @@ class AddDoctorAdapter(
         val carddoc: CardView = itemView.findViewById(R.id.card_doc)
         val docName: TextView = itemView.findViewById(R.id.tvName)
         val docSpeciality: TextView = itemView.findViewById(R.id.tvClass)
-        val deleteIcon: ImageView = itemView.findViewById(R.id.deleteIcon) // Add deleteIcon reference
+        val deleteIcon: ImageView = itemView.findViewById(R.id.deleteIcon)
+        val scheduleMeet : TextView = itemView.findViewById(R.id.scheduleMeet)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DoctorViewHolder {
@@ -44,6 +48,32 @@ class AddDoctorAdapter(
         val itemViewModel = docList[position]
         holder.docName.text = itemViewModel.docName
         holder.docSpeciality.text = itemViewModel.docSpeciality
+
+        if (itemViewModel.havePresentation) {
+            holder.scheduleMeet.text = itemViewModel.scheduleMeet
+
+            // Check if the date is past or future
+            val currentDate = System.currentTimeMillis()
+            val meetDate = try {
+                SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(itemViewModel.scheduleMeet)?.time
+            } catch (e: Exception) {
+                Log.e("AddDoctorAdapter", "Date parsing failed for: ${itemViewModel.scheduleMeet}", e)
+                null
+            }
+
+            if (meetDate != null) {
+                if (meetDate < currentDate) {
+                    holder.scheduleMeet.setBackgroundResource(R.drawable.rounded_red)
+                } else {
+                    holder.scheduleMeet.setBackgroundResource(R.drawable.rounded_blue)
+                }
+
+                holder.scheduleMeet.visibility = View.VISIBLE
+            } else {
+                holder.scheduleMeet.visibility = View.GONE
+            }
+        }
+
 
         holder.carddoc.setOnClickListener {
             val intent: Intent = if (itemViewModel.havePresentation) {
