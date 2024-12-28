@@ -22,7 +22,6 @@ class MediaPlayerActivity : AppCompatActivity() {
 
         playerView = findViewById(R.id.player_view)
 
-        // Retrieve the media URL from the intent
         val mediaUrl = intent.getStringExtra("MEDIA_URL")
         Log.d("MediaPlayerActivity", "Received media URL: $mediaUrl")
 
@@ -36,34 +35,26 @@ class MediaPlayerActivity : AppCompatActivity() {
 
     private fun initializePlayer(mediaUrl: String) {
         try {
-            // Check if the URL is a YouTube link
             if (mediaUrl.contains("youtube.com") || mediaUrl.contains("youtu.be")) {
-                // Redirect to YouTube app
+
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mediaUrl))
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 intent.setPackage("com.google.android.youtube")
 
-                // Check if YouTube app is installed
                 if (intent.resolveActivity(packageManager) != null) {
                     startActivity(intent)
                 } else {
                     Toast.makeText(this, "YouTube app is not installed", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                // Play the media using ExoPlayer
                 exoPlayer = ExoPlayer.Builder(this).build()
 
-                // Bind the ExoPlayer instance to the PlayerView
                 playerView.player = exoPlayer
 
-                // Log media URL
                 Log.d("MediaPlayerActivity", "Initializing ExoPlayer with URL: $mediaUrl")
-
-                // Create media source from the URL
                 val mediaItem = MediaItem.fromUri(Uri.parse(mediaUrl))
                 exoPlayer?.setMediaItem(mediaItem)
 
-                // Prepare and start the player
                 exoPlayer?.prepare()
                 exoPlayer?.playWhenReady = true
             }
@@ -76,7 +67,6 @@ class MediaPlayerActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        // Release the player when the activity is stopped
         exoPlayer?.release()
         exoPlayer = null
         Log.d("MediaPlayerActivity", "ExoPlayer released")
@@ -84,7 +74,6 @@ class MediaPlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Additional cleanup if required
         exoPlayer?.release()
         exoPlayer = null
     }
