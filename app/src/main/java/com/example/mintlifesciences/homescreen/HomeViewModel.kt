@@ -49,7 +49,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         this.activity = activity
 
         val initialList = listOf(
-            BrandItem("Mini Life Sciences Pvt Ltd", R.drawable.mint_life_sciences),
+            BrandItem("Mint Life Sciences Pvt Ltd", R.drawable.mint_life_sciences),
             BrandItem("USP Life Sciences", R.drawable.usp_life_sciences),
             BrandItem("USP Medicraft", R.drawable.usp_medicraft),
             BrandItem("Critical Care", R.drawable.critical_care),
