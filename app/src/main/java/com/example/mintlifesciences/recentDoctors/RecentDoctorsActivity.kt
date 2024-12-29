@@ -126,8 +126,8 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         when (item.itemId) {
             R.id.nav_home -> {
                 val intent = Intent(this, AddDoctorActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 startActivity(intent)
-                finish()
             }
             R.id.nav_doctors -> {
                 val intent = Intent(this, RecentDoctorsActivity::class.java)

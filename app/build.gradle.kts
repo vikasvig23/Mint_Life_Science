@@ -69,4 +69,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation ("com.google.android.exoplayer:exoplayer:2.18.1")
+    //implementation ("com.facebook.shimmer:shimmer:0.5.0")
+    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
+
 }

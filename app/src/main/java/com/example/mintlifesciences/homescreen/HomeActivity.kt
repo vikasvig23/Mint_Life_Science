@@ -2,14 +2,10 @@ package com.example.mintlifesciences.homescreen
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -17,8 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.databinding.ActivityHomeBinding
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
-import com.example.mintlifesciences.login.LoginViewModel
 import com.example.mintlifesciences.medicinePresentation.MedicineScreenActivity
+import com.example.mintlifesciences.model.BrandItem
 
 class HomeActivity : AppCompatActivity(){
 
@@ -88,7 +84,7 @@ class HomeActivity : AppCompatActivity(){
         }
     }
 
-    private fun updateUI(items: List<String>?) {
+    private fun updateUI(items: List<BrandItem>) {
         items?.let {
             adapter.updateItems(it)
         }

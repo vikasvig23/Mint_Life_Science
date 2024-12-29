@@ -19,6 +19,7 @@ import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.medicinePresentation.MedicineScreenActivity
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 class AddDoctorAdapter(
@@ -49,20 +50,39 @@ class AddDoctorAdapter(
         holder.docName.text = itemViewModel.docName
         holder.docSpeciality.text = itemViewModel.docSpeciality
 
-        if (itemViewModel.havePresentation) {
+
+        if (itemViewModel.havePresentation && itemViewModel.scheduleMeet.isNotEmpty()) {
             holder.scheduleMeet.text = itemViewModel.scheduleMeet
 
-            // Check if the date is past or future
-            val currentDate = System.currentTimeMillis()
+            // Get the current date (truncated to remove the time part)
+            val currentDate = Calendar.getInstance()
+            currentDate.timeInMillis = System.currentTimeMillis()
+            currentDate.set(Calendar.HOUR_OF_DAY, 0)
+            currentDate.set(Calendar.MINUTE, 0)
+            currentDate.set(Calendar.SECOND, 0)
+            currentDate.set(Calendar.MILLISECOND, 0)
+
             val meetDate = try {
-                SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(itemViewModel.scheduleMeet)?.time
+                val parsedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(itemViewModel.scheduleMeet)
+                if (parsedDate != null) {
+                    val meetCalendar = Calendar.getInstance()
+                    meetCalendar.time = parsedDate
+                    meetCalendar.set(Calendar.HOUR_OF_DAY, 0)
+                    meetCalendar.set(Calendar.MINUTE, 0)
+                    meetCalendar.set(Calendar.SECOND, 0)
+                    meetCalendar.set(Calendar.MILLISECOND, 0)
+                    meetCalendar.timeInMillis
+                } else {
+                    null
+                }
             } catch (e: Exception) {
                 Log.e("AddDoctorAdapter", "Date parsing failed for: ${itemViewModel.scheduleMeet}", e)
                 null
             }
 
             if (meetDate != null) {
-                if (meetDate < currentDate) {
+                if (meetDate < currentDate.timeInMillis) {
+                    Log.d("Sahil", "${itemViewModel.docName}: meetdate $meetDate: currentData ${currentDate.timeInMillis}")
                     holder.scheduleMeet.setBackgroundResource(R.drawable.rounded_red)
                 } else {
                     holder.scheduleMeet.setBackgroundResource(R.drawable.rounded_blue)
@@ -72,8 +92,9 @@ class AddDoctorAdapter(
             } else {
                 holder.scheduleMeet.visibility = View.GONE
             }
+        }else{
+            holder.scheduleMeet.visibility = View.GONE
         }
-
 
         holder.carddoc.setOnClickListener {
             val intent: Intent = if (itemViewModel.havePresentation) {

@@ -10,12 +10,12 @@
     app:layout_constraintEnd_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
-
     <ImageView
         android:id="@+id/cardImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@mipmap/ic_launcher"
+        android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintCircleRadius="@dimen/cardview_compat_inset_shadow"
         app:layout_constraintEnd_toEndOf="parent"
@@ -138,3 +138,22 @@
 
 
 
+
+
+<!--    &lt;!&ndash; Shimmer FrameLayout &ndash;&gt;-->
+<!--<com.facebook.shimmer.ShimmerFrameLayout-->
+<!--android:id="@+id/shimmer_layout"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="match_parent"-->
+<!--app:layout_constraintTop_toTopOf="parent"-->
+<!--app:layout_constraintBottom_toBottomOf="parent"-->
+<!--app:layout_constraintStart_toStartOf="parent"-->
+<!--app:layout_constraintEnd_toEndOf="parent">-->
+
+<!--<ImageView-->
+<!--    android:id="@+id/cardImage"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:scaleType="centerCrop"-->
+<!--    android:background="@color/shadow_light_gray" />-->
+<!--</com.facebook.shimmer.ShimmerFrameLayout>-->

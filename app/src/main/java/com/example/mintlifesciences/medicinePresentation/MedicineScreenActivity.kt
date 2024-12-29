@@ -47,7 +47,6 @@ class MedicineScreenActivity : AppCompatActivity() {
     private lateinit var db : DatabaseReference
     private lateinit var medicineScreenViewModel: MedicineScreenViewModel
     private lateinit var feedback:String
-    private lateinit var selectedDate : String
     private  var recentDoctor : Boolean = false
     private  var allPresentation : Boolean = false
 
@@ -73,6 +72,7 @@ class MedicineScreenActivity : AppCompatActivity() {
                 binding.viewPager.visibility = View.VISIBLE
                 binding.toolbar.visibility = View.VISIBLE
                 binding.dimOverlay.visibility = View.GONE
+                binding.fragmentContainer.visibility = View.GONE
             }
         }
 
@@ -121,12 +121,15 @@ class MedicineScreenActivity : AppCompatActivity() {
         binding.submitPresentation.setOnClickListener {
             binding.dimOverlay.visibility = View.VISIBLE
 
-            if (selectedDate.isEmpty()) {
-                selectedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
-            }
+            var selectedDate = medicineScreenViewModel.selectedDate
+                ?: SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+
 
             if (feedback.isEmpty()) {
                 Toast.makeText(this, "Please add the feedback.", Toast.LENGTH_SHORT).show()
+                binding.dimOverlay.visibility = View.VISIBLE
+                binding.fragmentContainer.visibility = View.VISIBLE
+
                 // Launch FeedbackFragment to collect feedback
                 val fragment = FeedbackFragment.newInstance(feedback, selectedDate)
                 supportFragmentManager.beginTransaction()
@@ -196,10 +199,11 @@ class MedicineScreenActivity : AppCompatActivity() {
 
             R.id.action_edit_feedback -> {
                 binding.dimOverlay.visibility = View.VISIBLE
+                binding.fragmentContainer.visibility = View.VISIBLE
 
-                if (selectedDate.isEmpty()) {
-                    selectedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
-                }
+                var selectedDate = medicineScreenViewModel.selectedDate
+                    ?: SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+
 
                 val fragment = FeedbackFragment.newInstance(feedback, selectedDate)
                 supportFragmentManager.beginTransaction()
@@ -230,7 +234,7 @@ class MedicineScreenActivity : AppCompatActivity() {
             feedback = feedbackSnapshot.getValue(String::class.java) ?: "No feedback available"
 
             db.child("scheduleMeet").get().addOnSuccessListener { dateSnapshot ->
-                selectedDate = dateSnapshot.getValue(String::class.java) ?: ""
+                medicineScreenViewModel.selectedDate = dateSnapshot.getValue(String::class.java) ?: ""
 
             }.addOnFailureListener { e ->
                 Log.e("MedicineScreenActivity", "Failed to fetch schedule date", e)

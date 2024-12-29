@@ -12,6 +12,8 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.mintlifesciences.R
+import com.example.mintlifesciences.model.BrandItem
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -34,8 +36,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
 
-    private val _items = MutableLiveData<List<String>>()
-    val items: LiveData<List<String>> get() = _items
+    private val _items = MutableLiveData<List<BrandItem>>()
+    val items: LiveData<List<BrandItem>> get() = _items
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> get() = _loading
@@ -43,18 +45,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
 
-    // Initialize the ViewModel
     fun init(activity: HomeActivity) {
-     //   fetchDataFromFirebase()
         this.activity = activity
 
         val initialList = listOf(
-            "Mini Life Sciences Pvt Ltd",
-            "USP Life Sciences",
-            "USP Medicraft",
-            "Critical Care",
-            "Gyno Care",
-            "Bv-Clean"
+            BrandItem("Mini Life Sciences Pvt Ltd", R.drawable.mint_life_sciences),
+            BrandItem("USP Life Sciences", R.drawable.usp_life_sciences),
+            BrandItem("USP Medicraft", R.drawable.usp_medicraft),
+            BrandItem("Critical Care", R.drawable.critical_care),
+            BrandItem("Gyno Care", R.drawable.gynocare),
+            BrandItem("Bv-Clean", R.drawable.bv_clean)
         )
         _items.value = initialList
     }

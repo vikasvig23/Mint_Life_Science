@@ -18,7 +18,6 @@ import java.util.Date
 import java.util.Locale
 
 class FeedbackFragment : Fragment() {
-
     private lateinit var binding: FragmentFeedbackBinding
     private val viewModel: FeedbackViewModel by viewModels()
     private lateinit var doctorRef: DatabaseReference
@@ -27,7 +26,6 @@ class FeedbackFragment : Fragment() {
     private var doctorFeedback: String? = null
     private var scheduleMeetDate: String? = null
     private val activityViewModel: MedicineScreenViewModel by activityViewModels()
-
 
     companion object {
         // Factory method to create a new instance of this fragment with arguments
@@ -57,7 +55,6 @@ class FeedbackFragment : Fragment() {
         binding = FragmentFeedbackBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
-
 
         // Pre-fill the feedback and date fields
         binding.response.setText(doctorFeedback)

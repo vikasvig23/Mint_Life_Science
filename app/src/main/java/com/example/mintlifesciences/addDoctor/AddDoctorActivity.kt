@@ -61,6 +61,9 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         adapter = AddDoctorAdapter(this, emptyList(), viewModel)
         binding.recDocView.adapter = adapter
 
+        // Setup SwipeRefreshLayout
+        setupSwipeToRefresh()
+
         // Initialize the BroadcastReceiver
         networkChangeReceiver = NetworkChangeReceiver {
             // This block executes when internet is available
@@ -174,12 +177,17 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             .create()
 
         dialogView.findViewById<AppCompatButton>(R.id.cnfrmBtn).setOnClickListener {
-            val name =
-                docName.text?.toString()?.trim()?.split(" ")?.joinToString(" ") { it.capitalize() }
-                    ?: ""
-            val speciality =
-                docSpec.text?.toString()?.trim()?.split(" ")?.joinToString(" ") { it.capitalize() }
-                    ?: ""
+            val name = docName.text?.toString()?.trim()
+                ?.split(" ")
+                ?.joinToString(" ") { word ->
+                    word.lowercase().replaceFirstChar { it.uppercase() }
+                } ?: ""
+
+            val speciality = docSpec.text?.toString()?.trim()
+                ?.split(" ")
+                ?.joinToString(" ") { word ->
+                    word.lowercase().replaceFirstChar { it.uppercase() }
+                } ?: ""
 
             if (name.isEmpty() || speciality.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
@@ -193,6 +201,26 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         }
         dialog.show()
     }
+
+    private fun setupSwipeToRefresh() {
+        // Set up the refresh listener for SwipeRefreshLayout
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            // Trigger data reload
+            refreshDoctorData()
+        }
+    }
+
+    private fun refreshDoctorData() {
+        if (viewModel.isNetworkAvailable(applicationContext)) {
+            viewModel.loadDoctorData()
+        } else {
+            Toast.makeText(this, "Please Check Your Internet Connection", Toast.LENGTH_SHORT).show()
+        }
+
+        // Stop the refreshing animation after data reload
+        binding.swipeRefreshLayout.isRefreshing = false
+    }
+
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

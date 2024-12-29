@@ -16,6 +16,7 @@ class MedicineScreenViewModel(application: Application) : AndroidViewModel(appli
 
     val downloadStatus = MutableLiveData<String>()
     private var doctorReference: DatabaseReference? = null
+    var selectedDate :String? = null
 
     // Set the Firebase reference to the ViewModel
     fun setDoctorReference(reference: DatabaseReference) {
@@ -23,6 +24,7 @@ class MedicineScreenViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun updateDoctorData(selectedDate: String, feedbackText: String) {
+        this.selectedDate = selectedDate
         doctorReference?.let { reference ->
             val updates = mapOf(
                 "scheduleMeet" to selectedDate,
