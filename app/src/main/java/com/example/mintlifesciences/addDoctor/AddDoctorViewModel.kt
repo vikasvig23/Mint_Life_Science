@@ -13,12 +13,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.Utility
+import com.example.mintlifesciences.database.DoctorDatabase
+import com.example.mintlifesciences.database.DoctorRepository
 import com.example.mintlifesciences.model.FeedbackData
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddDoctorViewModel(application: Application) : AndroidViewModel(application) {
     lateinit var activity: AddDoctorActivity
@@ -33,6 +39,9 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
 
     private var _docDate = MutableLiveData<List<DoctorData>>()
     val docData: LiveData<List<DoctorData>> get() = _docDate
+
+    private val doctorDao = DoctorDatabase.getDatabase(application).doctorDao()
+    private val repository = DoctorRepository(doctorDao)
 
     fun init(activity: AddDoctorActivity) {
         this.activity = activity
@@ -62,9 +71,17 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
         } ?: Log.e("AddDoctorViewModel", "User ID is null, cannot save doctor data.")
     }
 
+    suspend fun saveDoctorsLocally(doctors: List<DoctorData>) {
+        repository.saveDoctors(doctors)
+    }
+
+    suspend fun getDoctorsFromLocal(): List<DoctorData> {
+        return repository.getDoctors()
+    }
 
     fun loadDoctorData() {
         _isLoading.value = true // Show progress bar
+
         userId?.let { id ->
             val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
             databaseReference.child(id).child("Mint_Life_Science_Client")
@@ -78,8 +95,15 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
                                 doctorList.add(doctor)
                             }
                         }
-                        _docDate.value = doctorList.reversed()
+
+                        val reversedDoctorList = doctorList.reversed()
+                        _docDate.value = reversedDoctorList // Update LiveData
                         _isLoading.value = false // Hide progress bar
+
+                        // Save fetched data to local storage (Room database)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            saveDoctorsLocally(reversedDoctorList)
+                        }
                     }
 
                     override fun onCancelled(error: DatabaseError) {

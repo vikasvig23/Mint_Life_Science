@@ -33,8 +33,11 @@ import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
 import com.example.mintlifesciences.helperUtils.AppUtils
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.database.FirebaseDatabase
-import org.w3c.dom.Text
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 
 class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var binding: ActivityAddDoctorBinding
@@ -82,11 +85,19 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         viewModel.setLoadingState(true)
 
+        //Handling the doctor data fetching and local storage
         if (viewModel.isNetworkAvailable(applicationContext)) {
-            viewModel.loadDoctorData()
+            viewModel.loadDoctorData() // Fetch from Firebase and update local storage
         } else {
-            viewModel.setLoadingState(false)
             Toast.makeText(this, "Please Check Your Internet Connection", Toast.LENGTH_LONG).show()
+
+            // Fetch data from Room and update adapter
+            CoroutineScope(Dispatchers.IO).launch {
+                val localDoctors = viewModel.getDoctorsFromLocal() // Replace with your Room fetch method
+                withContext(Dispatchers.Main) {
+                    adapter.updateList(localDoctors) // Show locally stored data
+                }
+            }
         }
 
 

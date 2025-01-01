@@ -41,7 +41,11 @@ android {
         dataBinding = true
     }
 }
-
+kotlin {
+    kapt {
+        correctErrorTypes = true
+    }
+}
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -71,5 +75,13 @@ dependencies {
     implementation ("com.google.android.exoplayer:exoplayer:2.18.1")
     //implementation ("com.facebook.shimmer:shimmer:0.5.0")
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
+
+
+    //Room
+    implementation ("androidx.room:room-runtime:2.5.0")
+    kapt ("androidx.room:room-compiler:2.5.0")
+    implementation ("com.google.code.gson:gson:2.9.0")
+    implementation ("androidx.room:room-ktx:2.5.2")
+
 
 }
