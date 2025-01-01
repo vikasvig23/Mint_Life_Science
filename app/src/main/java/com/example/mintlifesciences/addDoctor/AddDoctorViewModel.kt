@@ -13,6 +13,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.Utility
+import com.example.mintlifesciences.model.FeedbackData
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -176,5 +177,107 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+
+    fun fetchFeedbackForDoctor(
+        doctorName: String,
+        callback: (Result<List<FeedbackData>>) -> Unit
+    ) {
+        val feedbackList = mutableListOf<FeedbackData>()
+
+        // Construct the database reference to the specific doctor's feedback node
+        userId?.let { id ->
+            val databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(id)
+                .child("Mint_Life_Science_Client")
+                .child("Doctors")
+                .child(doctorName)
+                .child("feedback") // Assuming 'feedback' is the node containing the list
+
+            // Attach a listener to retrieve the feedback list
+            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    try {
+                        // Iterate through all children of the 'feedback' node
+                        for (feedbackSnapshot in snapshot.children) {
+                            // Deserialize each child into a FeedbackData object
+                            val feedback = feedbackSnapshot.getValue(FeedbackData::class.java)
+                            // Add the feedback to the list if it's not null
+                            feedback?.let { feedbackList.add(it) }
+                        }
+                        // Invoke the callback with the retrieved feedback list wrapped in a Result
+                        callback(Result.success(feedbackList))
+                    } catch (e: Exception) {
+                        // Handle any exceptions that occur during data processing
+                        Log.e("ViewModel", "Error processing feedback data: ${e.message}")
+                        callback(Result.failure(e))
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // Log the error and invoke the callback with a failure result
+                    Log.e("ViewModel", "Error fetching feedback: ${error.message}")
+                    callback(Result.failure(Exception(error.message)))
+                }
+            })
+        }
+
+    }
+
+//
+//    fun fetchFeedbackForDoctor(doctorName: String, callback: (List<FeedbackData>) -> Unit) {
+//        // Dummy data for testing purposes
+//        val feedbackList = listOf(
+//            FeedbackData(
+//                message = "Excellent doctor!",
+//                date = "2024-08-29"
+//            ),
+//            FeedbackData(
+//                message = "Very helpful and caring.",
+//                date = "2024-08-30"
+//            ),
+//            FeedbackData(
+//                message = "Explains treatment options well.",
+//                date = "2024-08-31"
+//            ),
+//            FeedbackData(
+//                message = "Highly professional and knowledgeable.",
+//                date = "2024-09-01"
+//            ),
+//            FeedbackData(
+//                message = "Explains treatment options well.",
+//                date = "2024-08-31"
+//            ),
+//            FeedbackData(
+//                message = "Highly professional and knowledgeable.",
+//                date = "2024-09-01"
+//            ),
+//            FeedbackData(
+//                message = "Explains treatment options well.",
+//                date = "2024-08-31"
+//            ),
+//            FeedbackData(
+//                message = "Highly professional and knowledgeable.",
+//                date = "2024-09-01"
+//            ),
+//            FeedbackData(
+//                message = "Explains treatment options well.",
+//                date = "2024-08-31"
+//            ),
+//            FeedbackData(
+//                message = "Highly professional and knowledgeable.",
+//                date = "2024-09-01"
+//            ),
+//            FeedbackData(
+//                message = "Explains treatment options well.",
+//                date = "2024-08-31"
+//            ),
+//            FeedbackData(
+//                message = "Highly professional and knowledgeable.",
+//                date = "2024-09-01"
+//            )
+//        )
+//
+//        // Pass the dummy data back via the callback
+//        callback(feedbackList)
+//    }
 
 }

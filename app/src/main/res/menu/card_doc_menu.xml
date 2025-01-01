@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_open"
+        android:title="Open"
+        android:background="@drawable/menu_item_background"/> <!-- custom background -->
+
+    <item
+        android:id="@+id/menu_feedback_history"
+        android:title="Show Feedback History"
+        android:background="@drawable/menu_item_background"/> <!-- custom background -->
+</menu>

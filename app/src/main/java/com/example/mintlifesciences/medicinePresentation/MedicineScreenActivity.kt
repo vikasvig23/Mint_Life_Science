@@ -26,6 +26,7 @@ import com.example.mintlifesciences.allPresentation.All_Presentation
 import com.example.mintlifesciences.databinding.ActivityMedicineScreenBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.login.LoginViewModel
+import com.example.mintlifesciences.model.FeedbackData
 import com.example.mintlifesciences.model.Medicine
 import com.example.mintlifesciences.recentDoctors.RecentDoctorsActivity
 import com.google.firebase.database.*
@@ -122,16 +123,18 @@ class MedicineScreenActivity : AppCompatActivity() {
             binding.dimOverlay.visibility = View.VISIBLE
 
             var selectedDate = medicineScreenViewModel.selectedDate
-                ?: SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
 
+            if(selectedDate.isEmpty()) {
+                selectedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+            }
 
-            if (feedback.isEmpty()) {
+            if (medicineScreenViewModel.feedbackText.isEmpty()) {
                 Toast.makeText(this, "Please add the feedback.", Toast.LENGTH_SHORT).show()
                 binding.dimOverlay.visibility = View.VISIBLE
                 binding.fragmentContainer.visibility = View.VISIBLE
 
                 // Launch FeedbackFragment to collect feedback
-                val fragment = FeedbackFragment.newInstance(feedback, selectedDate)
+                val fragment = FeedbackFragment.newInstance(medicineScreenViewModel.feedbackText, selectedDate)
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, fragment)
                     .addToBackStack(null)
@@ -202,10 +205,12 @@ class MedicineScreenActivity : AppCompatActivity() {
                 binding.fragmentContainer.visibility = View.VISIBLE
 
                 var selectedDate = medicineScreenViewModel.selectedDate
-                    ?: SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
 
+                if(selectedDate.isEmpty()) {
+                    selectedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+                }
 
-                val fragment = FeedbackFragment.newInstance(feedback, selectedDate)
+                val fragment = FeedbackFragment.newInstance(medicineScreenViewModel.feedbackText, selectedDate)
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, fragment)
                     .addToBackStack(null)
@@ -229,13 +234,23 @@ class MedicineScreenActivity : AppCompatActivity() {
             }
     }
 
-    private fun fetchDoctorDetails() {
-        db.child("feedback").get().addOnSuccessListener { feedbackSnapshot ->
-            feedback = feedbackSnapshot.getValue(String::class.java) ?: "No feedback available"
 
+    private fun fetchDoctorDetails() {
+        val feedbackRef = db.child("feedback")
+
+        feedbackRef.orderByKey().limitToLast(1).get().addOnSuccessListener { feedbackSnapshot ->
+            if (feedbackSnapshot.exists()) {
+                for (snapshot in feedbackSnapshot.children) {
+                    val latestFeedback = snapshot.getValue(FeedbackData::class.java)
+                    medicineScreenViewModel.feedbackText = latestFeedback?.message ?: ""
+                }
+            } else {
+                medicineScreenViewModel.feedbackText = ""
+            }
+
+            // Proceed to fetch the schedule date
             db.child("scheduleMeet").get().addOnSuccessListener { dateSnapshot ->
                 medicineScreenViewModel.selectedDate = dateSnapshot.getValue(String::class.java) ?: ""
-
             }.addOnFailureListener { e ->
                 Log.e("MedicineScreenActivity", "Failed to fetch schedule date", e)
             }

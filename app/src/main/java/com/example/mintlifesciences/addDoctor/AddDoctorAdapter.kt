@@ -5,17 +5,17 @@ import android.content.Intent
 import android.util.Log
 
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.lifecycle.ViewModel
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mintlifesciences.R
-import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.medicinePresentation.MedicineScreenActivity
 import java.text.SimpleDateFormat
@@ -107,6 +107,45 @@ class AddDoctorAdapter(
             context.startActivity(intent)
         }
 
+        // Handle the Long pressed
+        holder.carddoc.setOnLongClickListener {
+            val popupMenu = PopupMenu(context, holder.carddoc)
+            val inflater: MenuInflater = popupMenu.menuInflater
+            inflater.inflate(R.menu.card_doc_menu, popupMenu.menu)
+
+            // Align the menu to the right side
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                popupMenu.gravity = android.view.Gravity.END
+            }
+
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.menu_open -> {
+                        // Handle "Open" action
+                        val intent: Intent = if (itemViewModel.havePresentation) {
+                            Intent(context, MedicineScreenActivity::class.java)
+                        } else {
+                            Intent(context, HomeActivity::class.java)
+                        }
+                        intent.putExtra("doctorName", itemViewModel.docName)
+                        intent.putExtra("recentDoctor", false)
+                        context.startActivity(intent)
+                        true
+                    }
+                    R.id.menu_feedback_history -> {
+                        // Show feedback dialog
+                        showFeedbackDialog(itemViewModel.docName)
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            popupMenu.show()
+            true
+        }
+
+
         // Handle delete icon click
         holder.deleteIcon.setOnClickListener {
             // Show confirmation dialog before deleting
@@ -130,5 +169,41 @@ class AddDoctorAdapter(
         docList = newDocList
         notifyDataSetChanged()
         Log.d("RecyclerViewBinding", "List updated: $newDocList")
+    }
+
+    private fun showFeedbackDialog(doctorName: String) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_feedback_history, null)
+        val recyclerView: RecyclerView = dialogView.findViewById(R.id.feedbackRecyclerView)
+        val dialogTitle: TextView = dialogView.findViewById(R.id.dialogTitle)
+        val noFeedbackText: TextView = dialogView.findViewById(R.id.noFeedbackText)
+
+        // Set up RecyclerView
+        val feedbackAdapter = FeedbackAdapter() // Create and set up your adapter
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = feedbackAdapter
+
+        noFeedbackText.visibility = View.GONE
+
+        // Fetch feedback data for the selected doctor
+        viewModel.fetchFeedbackForDoctor(doctorName) { result ->
+            result.onSuccess { feedbackList ->
+                if (feedbackList.isEmpty()) {
+                    // Show "No feedback available" text if the list is empty
+                    noFeedbackText.visibility = View.VISIBLE
+                    recyclerView.visibility = View.GONE
+                } else {
+                    feedbackAdapter.submitList(Result.success(feedbackList))
+                }
+            }.onFailure {
+                Log.d("FeedbackList", "Unable to fetch the feedback List.")
+            }
+        }
+
+        // Show dialog
+        AlertDialog.Builder(context)
+            .setView(dialogView)
+            .setCancelable(true)
+            .setNegativeButton("Close") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 }

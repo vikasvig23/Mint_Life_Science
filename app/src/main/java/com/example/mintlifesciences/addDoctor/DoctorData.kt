@@ -1,5 +1,6 @@
 package com.example.mintlifesciences.addDoctor
 
+import com.example.mintlifesciences.model.FeedbackData
 import com.example.mintlifesciences.model.Medicine
 
 data class DoctorData(
@@ -8,7 +9,7 @@ data class DoctorData(
     val groups: List<Group> = emptyList(),
     var scheduleMeet: String = "",
     var havePresentation: Boolean = false,
-    var feedback: String = "",
+    var feedback: List<FeedbackData> = emptyList(),
     var lastAdded: Long = System.currentTimeMillis() // Timestamp for ordering
 )
 

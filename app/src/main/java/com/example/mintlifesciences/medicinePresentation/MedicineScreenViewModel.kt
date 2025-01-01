@@ -7,16 +7,21 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.example.mintlifesciences.model.FeedbackData
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MedicineScreenViewModel(application: Application) : AndroidViewModel(application) {
 
     val downloadStatus = MutableLiveData<String>()
     private var doctorReference: DatabaseReference? = null
-    var selectedDate :String? = null
+    var selectedDate: String = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+    var feedbackText: String = ""
 
     // Set the Firebase reference to the ViewModel
     fun setDoctorReference(reference: DatabaseReference) {
@@ -25,26 +30,46 @@ class MedicineScreenViewModel(application: Application) : AndroidViewModel(appli
 
     fun updateDoctorData(selectedDate: String, feedbackText: String) {
         this.selectedDate = selectedDate
-        doctorReference?.let { reference ->
-            val updates = mapOf(
-                "scheduleMeet" to selectedDate,
-                "feedback" to feedbackText
-            )
+        this.feedbackText = feedbackText
+        val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
 
-            reference.updateChildren(updates).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("MedicineViewModel", "Doctor data updated successfully")
-                    downloadStatus.postValue("Update successful")
-                } else {
-                    Log.e("MedicineViewModel", "Failed to update doctor data", task.exception)
-                    downloadStatus.postValue("Update failed")
+        doctorReference?.let { reference ->
+            // Retrieve the current feedback list
+            reference.child("feedback").get().addOnSuccessListener { snapshot ->
+                val feedbackList = snapshot.children.mapNotNull { it.getValue(FeedbackData::class.java) }.toMutableList()
+
+                // Add the new feedback
+                val newFeedback = FeedbackData(
+                    message = feedbackText,
+                    date = currentDate
+                )
+                feedbackList.add(newFeedback)
+
+                // Update the feedback list in Firebase
+                val updates = mapOf(
+                    "scheduleMeet" to selectedDate,
+                    "feedback" to feedbackList
+                )
+
+                reference.updateChildren(updates).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("MedicineViewModel", "Doctor data updated successfully with new feedback")
+                        downloadStatus.postValue("Update successful")
+                    } else {
+                        Log.e("MedicineViewModel", "Failed to update doctor data", task.exception)
+                        downloadStatus.postValue("Update failed")
+                    }
                 }
+            }.addOnFailureListener { error ->
+                Log.e("MedicineViewModel", "Failed to fetch feedback list", error)
+                downloadStatus.postValue("Failed to fetch feedback list")
             }
         } ?: run {
             Log.e("MedicineViewModel", "Doctor reference is not set")
             downloadStatus.postValue("Reference not set")
         }
     }
+
 
     fun downloadPdfFromFirebase(context: Context, fileName: String) {
         val storageRef = FirebaseStorage.getInstance().reference.child("pdfs/$fileName")

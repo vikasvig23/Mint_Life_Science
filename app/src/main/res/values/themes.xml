@@ -13,4 +13,7 @@
         <item name="colorPrimaryVariant">@color/blue</item>
         <item name="android:statusBarColor">#014F9D</item>
     </style>
+    <style name="CustomPopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@drawable/menu_item_background</item>
+    </style>
 </resources>
