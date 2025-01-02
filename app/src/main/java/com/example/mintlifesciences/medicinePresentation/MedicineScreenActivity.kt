@@ -6,9 +6,18 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import com.example.mintlifesciences.database.toMedicine
+
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -17,12 +26,18 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.addDoctor.AddDoctorActivity
 import com.example.mintlifesciences.addDoctor.DoctorData
 import com.example.mintlifesciences.allPresentation.All_Presentation
+import com.example.mintlifesciences.database.DoctorDao
+import com.example.mintlifesciences.database.DoctorDatabase
+import com.example.mintlifesciences.database.DoctorRepository
+import com.example.mintlifesciences.database.MedicineEntity
+import com.example.mintlifesciences.database.toEntity
 import com.example.mintlifesciences.databinding.ActivityMedicineScreenBinding
 import com.example.mintlifesciences.homescreen.HomeActivity
 import com.example.mintlifesciences.login.LoginViewModel
@@ -51,6 +66,8 @@ class MedicineScreenActivity : AppCompatActivity() {
     private  var recentDoctor : Boolean = false
     private  var allPresentation : Boolean = false
 
+    private lateinit var doctorDao: DoctorDao
+    private lateinit var repository: DoctorRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +76,10 @@ class MedicineScreenActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        // Initialize doctorDao and repository here
+        doctorDao = DoctorDatabase.getDatabase(application).doctorDao()
+        repository = DoctorRepository(doctorDao)
 
         recentDoctor = intent.getBooleanExtra("recentDoctor", false)
         allPresentation = intent.getBooleanExtra("allPresentation", false)
@@ -146,42 +167,83 @@ class MedicineScreenActivity : AppCompatActivity() {
         }
     }
 
-
     private fun fetchDoctorData() {
         // Show loading indicator while fetching data
         binding.progressBar.visibility = View.VISIBLE
 
-        // The reference path should be corrected based on actual Firebase structure
-        val dbs = FirebaseDatabase.getInstance().getReference("Users")
-            .child(userId).child("Mint_Life_Science_Client").child("Doctors")
-            .child(doctorName).child("medicines")
+        if (isNetworkAvailable(this)) {
+            // Network is available, fetch data from Firebase
+            val dbs = FirebaseDatabase.getInstance().getReference("Users")
+                .child(userId).child("Mint_Life_Science_Client").child("Doctors")
+                .child(doctorName).child("medicines")
 
-        dbs.get().addOnSuccessListener { dataSnapshot ->
-            binding.progressBar.visibility = View.GONE  // Hide loading indicator
+            dbs.get().addOnSuccessListener { dataSnapshot ->
+                binding.progressBar.visibility = View.GONE  // Hide loading indicator
 
-            if (dataSnapshot.exists()) {
-                items.clear()
+                if (dataSnapshot.exists()) {
+                    val fetchedItems = mutableListOf<Medicine>()
 
-                // Iterate through each brand and add medicines to items
-                for (brandSnapshot in dataSnapshot.children) {
-                    for (medicineSnapshot in brandSnapshot.children) {
-                        val medicine = medicineSnapshot.getValue(Medicine::class.java)
-                        if (medicine != null) {
-                            items.add(medicine)
+                    // Iterate through each brand and add medicines to fetchedItems
+                    for (brandSnapshot in dataSnapshot.children) {
+                        for (medicineSnapshot in brandSnapshot.children) {
+                            val medicine = medicineSnapshot.getValue(Medicine::class.java)
+                            if (medicine != null) {
+                                fetchedItems.add(medicine)
+                            }
                         }
                     }
-                }
 
-                adapter.notifyDataSetChanged()
-            } else {
-                Toast.makeText(this@MedicineScreenActivity, "No medicines found", Toast.LENGTH_SHORT).show()
+                    // Update UI with fetched data
+                    items.clear()
+                    items.addAll(fetchedItems)
+                    adapter.notifyDataSetChanged()
+
+                    // Save the fetched medicines into the Room database asynchronously
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        // Delete existing medicines for the doctor
+                        repository.deleteMedicinesForDoctor(doctorName)
+
+                        // Convert fetched medicines to entities
+                        val medicineEntities = fetchedItems.map { it.toEntity(doctorName) }
+
+                        // Save new medicines
+                        repository.saveMedicinesForDoctor(doctorName, medicineEntities)
+                    }
+
+                } else {
+                    Toast.makeText(this@MedicineScreenActivity, "No medicines found", Toast.LENGTH_SHORT).show()
+                }
+            }.addOnFailureListener { e ->
+                binding.progressBar.visibility = View.GONE  // Hide loading indicator
+                Log.e("MedicineScreenActivity", "Failed to fetch doctor data", e)
+                Toast.makeText(this@MedicineScreenActivity, "Failed to fetch data. Please try again.", Toast.LENGTH_SHORT).show()
             }
-        }.addOnFailureListener { e ->
-            binding.progressBar.visibility = View.GONE  // Hide loading indicator
-            Log.e("MedicineScreenActivity", "Failed to fetch doctor data", e)
-            Toast.makeText(this@MedicineScreenActivity, "Failed to fetch data. Please try again.", Toast.LENGTH_SHORT).show()
+        } else {
+            // If no network, fetch data from Room database
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val medicineEntities = repository.getMedicinesForDoctor(doctorName)
+                    withContext(Dispatchers.Main) {
+                        binding.progressBar.visibility = View.GONE  // Hide loading indicator
+
+                        if (medicineEntities.isEmpty()) {
+                            Toast.makeText(this@MedicineScreenActivity, "No medicines found in local storage", Toast.LENGTH_SHORT).show()
+                        } else {
+                            items.clear()
+                            items.addAll(medicineEntities)
+                            adapter.notifyDataSetChanged()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(this@MedicineScreenActivity, "Error loading offline data: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
+
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -260,4 +322,19 @@ class MedicineScreenActivity : AppCompatActivity() {
     }
 
 
+    fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val networkCapabilities =
+                connectivityManager.getNetworkCapabilities(network) ?: return false
+            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } else {
+            @Suppress("DEPRECATION")
+            val networkInfo = connectivityManager.activeNetworkInfo
+            @Suppress("DEPRECATION")
+            networkInfo != null && networkInfo.isConnected
+        }
+    }
 }

@@ -18,13 +18,11 @@ import com.example.mintlifesciences.database.DoctorRepository
 import com.example.mintlifesciences.model.FeedbackData
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AddDoctorViewModel(application: Application) : AndroidViewModel(application) {
     lateinit var activity: AddDoctorActivity
@@ -37,8 +35,8 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val userId: String? = sharedPreferences.getString("userId", null)
 
-    private var _docDate = MutableLiveData<List<DoctorData>>()
-    val docData: LiveData<List<DoctorData>> get() = _docDate
+    private var _docData = MutableLiveData<List<DoctorData>>()
+    val docData: LiveData<List<DoctorData>> get() = _docData
 
     private val doctorDao = DoctorDatabase.getDatabase(application).doctorDao()
     private val repository = DoctorRepository(doctorDao)
@@ -57,9 +55,9 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun addDoctor(doctor: DoctorData) {
-        val updatedList = _docDate.value?.toMutableList()
+        val updatedList = _docData.value?.toMutableList()
         updatedList?.add(doctor)
-        _docDate.value = updatedList!!
+        _docData.value = updatedList!!
     }
 
     fun saveDoctorData(doctor: DoctorData) {
@@ -97,7 +95,7 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
                         }
 
                         val reversedDoctorList = doctorList.reversed()
-                        _docDate.value = reversedDoctorList // Update LiveData
+                        _docData.value = reversedDoctorList // Update LiveData
                         _isLoading.value = false // Hide progress bar
 
                         // Save fetched data to local storage (Room database)

@@ -91,6 +91,7 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         } else {
             Toast.makeText(this, "Please Check Your Internet Connection", Toast.LENGTH_LONG).show()
 
+            viewModel.setLoadingState(false)
             // Fetch data from Room and update adapter
             CoroutineScope(Dispatchers.IO).launch {
                 val localDoctors = viewModel.getDoctorsFromLocal() // Replace with your Room fetch method
@@ -99,7 +100,6 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 }
             }
         }
-
 
         // Observe Doctor Data
         viewModel.docData.observe(this) { doctors ->
