@@ -69,9 +69,8 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         // Initialize the BroadcastReceiver
         networkChangeReceiver = NetworkChangeReceiver {
-            // This block executes when internet is available
-            viewModel.setLoadingState(true) // Show progress bar
-            viewModel.loadDoctorData() // Fetch doctor data
+            viewModel.setLoadingState(true)
+            viewModel.loadDoctorData()
         }
 
         // Register the receiver to listen for network changes
@@ -94,9 +93,9 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             viewModel.setLoadingState(false)
             // Fetch data from Room and update adapter
             CoroutineScope(Dispatchers.IO).launch {
-                val localDoctors = viewModel.getDoctorsFromLocal() // Replace with your Room fetch method
+                val localDoctors = viewModel.getDoctorsFromLocal()
                 withContext(Dispatchers.Main) {
-                    adapter.updateList(localDoctors) // Show locally stored data
+                    adapter.updateList(localDoctors)
                 }
             }
         }
@@ -244,7 +243,6 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             R.id.nav_doctors -> {
                 val intent = Intent(this, RecentDoctorsActivity::class.java)
                 startActivity(intent)
-                finish()
             }
 
             R.id.nav_about -> {
@@ -261,6 +259,9 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 loginViewModel.logout()
             }
         }
+        // Remove selection from the clicked item
+        binding.navView.menu.findItem(item.itemId).isChecked = false
+
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }

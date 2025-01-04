@@ -14,74 +14,75 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MintLifeSciences"
         tools:targetApi="31">
+
         <activity
             android:name=".allPresentation.All_Presentation"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".medicinePresentation.MediaPlayerActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".medicinePresentation.MedicineScreenActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
         <activity
             android:name=".aboutUs.AboutUsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".recentDoctors.RecentDoctorsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".Medicine.MedicineListActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".doctorMedicine.DoctorMedicineActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".addDoctor.AddDoctorActivity"
             android:exported="false"
-            android:launchMode="standard">
+            android:screenOrientation="portrait"
+            android:launchMode="standard" />
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-        </activity>
         <activity
             android:name=".homescreen.HomeActivity"
             android:exported="false"
-            android:launchMode="standard">
+            android:screenOrientation="portrait"
+            android:launchMode="standard" />
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-        </activity>
         <activity
             android:name=".signUp.SignUpActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".login.LoginActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".MainActivity"
-            android:exported="false">
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-        </activity>
     </application>
+
 
 </manifest>

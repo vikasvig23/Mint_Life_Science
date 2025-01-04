@@ -147,6 +147,9 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
             }
         }
 
+        // Remove selection from the clicked item
+        binding.recentNavView.menu.findItem(item.itemId).isChecked = false
+
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }

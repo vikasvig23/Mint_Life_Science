@@ -59,6 +59,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         _items.value = initialList
     }
 
+
+
 //    fun refreshData() {
 //        fetchDataFromFirebase()
 //    }

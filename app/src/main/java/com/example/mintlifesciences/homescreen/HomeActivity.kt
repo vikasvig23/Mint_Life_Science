@@ -1,7 +1,10 @@
 package com.example.mintlifesciences.homescreen
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -13,8 +16,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mintlifesciences.R
 import com.example.mintlifesciences.databinding.ActivityHomeBinding
 import com.example.mintlifesciences.doctorMedicine.DoctorMedicineActivity
+import com.example.mintlifesciences.login.LoginViewModel
 import com.example.mintlifesciences.medicinePresentation.MedicineScreenActivity
 import com.example.mintlifesciences.model.BrandItem
+import com.example.mintlifesciences.model.Medicine
+import com.google.firebase.database.FirebaseDatabase
 
 class HomeActivity : AppCompatActivity(){
 
@@ -22,6 +28,8 @@ class HomeActivity : AppCompatActivity(){
     private lateinit var viewModel: HomeViewModel
     private lateinit var adapter: HomeAdapter
     private lateinit var doctorName: String
+    private lateinit var userId: String
+    private lateinit var loginViewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,8 +38,21 @@ class HomeActivity : AppCompatActivity(){
         viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         viewModel.init(this)
 
+        loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
+
         // Retrieve doctorName and brandName from the Intent
         doctorName = intent.getStringExtra("doctorName") ?: ""
+
+        // Initialize SharedPreferences inside onCreate
+        val sharedPreferences: SharedPreferences =
+            getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        userId = sharedPreferences.getString("userId", null) ?: run {
+            Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_LONG)
+                .show()
+
+            loginViewModel.logout()
+            return
+        }
 
         binding.backArrow.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -125,6 +146,36 @@ class HomeActivity : AppCompatActivity(){
             }
         }
     }
+
+    private fun addSelectedMedicineToFirebase(selectedMedicine: Medicine, brandName : String) {
+        val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
+        val doctorMedicinesRef = databaseReference.child(userId)
+            .child("Mint_Life_Science_Client")
+            .child("Doctors")
+            .child(doctorName)
+            .child("medicines")
+            .child(brandName)
+
+        // Retrieve existing medicines first
+        doctorMedicinesRef.get().addOnSuccessListener { snapshot ->
+            val medicineList = snapshot.children.mapNotNull { it.getValue(Medicine::class.java) }.toMutableList()
+
+            // Avoid duplicate entries
+            if (!medicineList.any { it.name == selectedMedicine.name }) {
+                medicineList.add(selectedMedicine)
+
+                // Update Firebase with the new list
+                doctorMedicinesRef.setValue(medicineList)
+                    .addOnSuccessListener {
+                        Log.d("MedicineListActivity", "Medicine added successfully!")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("MedicineListActivity", "Failed to add medicine", e)
+                    }
+            }
+        }
+    }
+
 
 
 }

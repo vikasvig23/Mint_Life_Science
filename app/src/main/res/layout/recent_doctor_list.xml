@@ -48,7 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="1"
+            android:layout_weight="1.1"
             android:orientation="vertical">
 
             <TextView
@@ -57,11 +57,15 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/rounded_blue"
                 android:gravity="center"
-                android:paddingHorizontal="4dp"
-                android:paddingVertical="5dp"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="6dp"
                 android:text="18/12/2024"
                 android:textColor="@android:color/white"
-                android:textSize="18sp" />
+                android:textSize="16sp"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="12sp"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeStepGranularity="1sp" />
 
         </LinearLayout>
 

@@ -45,7 +45,7 @@
                     android:id="@+id/tvClass"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.5"
+                    android:layout_weight="1.2"
                     android:ellipsize="end"
                     android:fontFamily="@font/notosanslight"
                     android:maxLines="1"
@@ -60,12 +60,17 @@
                     android:layout_weight="1"
                     android:background="@drawable/rounded_blue"
                     android:gravity="center"
-                    android:paddingHorizontal="6dp"
-                    android:layout_margin="2dp"
-                    android:paddingVertical="5dp"
+                    android:paddingHorizontal="8dp"
+                    android:layout_margin="4dp"
+                    android:paddingVertical="6dp"
                     android:text="18/12/2024"
                     android:textColor="@android:color/white"
-                    android:textSize="18sp" />
+                    android:textSize="16sp"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="12sp"
+                    android:autoSizeMaxTextSize="18sp"
+                    android:autoSizeStepGranularity="1sp" />
+
 
             </LinearLayout>
 

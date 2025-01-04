@@ -147,6 +147,8 @@ class All_Presentation : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 loginViewModel.logout()
             }
         }
+        // Remove selection from the clicked item
+        binding.navigationView.menu.findItem(item.itemId).isChecked = false
 
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
