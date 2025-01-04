@@ -9,6 +9,7 @@ import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -20,7 +21,10 @@ import com.example.mintlifesciences.login.LoginViewModel
 import com.example.mintlifesciences.medicinePresentation.MedicineScreenActivity
 import com.example.mintlifesciences.model.BrandItem
 import com.example.mintlifesciences.model.Medicine
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class HomeActivity : AppCompatActivity(){
 
@@ -30,6 +34,8 @@ class HomeActivity : AppCompatActivity(){
     private lateinit var doctorName: String
     private lateinit var userId: String
     private lateinit var loginViewModel: LoginViewModel
+    private val allMedicines = mutableListOf<Pair<Medicine, String>>()
+    private lateinit var suggestionAdapter: MedicineSuggestionAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,31 +84,14 @@ class HomeActivity : AppCompatActivity(){
             updateUI(items)
         })
 
-//        binding.swipeRefreshLayout.setOnRefreshListener {
-//            viewModel.refreshData()
-//            Handler().postDelayed({
-//                binding.swipeRefreshLayout.isRefreshing = false
-//            }, 5000)
-//        }
-
-//        viewModel.loading.observe(this, Observer { isLoading ->
-//            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-//            if (!isLoading) {
-//                binding.swipeRefreshLayout.isRefreshing = false
-//            }
-//        })
-//
-//        viewModel.error.observe(this, Observer { errorMessage ->
-//            errorMessage?.let {
-//                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-//                viewModel.errorHandled()
-//            }
-//        })
-
-
         binding.menu.setOnClickListener {
             openMenu()
         }
+
+//
+//        setupSearchView()
+//
+//        fetchAllMedicines() // Fetch all medicines from Firebase
     }
 
     private fun updateUI(items: List<BrandItem>) {
@@ -147,35 +136,107 @@ class HomeActivity : AppCompatActivity(){
         }
     }
 
-    private fun addSelectedMedicineToFirebase(selectedMedicine: Medicine, brandName : String) {
-        val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
-        val doctorMedicinesRef = databaseReference.child(userId)
-            .child("Mint_Life_Science_Client")
-            .child("Doctors")
-            .child(doctorName)
-            .child("medicines")
-            .child(brandName)
+    private fun setupSearchView() {
+        suggestionAdapter = MedicineSuggestionAdapter(emptyList()) { medicine, brandName ->
+            addSelectedMedicineToFirebase(medicine, brandName)
+        }
 
-        // Retrieve existing medicines first
-        doctorMedicinesRef.get().addOnSuccessListener { snapshot ->
-            val medicineList = snapshot.children.mapNotNull { it.getValue(Medicine::class.java) }.toMutableList()
-
-            // Avoid duplicate entries
-            if (!medicineList.any { it.name == selectedMedicine.name }) {
-                medicineList.add(selectedMedicine)
-
-                // Update Firebase with the new list
-                doctorMedicinesRef.setValue(medicineList)
-                    .addOnSuccessListener {
-                        Log.d("MedicineListActivity", "Medicine added successfully!")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("MedicineListActivity", "Failed to add medicine", e)
-                    }
+        binding.searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let { searchMedicine(it) }
+                return false
             }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                newText?.let { searchMedicine(it) }
+                return false
+            }
+        })
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@HomeActivity)
+            adapter = suggestionAdapter
         }
     }
 
+    private fun fetchAllMedicines() {
+        val databaseRef = FirebaseDatabase.getInstance()
+            .getReference("Mint_Life_Science_Admin")
+
+        databaseRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                allMedicines.clear()
+                for (brandSnapshot in snapshot.children) {
+                    val brandName = brandSnapshot.key ?: continue
+                    for (medicineSnapshot in brandSnapshot.children) {
+                        val medicine = medicineSnapshot.getValue(Medicine::class.java)
+                        if (medicine != null) {
+                            allMedicines.add(Pair(medicine, brandName))
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@HomeActivity, "Failed to load medicines", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        })
+    }
+
+    private fun searchMedicine(query: String) {
+        val filteredList = allMedicines.filter { it.first.name?.contains(query, true) ?: false }
+        suggestionAdapter.updateList(filteredList)
+    }
+
+    private fun addSelectedMedicineToFirebase(selectedMedicine: Medicine, brandName: String) {
+        val databaseReference = FirebaseDatabase.getInstance()
+            .getReference("Users")
+            .child("userId") // Replace with actual user ID
+            .child("Mint_Life_Science_Client")
+            .child("Doctors")
+            .child("doctorName") // Replace with actual doctor name
+            .child("medicines")
+            .child(brandName)
+
+        databaseReference.push().setValue(selectedMedicine)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Medicine Added Successfully", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to Add Medicine", Toast.LENGTH_SHORT).show()
+            }
+    }
 
 
 }
+
+
+
+
+
+
+
+//dead code for obeserving new brand added
+//        binding.swipeRefreshLayout.setOnRefreshListener {
+//            viewModel.refreshData()
+//            Handler().postDelayed({
+//                binding.swipeRefreshLayout.isRefreshing = false
+//            }, 5000)
+//        }
+
+//        viewModel.loading.observe(this, Observer { isLoading ->
+//            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+//            if (!isLoading) {
+//                binding.swipeRefreshLayout.isRefreshing = false
+//            }
+//        })
+//
+//        viewModel.error.observe(this, Observer { errorMessage ->
+//            errorMessage?.let {
+//                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+//                viewModel.errorHandled()
+//            }
+//        })
+
+
