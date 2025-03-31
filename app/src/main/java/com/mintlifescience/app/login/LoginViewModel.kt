@@ -1,0 +1,103 @@
+package com.mintlifescience.app.login
+
+import android.app.Application
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.AndroidViewModel
+import com.mintlifescience.app.UserData
+import com.mintlifescience.app.Utility
+import com.mintlifescience.app.addDoctor.AddDoctorActivity
+import com.google.firebase.database.*
+
+import com.mintlifescience.app.R
+
+
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
+
+    private lateinit var activity: LoginActivity
+    private val firebaseDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
+    private val databaseReference: DatabaseReference = firebaseDatabase.getReference("Users")
+    private val sharedPreferences: SharedPreferences =
+        application.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+
+    fun init(activity: LoginActivity) {
+        this.activity = activity
+        activity.binding.btn.background = Utility.createGeadientDrawable(
+            25f,
+            ContextCompat.getColor(activity, R.color.purple_500),
+            ContextCompat.getColor(activity, R.color.purple_500)
+        )
+    }
+
+    fun login(email: String, password: String) {
+        databaseReference.orderByChild("email").equalTo(email)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        for (userSnapshot in snapshot.children) {
+                            val user = userSnapshot.getValue(UserData::class.java)
+                            if (user?.password == password) {
+                                // Save login state and userId
+                                with(sharedPreferences.edit()) {
+                                    putBoolean("isLoggedIn", true)
+                                    putString("userEmail", email)
+                                    putString("userId", user.id)  // Save userId
+                                    apply()
+                                }
+
+                               // Toast.makeText(activity, "Login Successful", Toast.LENGTH_SHORT).show()
+
+                                val intent = Intent(activity, AddDoctorActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                getApplication<Application>().startActivity(intent)
+                            } else {
+                                Toast.makeText(activity, "Incorrect Password", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else {
+                        Toast.makeText(activity, "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(activity, "Login Failed", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+    fun fetchUserName(email: String, onComplete: (String) -> Unit) {
+        databaseReference.orderByChild("email").equalTo(email)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        for (userSnapshot in snapshot.children) {
+                            val user = userSnapshot.getValue(UserData::class.java)
+                            user?.username?.let { onComplete(it) }
+                        }
+                    } else {
+                        onComplete(null.toString())
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    onComplete(null.toString())
+                }
+            })
+    }
+
+    fun logout() {
+        with(sharedPreferences.edit()) {
+            putBoolean("isLoggedIn", false)
+            remove("userEmail")
+            remove("userId") // Remove userId on logout
+            apply()
+        }
+
+        val intent = Intent(getApplication(), LoginActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        getApplication<Application>().startActivity(intent)
+    }
+}

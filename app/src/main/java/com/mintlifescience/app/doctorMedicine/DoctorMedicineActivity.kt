@@ -1,0 +1,134 @@
+package com.mintlifescience.app.doctorMedicine
+
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.mintlifescience.app.Medicine.MedicineListActivity
+import com.mintlifescience.app.adapters.DoctorMedicineAdapter
+import com.mintlifescience.app.model.Medicine
+import com.mintlifescience.app.addDoctor.DoctorData
+import com.mintlifescience.app.databinding.ActivityDoctorMedicineBinding
+import com.mintlifescience.app.login.LoginViewModel
+import com.google.firebase.database.*
+import com.mintlifescience.app.R
+
+class DoctorMedicineActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityDoctorMedicineBinding
+    private lateinit var brandName: String
+    private lateinit var doctorName: String
+    private lateinit var database: DatabaseReference
+    private lateinit var doctorMedicineAdapter: DoctorMedicineAdapter
+    private var medicineList: MutableList<Medicine> = mutableListOf()
+    private lateinit var loginViewModel: LoginViewModel
+
+    private lateinit var userId: String
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_doctor_medicine)
+
+        loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
+
+        // Initialize SharedPreferences inside onCreate
+        val sharedPreferences: SharedPreferences =
+            getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        userId = sharedPreferences.getString("userId", null) ?: run {
+            Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_LONG).show()
+            finish() // Finish the activity if userId is null
+            return
+        }
+
+        if (userId.isNullOrEmpty()) {
+            Log.e("RecentDoctorsActivity", "User ID is null or empty, cannot load recent doctors.")
+            loginViewModel.logout()
+            return
+        }
+
+        // Retrieve doctorName and brandName from the Intent
+        doctorName = intent.getStringExtra("doctorName") ?: ""
+        brandName = intent.getStringExtra("brandName") ?: ""
+
+        // Set up the toolbar
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false) // Disable default title
+
+        //binding.docT.text = doctorName
+
+        // Set up RecyclerView
+        binding.medRec.layoutManager = LinearLayoutManager(this)
+        doctorMedicineAdapter = DoctorMedicineAdapter(this, medicineList, brandName)
+        binding.medRec.adapter = doctorMedicineAdapter
+
+        // Initialize Firebase Database reference
+        database = FirebaseDatabase.getInstance().getReference("Users")
+            .child(userId).child("Mint_Life_Science_Client")
+            .child("Doctors").child(doctorName)
+
+        // Fetch doctor details and medicines
+        fetchDoctorDetails()
+
+        // Add Medicine Button Click Listener
+        binding.addMed.setOnClickListener {
+            val intent = Intent(this, MedicineListActivity::class.java)
+            intent.putExtra("brand_name", brandName)
+            intent.putExtra("doctorName", doctorName)
+            startActivity(intent)
+        }
+
+        // Handle back button click
+        binding.backArrow.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed() // Handle back button press
+        }
+
+        // Custom back button behavior
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finish() // Finish the current activity
+            }
+        })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // You can remove this call to fetchDoctorDetails if it’s not necessary to refetch data
+        fetchDoctorDetails()
+    }
+
+    private fun fetchDoctorDetails() {
+        // Fetch doctor details from Firebase
+        database.get().addOnSuccessListener { dataSnapshot ->
+            val doctorData = dataSnapshot.getValue(DoctorData::class.java)
+            if (doctorData != null) {
+                val brandSnapshot = dataSnapshot.child("medicines").child(brandName)
+
+                medicineList.clear()
+
+                if (brandSnapshot.exists()) {
+                    for (medicineSnapshot in brandSnapshot.children) {
+                        val medicine = medicineSnapshot.getValue(Medicine::class.java)
+                        if (medicine != null) {
+                            medicineList.add(medicine)
+                        }
+                    }
+
+                    if (medicineList.isNotEmpty()) {
+                        doctorMedicineAdapter.updateMedicineList(medicineList)
+                    } else {
+                        Toast.makeText(this, "No medicines found for the selected brand", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e("DoctorMedicineActivity", "Failed to fetch medicines", e)
+            Toast.makeText(this, "Failed to load medicines", Toast.LENGTH_SHORT).show()
+        }
+    }
+}

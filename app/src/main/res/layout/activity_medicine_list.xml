@@ -26,6 +26,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/search"
+        android:layout_marginStart="10dp"
+        tools:listitem="@layout/viewholder_medicine"
         android:layout_marginTop="10dp"
         android:scrollbars="vertical" />
 

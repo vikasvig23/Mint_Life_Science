@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.mintlifesciences.medicinePresentation.FeedbackViewModel" />
+            type="com.mintlifescience.app.medicinePresentation.FeedbackViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

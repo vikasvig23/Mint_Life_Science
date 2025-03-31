@@ -5,11 +5,11 @@ plugins {
     id("com.google.gms.google-services")
 }
 android {
-    namespace = "com.example.mintlifesciences"
+    namespace = "com.mintlifescience.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.mintlifesciences"
+        applicationId = "com.mintlifescience.app"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
