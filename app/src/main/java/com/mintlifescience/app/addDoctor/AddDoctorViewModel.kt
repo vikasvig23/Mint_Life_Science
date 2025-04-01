@@ -7,6 +7,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.util.Log
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -132,21 +133,9 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
                 brandDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (!snapshot.exists() || snapshot.childrenCount == 0L) {
-                            brandDoctorsRef.child("no_doctors").setValue(true)
-                                .addOnSuccessListener {
-                                    Log.d(
-                                        "DeleteDoctor",
-                                        "Placeholder added under to preserve the brand."
-                                    )
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e("DeleteDoctor", "Failed to add placeholder: $e")
-                                }
-                        } else {
-                            Log.d("DeleteDoctor", "Doctors still exist.")
+                            Log.d("DeleteDoctor", "No doctors left in the database.")
                         }
                     }
-
                     override fun onCancelled(error: DatabaseError) {
                         Log.e("DeleteDoctor", "Failed to check remaining doctors: ${error.message}")
                     }

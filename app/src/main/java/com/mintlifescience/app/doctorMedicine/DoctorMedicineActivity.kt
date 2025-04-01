@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -119,11 +120,21 @@ class DoctorMedicineActivity : AppCompatActivity() {
                         }
                     }
 
-                    if (medicineList.isNotEmpty()) {
-                        doctorMedicineAdapter.updateMedicineList(medicineList)
+                    // Update the adapter with the list after data is fetched
+                    doctorMedicineAdapter.updateMedicineList(medicineList)
+
+                    // Handle visibility of the "No Medicines Found" text and RecyclerView
+                    if (medicineList.isEmpty()) {
+                        binding.noMedicineFoundText.visibility = View.VISIBLE
+                        binding.medRec.visibility = View.GONE
                     } else {
-                        Toast.makeText(this, "No medicines found for the selected brand", Toast.LENGTH_SHORT).show()
+                        binding.noMedicineFoundText.visibility = View.GONE
+                        binding.medRec.visibility = View.VISIBLE
                     }
+                } else {
+                    // In case the brand does not exist in the database
+                    binding.noMedicineFoundText.visibility = View.VISIBLE
+                    binding.medRec.visibility = View.GONE
                 }
             }
         }.addOnFailureListener { e ->

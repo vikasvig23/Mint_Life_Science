@@ -64,6 +64,21 @@
                         android:layout_marginBottom="80dp" />
                 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+
+                <TextView
+                    android:id="@+id/noDoctorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No doctors found"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
                 <!-- FloatingActionButton for adding a new doctor -->
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/btn"

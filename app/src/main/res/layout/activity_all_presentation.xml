@@ -38,6 +38,18 @@
                 android:textSize="20sp" />
         </androidx.appcompat.widget.Toolbar>
 
+        <!-- No Presentations Found Text -->
+        <TextView
+            android:id="@+id/noPresentationFoundText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="No Presentations Found"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="18sp"
+            android:visibility="gone" />
+
         <!-- Main RecyclerView content or any other main content -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/mainRecyclerView"

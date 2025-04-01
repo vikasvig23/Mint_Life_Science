@@ -102,6 +102,14 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         viewModel.docData.observe(this) { doctors ->
             Log.d("AddDoctorActivity", "Received data: $doctors")
             adapter.updateList(doctors)
+
+            if (doctors.isEmpty()) {
+                binding.noDoctorText.visibility = View.VISIBLE
+                binding.recDocView.visibility = View.GONE
+            } else {
+                binding.noDoctorText.visibility = View.GONE
+                binding.recDocView.visibility = View.VISIBLE
+            }
         }
 
         // Set up button listener

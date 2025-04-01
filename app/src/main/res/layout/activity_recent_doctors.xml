@@ -41,8 +41,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
+            android:visibility="visible"
             android:padding="16dp"
             android:paddingBottom="16dp" />
+
+        <!-- No Doctor Found Message -->
+        <TextView
+            android:id="@+id/noDoctorFoundText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="No Doctors Found"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="18sp"
+            android:visibility="gone" />
 
     </LinearLayout>
 

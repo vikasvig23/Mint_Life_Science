@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -51,6 +52,14 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
         addDoctorViewModel.docData.observe(this) { doctors ->
             val recentDoctors = doctors?.sortedByDescending { it.lastAdded }?.take(20) ?: emptyList()
             adapter.updateList(recentDoctors)
+
+            if (recentDoctors.isEmpty()) {
+                binding.noDoctorFoundText.visibility = View.VISIBLE
+                binding.recDocView.visibility = View.GONE
+            } else {
+                binding.noDoctorFoundText.visibility = View.GONE
+                binding.recDocView.visibility = View.VISIBLE
+            }
         }
 
         // Load data into ViewModel if not already loaded

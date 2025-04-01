@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -51,6 +52,15 @@ class All_Presentation : AppCompatActivity(), NavigationView.OnNavigationItemSel
         addDoctorViewModel.docData.observe(this) { doctors ->
             val filteredDoctors = doctors?.filter { it.havePresentation } ?: emptyList()
             adapter.updateList(filteredDoctors)
+
+            // Handle "No Presentations Found" text visibility
+            if (filteredDoctors.isEmpty()) {
+                binding.noPresentationFoundText.visibility = View.VISIBLE
+                binding.mainRecyclerView.visibility = View.GONE
+            } else {
+                binding.noPresentationFoundText.visibility = View.GONE
+                binding.mainRecyclerView.visibility = View.VISIBLE
+            }
         }
 
         // Load data into ViewModel if not already loaded
