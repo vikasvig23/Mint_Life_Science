@@ -127,6 +127,12 @@ class MedicineScreenActivity : AppCompatActivity() {
         binding.viewPager.adapter = adapter
         binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
 
+        binding.viewPager.setPageTransformer { page, position ->
+            page.translationX = -position * page.width
+            page.scaleY = 1 - (0.1f * kotlin.math.abs(position))
+            page.alpha = 0.8f + (1 - kotlin.math.abs(position)) * 0.2f
+        }
+
 
         //Handle the submit
         binding.submitPresentation.setOnClickListener {

@@ -45,7 +45,9 @@ class PresentationAdapter(
             .load(item.image)
             .placeholder(R.drawable.placeholder_image)
             .error(R.drawable.baseline_image_24)
+            .centerCrop()
             .into(holder.cardImage)
+
 
         // Set text for medicine name and salt description
         holder.medicineName.text = item.name ?: "Unknown Medicine"
