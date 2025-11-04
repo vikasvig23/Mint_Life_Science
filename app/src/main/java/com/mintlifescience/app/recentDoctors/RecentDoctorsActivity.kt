@@ -1,11 +1,14 @@
 package com.mintlifescience.app.recentDoctors
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -149,6 +152,16 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
                 val intent = Intent(this, All_Presentation::class.java)
                 startActivity(intent)
             }
+            R.id.nav_privacyPolicy -> {
+                val url = "https://www.mintlifesciences.com/privacy-policy.php"
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                try {
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(this, "No browser found to open the link", Toast.LENGTH_SHORT).show()
+                }
+            }
+
             R.id.nav_logout -> {
                 loginViewModel.logout()
             }

@@ -21,6 +21,20 @@
         app:searchHintIcon="@null"
         app:searchIcon="@drawable/baseline_search_24" />
 
+
+    <!-- "Cart is Empty" TextView -->
+    <TextView
+        android:id="@+id/cart_empty_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cart is Empty"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:textColor="@android:color/darker_gray"
+        android:layout_centerInParent="true"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

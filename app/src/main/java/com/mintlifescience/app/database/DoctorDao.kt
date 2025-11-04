@@ -28,5 +28,7 @@ interface DoctorDao {
     @Query("DELETE FROM medicine_table WHERE doctorName = :doctorName")
     suspend fun deleteMedicinesForDoctor(doctorName: String)
 
+    @Query("DELETE FROM doctor_table WHERE docName = :doctorName")
+    suspend fun deleteDoctorByName(doctorName: String)
 
 }

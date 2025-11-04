@@ -32,6 +32,10 @@
 
         <menu>
             <item
+                android:id="@+id/nav_privacyPolicy"
+                android:icon="@drawable/baseline_policy_24"
+                android:title="Privacy Policy"/>
+            <item
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/baseline_exit_to_app_24"
                 android:title="Logout"/>

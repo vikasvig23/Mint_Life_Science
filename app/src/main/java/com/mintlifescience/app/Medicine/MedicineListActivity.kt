@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import com.mintlifescience.app.R
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -104,6 +105,10 @@ class MedicineListActivity : AppCompatActivity() {
                     }
                 }
                 medicineAdapter.updateMedicineList(medicineList)
+
+                // Show "Cart is Empty" if no data is available
+                updateCartVisibility()
+
                 dialog.dismiss()
             }
 
@@ -116,6 +121,16 @@ class MedicineListActivity : AppCompatActivity() {
                 ).show()
             }
         })
+    }
+
+    private fun updateCartVisibility() {
+        if (medicineList.isEmpty()) {
+            binding.cartEmptyText.visibility = View.VISIBLE
+            binding.recyclerView.visibility = View.GONE
+        } else {
+            binding.cartEmptyText.visibility = View.GONE
+            binding.recyclerView.visibility = View.VISIBLE
+        }
     }
 
     /// FUNCTION TO FILTER MEDICINES

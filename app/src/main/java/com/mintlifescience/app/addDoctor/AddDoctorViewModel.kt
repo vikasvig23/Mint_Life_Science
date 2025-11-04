@@ -127,9 +127,19 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
             doctorRef.removeValue().addOnSuccessListener {
                 Log.d("DeleteDoctor", "Doctor $doctorName deleted successfully.")
 
+                // Delete from Room Database
+                CoroutineScope(Dispatchers.IO).launch {
+                    doctorDao.deleteDoctorByName(doctorName)
+                    doctorDao.deleteMedicinesForDoctor(doctorName)
+                    Log.d("DeleteDoctor", "Doctor $doctorName removed from Room DB")
+                }
+
+                // Check if any doctors are left in Firebase
                 val brandDoctorsRef =
-                    databaseReference.child(id).child("Mint_Life_Science_Client")
+                    databaseReference.child(id)
+                        .child("Mint_Life_Science_Client")
                         .child("Doctors")
+
                 brandDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (!snapshot.exists() || snapshot.childrenCount == 0L) {
@@ -140,6 +150,7 @@ class AddDoctorViewModel(application: Application) : AndroidViewModel(applicatio
                         Log.e("DeleteDoctor", "Failed to check remaining doctors: ${error.message}")
                     }
                 })
+
             }.addOnFailureListener { e ->
                 Log.e("DeleteDoctor", "Failed to delete doctor: $e")
             }

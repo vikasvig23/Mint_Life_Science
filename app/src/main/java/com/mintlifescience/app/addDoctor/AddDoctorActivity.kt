@@ -2,10 +2,12 @@ package com.mintlifescience.app.addDoctor
 
 import com.mintlifescience.app.doctorMedicine.DoctorMedicineActivity
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -259,6 +261,16 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             R.id.nav_presentation -> {
                 val intent = Intent(this, All_Presentation::class.java)
                 startActivity(intent)
+            }
+
+            R.id.nav_privacyPolicy -> {
+                val url = "https://www.mintlifesciences.com/privacy-policy.php"
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                try {
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(this, "No browser found to open the link", Toast.LENGTH_SHORT).show()
+                }
             }
 
             R.id.nav_logout -> {
