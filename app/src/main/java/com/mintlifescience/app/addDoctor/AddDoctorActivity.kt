@@ -4,10 +4,14 @@ import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -21,12 +25,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.mintlifescience.app.R
 import com.mintlifescience.app.Utils.NetworkChangeReceiver
-import com.mintlifescience.app.Utility
 import com.mintlifescience.app.aboutUs.AboutUsActivity
 import com.mintlifescience.app.allPresentation.All_Presentation
 import com.mintlifescience.app.databinding.ActivityAddDoctorBinding
@@ -51,6 +57,9 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
+    private var allDoctors: List<DoctorData> = emptyList()
+    private var searchQuery: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_add_doctor)
@@ -60,18 +69,14 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         viewModel = ViewModelProvider(this)[AddDoctorViewModel::class.java]
         loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
-        // Style the Add button
-        binding.btn.background = Utility.createGeadientDrawable(
-            25f,
-            ContextCompat.getColor(this, R.color.purple_500),
-            ContextCompat.getColor(this, R.color.purple_500)
-        )
-
         binding.recDocView.layoutManager = LinearLayoutManager(this)
         adapter = AddDoctorAdapter(this, emptyList(), viewModel)
         binding.recDocView.adapter = adapter
 
+        setupSwipeToDelete()
+        setupSearch()
         setupSwipeToRefresh()
+        setupBottomNav()
 
         networkChangeReceiver = NetworkChangeReceiver {
             viewModel.setLoadingState(true)
@@ -95,14 +100,13 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             viewModel.setLoadingState(false)
             CoroutineScope(Dispatchers.IO).launch {
                 val localDoctors = viewModel.getDoctorsFromLocal()
-                withContext(Dispatchers.Main) { adapter.updateList(localDoctors) }
+                withContext(Dispatchers.Main) { applyDoctorList(localDoctors) }
             }
         }
 
         viewModel.docData.observe(this) { doctors ->
-            adapter.updateList(doctors)
-            binding.noDoctorText.visibility = if (doctors.isEmpty()) View.VISIBLE else View.GONE
-            binding.recDocView.visibility = if (doctors.isEmpty()) View.GONE else View.VISIBLE
+            allDoctors = doctors
+            applyFilter()
         }
 
         loginViewModel.navigateToLogin.observe(this) {
@@ -142,6 +146,83 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(networkChangeReceiver)
+    }
+
+    private fun applyDoctorList(list: List<DoctorData>) {
+        allDoctors = list
+        applyFilter()
+    }
+
+    private fun applyFilter() {
+        val filtered = if (searchQuery.isBlank()) allDoctors
+        else allDoctors.filter {
+            it.docName.contains(searchQuery, ignoreCase = true) ||
+                    it.docSpeciality.contains(searchQuery, ignoreCase = true)
+        }
+        adapter.updateList(filtered)
+        val isEmpty = filtered.isEmpty()
+        binding.emptyState.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.recDocView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+    }
+
+    private fun setupSearch() {
+        binding.searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) {
+                searchQuery = s?.toString() ?: ""
+                applyFilter()
+            }
+        })
+    }
+
+    private fun setupSwipeToDelete() {
+        val deleteIcon = ContextCompat.getDrawable(this, R.drawable.baseline_delete_24)
+        val redPaint = Paint().apply { color = Color.parseColor("#C62828") }
+
+        val callback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder,
+                                target: RecyclerView.ViewHolder) = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val pos = viewHolder.adapterPosition
+                if (pos == RecyclerView.NO_POSITION) return
+                val deleted = adapter.docList[pos]
+                adapter.removeItem(pos)
+
+                Snackbar.make(binding.root, "${deleted.docName} removed", Snackbar.LENGTH_LONG)
+                    .setAction("Undo") { adapter.restoreItem(deleted, pos) }
+                    .addCallback(object : Snackbar.Callback() {
+                        override fun onDismissed(snackbar: Snackbar, event: Int) {
+                            if (event != DISMISS_EVENT_ACTION) {
+                                viewModel.deleteDoctor(deleted.docName)
+                            }
+                        }
+                    })
+                    .show()
+            }
+
+            override fun onChildDraw(c: Canvas, rv: RecyclerView, vh: RecyclerView.ViewHolder,
+                                     dX: Float, dY: Float, actionState: Int, isActive: Boolean) {
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    val item = vh.itemView
+                    c.drawRect(item.right + dX, item.top.toFloat(),
+                        item.right.toFloat(), item.bottom.toFloat(), redPaint)
+                    deleteIcon?.let { icon ->
+                        icon.setTint(Color.WHITE)
+                        val iconMargin = (item.height - icon.intrinsicHeight) / 2
+                        val top = item.top + iconMargin
+                        val bottom = item.bottom - iconMargin
+                        val right = item.right - iconMargin
+                        val left = right - icon.intrinsicWidth
+                        icon.setBounds(left, top, right, bottom)
+                        icon.draw(c)
+                    }
+                }
+                super.onChildDraw(c, rv, vh, dX, dY, actionState, isActive)
+            }
+        }
+        ItemTouchHelper(callback).attachToRecyclerView(binding.recDocView)
     }
 
     private fun setupDrawer() {
@@ -200,17 +281,29 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         }
     }
 
+    private fun setupBottomNav() {
+        binding.bottomNav.selectedItemId = R.id.bnav_doctors
+        binding.bottomNav.setOnItemSelectedListener { item ->
+            if (item.itemId == R.id.bnav_doctors) return@setOnItemSelectedListener true
+            when (item.itemId) {
+                R.id.bnav_recent -> startActivity(
+                    Intent(this, RecentDoctorsActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
+                R.id.bnav_presentations -> startActivity(
+                    Intent(this, All_Presentation::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
+            }
+            true
+        }
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_home -> startActivity(Intent(this, AddDoctorActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
-            R.id.nav_doctors -> startActivity(Intent(this, RecentDoctorsActivity::class.java))
             R.id.nav_about -> startActivity(Intent(this, AboutUsActivity::class.java))
-            R.id.nav_presentation -> startActivity(Intent(this, All_Presentation::class.java))
             R.id.nav_privacyPolicy -> openPrivacyPolicy()
             R.id.nav_logout -> loginViewModel.logout()
         }
-        binding.navView.menu.findItem(item.itemId).isChecked = false
+        binding.navView.menu.findItem(item.itemId)?.isChecked = false
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }

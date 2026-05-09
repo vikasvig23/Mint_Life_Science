@@ -8,14 +8,14 @@ import android.view.LayoutInflater
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import com.mintlifescience.app.R
+import com.mintlifescience.app.helperUtils.AvatarUtils
 import com.mintlifescience.app.homescreen.HomeActivity
 import com.mintlifescience.app.medicinePresentation.MedicineScreenActivity
 import java.text.SimpleDateFormat
@@ -29,57 +29,33 @@ class AddDoctorAdapter(
 ) : RecyclerView.Adapter<AddDoctorAdapter.DoctorViewHolder>() {
 
     class DoctorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val carddoc: CardView = itemView.findViewById(R.id.card_doc)
+        val cardDoc: MaterialCardView = itemView.findViewById(R.id.card_doc)
+        val tvAvatar: TextView = itemView.findViewById(R.id.tvAvatar)
         val docName: TextView = itemView.findViewById(R.id.tvName)
         val docSpeciality: TextView = itemView.findViewById(R.id.tvClass)
-        val deleteIcon: ImageView = itemView.findViewById(R.id.deleteIcon)
         val scheduleMeet: TextView = itemView.findViewById(R.id.scheduleMeet)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DoctorViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.doctor_list, parent, false)
-        return DoctorViewHolder(view)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DoctorViewHolder =
+        DoctorViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_doctor, parent, false))
 
     override fun getItemCount() = docList.size
 
     override fun onBindViewHolder(holder: DoctorViewHolder, position: Int) {
         val doctor = docList[position]
+
         holder.docName.text = doctor.docName
         holder.docSpeciality.text = doctor.docSpeciality
 
-        if (doctor.havePresentation && doctor.scheduleMeet.isNotEmpty()) {
-            holder.scheduleMeet.text = doctor.scheduleMeet
-            val today = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-            }.timeInMillis
+        holder.tvAvatar.text = AvatarUtils.initials(doctor.docName)
+        holder.tvAvatar.background = AvatarUtils.tintedCircle(doctor.docName)
 
-            val meetMs = try {
-                SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(doctor.scheduleMeet)?.let {
-                    Calendar.getInstance().apply { time = it
-                        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-                        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-                    }.timeInMillis
-                }
-            } catch (e: Exception) { null }
+        bindScheduleBadge(holder.scheduleMeet, doctor)
 
-            if (meetMs != null) {
-                holder.scheduleMeet.setBackgroundResource(
-                    if (meetMs < today) R.drawable.rounded_red else R.drawable.rounded_blue
-                )
-                holder.scheduleMeet.visibility = View.VISIBLE
-            } else {
-                holder.scheduleMeet.visibility = View.GONE
-            }
-        } else {
-            holder.scheduleMeet.visibility = View.GONE
-        }
+        holder.cardDoc.setOnClickListener { openDoctor(doctor) }
 
-        holder.carddoc.setOnClickListener { openDoctor(doctor) }
-
-        holder.carddoc.setOnLongClickListener {
-            val popup = PopupMenu(context, holder.carddoc)
+        holder.cardDoc.setOnLongClickListener {
+            val popup = PopupMenu(context, holder.cardDoc)
             MenuInflater(context).inflate(R.menu.card_doc_menu, popup.menu)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
                 popup.gravity = android.view.Gravity.END
@@ -93,18 +69,41 @@ class AddDoctorAdapter(
             popup.show()
             true
         }
+    }
 
-        holder.deleteIcon.setOnClickListener {
-            AlertDialog.Builder(context)
-                .setTitle("Delete Doctor")
-                .setMessage("Are you sure you want to delete ${doctor.docName}?")
-                .setPositiveButton("Yes") { dialog, _ ->
-                    viewModel.deleteDoctor(doctor.docName)
-                    dialog.dismiss()
-                }
-                .setNegativeButton("No", null)
-                .show()
+    private fun bindScheduleBadge(view: TextView, doctor: DoctorData) {
+        if (!doctor.havePresentation || doctor.scheduleMeet.isEmpty()) {
+            view.visibility = View.GONE
+            return
         }
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        val meetMs = try {
+            SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(doctor.scheduleMeet)?.let { d ->
+                Calendar.getInstance().apply {
+                    time = d
+                    set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+                }.timeInMillis
+            }
+        } catch (e: Exception) { null }
+
+        if (meetMs == null) {
+            view.visibility = View.GONE
+            return
+        }
+        view.text = doctor.scheduleMeet
+        view.setBackgroundResource(
+            when {
+                meetMs < today -> R.drawable.rounded_red
+                meetMs == today -> R.drawable.rounded_orange
+                else -> R.drawable.rounded_green
+            }
+        )
+        view.visibility = View.VISIBLE
     }
 
     fun updateList(newList: List<DoctorData>) {
@@ -116,6 +115,18 @@ class AddDoctorAdapter(
         })
         docList = newList
         diff.dispatchUpdatesTo(this)
+    }
+
+    fun removeItem(position: Int) {
+        val newList = docList.toMutableList().also { it.removeAt(position) }
+        docList = newList
+        notifyItemRemoved(position)
+    }
+
+    fun restoreItem(doctor: DoctorData, position: Int) {
+        val newList = docList.toMutableList().also { it.add(position, doctor) }
+        docList = newList
+        notifyItemInserted(position)
     }
 
     private fun openDoctor(doctor: DoctorData) {

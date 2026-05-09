@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/bnav_doctors"
+        android:icon="@drawable/baseline_person_4_24"
+        android:title="Doctors" />
+
+    <item
+        android:id="@+id/bnav_recent"
+        android:icon="@drawable/baseline_recent_actors_24"
+        android:title="Recent" />
+
+    <item
+        android:id="@+id/bnav_presentations"
+        android:icon="@drawable/baseline_insert_drive_file_24"
+        android:title="Presentations" />
+
+</menu>

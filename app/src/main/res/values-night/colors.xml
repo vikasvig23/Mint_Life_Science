@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark-mode overrides for semantic tokens -->
+    <color name="color_surface">#1C1B1F</color>
+    <color name="color_surface_variant">#2C2C2C</color>
+    <color name="color_on_surface">#E6E1E5</color>
+    <color name="color_on_surface_variant">#CAC4D0</color>
+    <color name="brand_green">#81C784</color>
+    <color name="brand_green_container">#1B5E20</color>
+    <color name="avatar_placeholder">#388E3C</color>
+</resources>

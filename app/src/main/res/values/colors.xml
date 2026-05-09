@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Legacy names kept for compatibility -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="purple_500">#0080FF</color>
@@ -14,4 +15,23 @@
     <color name="dark_gray">#BDBDBD</color>
     <color name="light_gray_placeholder">#EEEEEE</color>
 
+    <!-- Brand palette (Mint green) -->
+    <color name="brand_green">#2E7D32</color>
+    <color name="brand_green_dark">#1B5E20</color>
+    <color name="brand_green_light">#4CAF50</color>
+    <color name="brand_green_container">#C8E6C9</color>
+
+    <!-- Semantic surface / text (overridden in values-night) -->
+    <color name="color_surface">#FFFFFF</color>
+    <color name="color_surface_variant">#F1F8F1</color>
+    <color name="color_on_surface">#1C1B1F</color>
+    <color name="color_on_surface_variant">#49454F</color>
+
+    <!-- Schedule badge -->
+    <color name="badge_today">#E65100</color>
+    <color name="badge_future">#2E7D32</color>
+    <color name="badge_past">#C62828</color>
+
+    <!-- Doctor avatar background (overridden per-item in code) -->
+    <color name="avatar_placeholder">#2E7D32</color>
 </resources>

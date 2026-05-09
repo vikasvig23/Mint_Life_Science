@@ -48,12 +48,13 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
 
         setupDrawer()
         setupRecyclerView()
+        setupBottomNav()
         setupVersionInfo()
 
         addDoctorViewModel.docData.observe(this) { doctors ->
             val recent = doctors?.sortedByDescending { it.lastAdded }?.take(20) ?: emptyList()
             adapter.updateList(recent)
-            binding.noDoctorFoundText.visibility = if (recent.isEmpty()) View.VISIBLE else View.GONE
+            binding.emptyState.visibility = if (recent.isEmpty()) View.VISIBLE else View.GONE
             binding.recDocView.visibility = if (recent.isEmpty()) View.GONE else View.VISIBLE
         }
 
@@ -117,18 +118,29 @@ class RecentDoctorsActivity : AppCompatActivity(), NavigationView.OnNavigationIt
             ?.text = "MintLifeSciences $versionName"
     }
 
+    private fun setupBottomNav() {
+        binding.bottomNav.selectedItemId = R.id.bnav_recent
+        binding.bottomNav.setOnItemSelectedListener { item ->
+            if (item.itemId == R.id.bnav_recent) return@setOnItemSelectedListener true
+            when (item.itemId) {
+                R.id.bnav_doctors -> startActivity(
+                    Intent(this, AddDoctorActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
+                R.id.bnav_presentations -> startActivity(
+                    Intent(this, All_Presentation::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
+            }
+            true
+        }
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_home -> startActivity(Intent(this, AddDoctorActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
-            R.id.nav_doctors -> startActivity(Intent(this, RecentDoctorsActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
             R.id.nav_about -> startActivity(Intent(this, AboutUsActivity::class.java))
-            R.id.nav_presentation -> startActivity(Intent(this, All_Presentation::class.java))
             R.id.nav_privacyPolicy -> openPrivacyPolicy()
             R.id.nav_logout -> loginViewModel.logout()
         }
-        binding.recentNavView.menu.findItem(item.itemId).isChecked = false
+        binding.recentNavView.menu.findItem(item.itemId)?.isChecked = false
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
