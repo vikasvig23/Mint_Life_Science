@@ -1,17 +1,8 @@
 package com.mintlifescience.app.medicinePresentation
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,7 +10,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.mintlifescience.app.addDoctor.AddDoctorActivity
 import com.mintlifescience.app.allPresentation.All_Presentation
@@ -28,12 +18,20 @@ import com.mintlifescience.app.database.DoctorDatabase
 import com.mintlifescience.app.database.DoctorRepository
 import com.mintlifescience.app.database.toEntity
 import com.mintlifescience.app.databinding.ActivityMedicineScreenBinding
+import com.mintlifescience.app.helperUtils.AppConstants
+import com.mintlifescience.app.helperUtils.FirebaseConstants
+import com.mintlifescience.app.helperUtils.NetworkUtils
+import com.mintlifescience.app.helperUtils.PrefsManager
 import com.mintlifescience.app.homescreen.HomeActivity
+import com.mintlifescience.app.login.LoginActivity
 import com.mintlifescience.app.login.LoginViewModel
 import com.mintlifescience.app.model.FeedbackData
 import com.mintlifescience.app.model.Medicine
 import com.mintlifescience.app.recentDoctors.RecentDoctorsActivity
 import com.google.firebase.database.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -42,21 +40,17 @@ import com.mintlifescience.app.R
 class MedicineScreenActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMedicineScreenBinding
-    private lateinit var viewPager: ViewPager2
-    private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: PresentationAdapter
     private val items = mutableListOf<Medicine>()
     private lateinit var userId: String
-    private lateinit var loginViewModel: LoginViewModel
-    private lateinit var doctorName : String
-    private lateinit var db : DatabaseReference
+    private lateinit var doctorName: String
+    private lateinit var db: DatabaseReference
     private lateinit var medicineScreenViewModel: MedicineScreenViewModel
-    private lateinit var feedback:String
-    private  var recentDoctor : Boolean = false
-    private  var allPresentation : Boolean = false
-
+    private lateinit var loginViewModel: LoginViewModel
     private lateinit var doctorDao: DoctorDao
     private lateinit var repository: DoctorRepository
+    private var recentDoctor = false
+    private var allPresentation = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,20 +60,42 @@ class MedicineScreenActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        // Initialize doctorDao and repository here
         doctorDao = DoctorDatabase.getDatabase(application).doctorDao()
         repository = DoctorRepository(doctorDao)
 
-        recentDoctor = intent.getBooleanExtra("recentDoctor", false)
-        allPresentation = intent.getBooleanExtra("allPresentation", false)
-        doctorName = intent.getStringExtra("doctorName") ?: ""
+        recentDoctor = intent.getBooleanExtra(AppConstants.IntentKeys.RECENT_DOCTOR, false)
+        allPresentation = intent.getBooleanExtra(AppConstants.IntentKeys.ALL_PRESENTATION, false)
+        doctorName = intent.getStringExtra(AppConstants.IntentKeys.DOCTOR_NAME) ?: ""
 
-        loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
-        medicineScreenViewModel = ViewModelProvider(this).get(MedicineScreenViewModel::class.java)
+        loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
+        medicineScreenViewModel = ViewModelProvider(this)[MedicineScreenViewModel::class.java]
 
+        userId = PrefsManager.userId(this) ?: run {
+            Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_LONG).show()
+            loginViewModel.navigateToLogin.observe(this) {
+                startActivity(Intent(this, LoginActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+                finish()
+            }
+            loginViewModel.logout()
+            return
+        }
+
+        db = FirebaseDatabase.getInstance()
+            .getReference(FirebaseConstants.doctorPath(userId, doctorName))
+        medicineScreenViewModel.setDoctorReference(db)
+
+        // Observe successful submission → finish
+        medicineScreenViewModel.downloadStatus.observe(this) { status ->
+            if (status == "Update successful") {
+                Toast.makeText(this, "Presentation submitted!", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
+
+        // Restore UI when feedback fragment is dismissed without submitting
         supportFragmentManager.addOnBackStackChangedListener {
             if (supportFragmentManager.backStackEntryCount == 0) {
-                // Restore views when fragment is removed
                 binding.viewPager.visibility = View.VISIBLE
                 binding.toolbar.visibility = View.VISIBLE
                 binding.dimOverlay.visibility = View.GONE
@@ -87,163 +103,53 @@ class MedicineScreenActivity : AppCompatActivity() {
             }
         }
 
-        // Initialize SharedPreferences inside onCreate
-        val sharedPreferences: SharedPreferences =
-            getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-        userId = sharedPreferences.getString("userId", null) ?: run {
-            Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_LONG)
-                .show()
-
-            loginViewModel.logout()
-            return
-        }
-
-        db = FirebaseDatabase.getInstance().getReference("Users")
-            .child(userId).child("Mint_Life_Science_Client").child("Doctors")
-            .child(doctorName)
-
-        // Set the Firebase reference in the ViewModel
-        medicineScreenViewModel.setDoctorReference(db)
-
         binding.backArrow.setOnClickListener {
-            if(recentDoctor){
-                val intent = Intent(this, RecentDoctorsActivity::class.java)
-                startActivity(intent)
-            }else if(allPresentation) {
-                val intent = Intent(this, All_Presentation::class.java)
-                startActivity(intent)
-            }
-            else{
-                val intent = Intent(this, AddDoctorActivity::class.java)
-                startActivity(intent)
-            }
+            startActivity(Intent(this, when {
+                recentDoctor -> RecentDoctorsActivity::class.java
+                allPresentation -> All_Presentation::class.java
+                else -> AddDoctorActivity::class.java
+            }))
             finish()
         }
 
-        fetchDoctorData()
-        fetchDoctorDetails()
-
-
-        // Inside onCreate()
+        adapter = PresentationAdapter(items, binding.viewPager, this)
         binding.viewPager.offscreenPageLimit = 2
         binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
-
-        adapter = PresentationAdapter(items, binding.viewPager, this)
         binding.viewPager.adapter = adapter
 
-// Update arrows on page change
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                adapter.notifyDataSetChanged() // Updates arrow visibility
+                updateCounter(position)
+                adapter.notifyItemChanged(position)
             }
         })
 
-        //Handle the submit
+        // Submit always opens FeedbackFragment (pre-filled if already set)
         binding.submitPresentation.setOnClickListener {
-            binding.dimOverlay.visibility = View.VISIBLE
-
-            var selectedDate = medicineScreenViewModel.selectedDate
-
-            if(selectedDate.isEmpty()) {
-                selectedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
-            }
-
-            if (medicineScreenViewModel.feedbackText.isEmpty()) {
-                Toast.makeText(this, "Please add the feedback.", Toast.LENGTH_SHORT).show()
-                binding.dimOverlay.visibility = View.VISIBLE
-                binding.fragmentContainer.visibility = View.VISIBLE
-
-                // Launch FeedbackFragment to collect feedback
-                val fragment = FeedbackFragment.newInstance(medicineScreenViewModel.feedbackText, selectedDate)
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .addToBackStack(null)
-                    .commit()
-            } else {
-                // Navigate back to the previous activity and finish this one
-                finish()
-            }
+            showFeedbackFragment()
         }
+
+        fetchDoctorDetails()
+        fetchDoctorData()
     }
 
-    private fun fetchDoctorData() {
-        // Show loading indicator while fetching data
-        binding.progressBar.visibility = View.VISIBLE
-
-        if (isNetworkAvailable(this)) {
-            // Network is available, fetch data from Firebase
-            val dbs = FirebaseDatabase.getInstance().getReference("Users")
-                .child(userId).child("Mint_Life_Science_Client").child("Doctors")
-                .child(doctorName).child("medicines")
-
-            dbs.get().addOnSuccessListener { dataSnapshot ->
-                binding.progressBar.visibility = View.GONE  // Hide loading indicator
-
-                if (dataSnapshot.exists()) {
-                    val fetchedItems = mutableListOf<Medicine>()
-
-                    // Iterate through each brand and add medicines to fetchedItems
-                    for (brandSnapshot in dataSnapshot.children) {
-                        for (medicineSnapshot in brandSnapshot.children) {
-                            val medicine = medicineSnapshot.getValue(Medicine::class.java)
-                            if (medicine != null) {
-                                fetchedItems.add(medicine)
-                            }
-                        }
-                    }
-
-                    // Update UI with fetched data
-                    items.clear()
-                    items.addAll(fetchedItems)
-                    adapter.notifyDataSetChanged()
-
-                    // Save the fetched medicines into the Room database asynchronously
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        // Delete existing medicines for the doctor
-                        repository.deleteMedicinesForDoctor(doctorName)
-
-                        // Convert fetched medicines to entities
-                        val medicineEntities = fetchedItems.map { it.toEntity(doctorName) }
-
-                        // Save new medicines
-                        repository.saveMedicinesForDoctor(doctorName, medicineEntities)
-                    }
-
-                } else {
-                    Toast.makeText(this@MedicineScreenActivity, "No medicines found", Toast.LENGTH_SHORT).show()
-                }
-            }.addOnFailureListener { e ->
-                binding.progressBar.visibility = View.GONE  // Hide loading indicator
-                Log.e("MedicineScreenActivity", "Failed to fetch doctor data", e)
-                Toast.makeText(this@MedicineScreenActivity, "Failed to fetch data. Please try again.", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            // If no network, fetch data from Room database
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    val medicineEntities = repository.getMedicinesForDoctor(doctorName)
-                    withContext(Dispatchers.Main) {
-                        binding.progressBar.visibility = View.GONE  // Hide loading indicator
-
-                        if (medicineEntities.isEmpty()) {
-                            Toast.makeText(this@MedicineScreenActivity, "No medicines found in local storage", Toast.LENGTH_SHORT).show()
-                        } else {
-                            items.clear()
-                            items.addAll(medicineEntities)
-                            adapter.notifyDataSetChanged()
-                        }
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this@MedicineScreenActivity, "Error loading offline data: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
+    private fun showFeedbackFragment() {
+        val selectedDate = medicineScreenViewModel.selectedDate.ifEmpty {
+            SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
         }
+        binding.dimOverlay.visibility = View.VISIBLE
+        binding.fragmentContainer.visibility = View.VISIBLE
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container,
+                FeedbackFragment.newInstance(medicineScreenViewModel.feedbackText, selectedDate))
+            .addToBackStack(null)
+            .commit()
     }
 
-
+    private fun updateCounter(position: Int) {
+        binding.toolbarTitle.text = if (items.isEmpty()) "Presentation"
+        else "Medicine ${position + 1} / ${items.size}"
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.presn_menu, menu)
@@ -251,89 +157,130 @@ class MedicineScreenActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_update_medicine -> {
-                updateDoctorPresentationStatus()
-                val intent = Intent(this, HomeActivity::class.java)
-                intent.putExtra("doctorName", doctorName)
-                startActivity(intent)
-                finish()
-                return true
-            }
-
-            R.id.action_edit_feedback -> {
-                binding.dimOverlay.visibility = View.VISIBLE
-                binding.fragmentContainer.visibility = View.VISIBLE
-
-                var selectedDate = medicineScreenViewModel.selectedDate
-
-                if(selectedDate.isEmpty()) {
-                    selectedDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+        return when (item.itemId) {
+            R.id.action_share_presentation -> {
+                if (items.isEmpty()) {
+                    Toast.makeText(this, "No medicines to share", Toast.LENGTH_SHORT).show()
+                } else {
+                    sharePresentationAsPdf()
                 }
-
-                val fragment = FeedbackFragment.newInstance(medicineScreenViewModel.feedbackText, selectedDate)
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .addToBackStack(null)
-                    .commit()
-
-                return true
+                true
             }
-
-
+            R.id.action_edit_feedback -> {
+                showFeedbackFragment()
+                true
+            }
+            R.id.action_update_medicine -> {
+                db.child(FirebaseConstants.HAVE_PRESENTATION).setValue(false)
+                startActivity(Intent(this, HomeActivity::class.java)
+                    .putExtra(AppConstants.IntentKeys.DOCTOR_NAME, doctorName))
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
-    private fun updateDoctorPresentationStatus() {
-       db.child("havePresentation").setValue(false)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Presentation status updated successfully", Toast.LENGTH_SHORT).show()
+    private fun sharePresentationAsPdf() {
+        binding.progressBar.visibility = View.VISIBLE
+        PresentationPdfBuilder.buildAndShare(
+            context = this,
+            medicines = items.toList(),
+            doctorName = doctorName,
+            scope = lifecycleScope
+        ) { status ->
+            if (status.isEmpty()) {
+                binding.progressBar.visibility = View.GONE
+            } else if (status.startsWith("Failed")) {
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(this, status, Toast.LENGTH_LONG).show()
+            } else {
+                // "Building page X of Y…" — keep spinner showing
+                Toast.makeText(this, status, Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to update presentation status", Toast.LENGTH_SHORT).show()
-            }
+        }
     }
 
+    private fun fetchDoctorData() {
+        binding.progressBar.visibility = View.VISIBLE
+
+        if (NetworkUtils.isAvailable(this)) {
+            FirebaseDatabase.getInstance()
+                .getReference(FirebaseConstants.doctorPath(userId, doctorName))
+                .child(FirebaseConstants.MEDICINES)
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    binding.progressBar.visibility = View.GONE
+                    if (!snapshot.exists()) {
+                        Toast.makeText(this, "No medicines found", Toast.LENGTH_SHORT).show()
+                        return@addOnSuccessListener
+                    }
+
+                    val fetched = mutableListOf<Medicine>()
+                    for (brand in snapshot.children) {
+                        for (med in brand.children) {
+                            med.getValue(Medicine::class.java)?.let { fetched.add(it) }
+                        }
+                    }
+
+                    items.clear()
+                    items.addAll(fetched)
+                    adapter.notifyDataSetChanged()
+                    updateCounter(0)
+
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        repository.deleteMedicinesForDoctor(doctorName)
+                        repository.saveMedicinesForDoctor(doctorName, fetched.map { it.toEntity(doctorName) })
+                    }
+                }
+                .addOnFailureListener { e ->
+                    binding.progressBar.visibility = View.GONE
+                    Log.e("MedicineScreenActivity", "Failed to fetch medicines", e)
+                    Toast.makeText(this, "Failed to fetch data. Please try again.", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val cached = repository.getMedicinesForDoctor(doctorName)
+                    withContext(Dispatchers.Main) {
+                        binding.progressBar.visibility = View.GONE
+                        if (cached.isEmpty()) {
+                            Toast.makeText(this@MedicineScreenActivity,
+                                "No medicines found in local storage", Toast.LENGTH_SHORT).show()
+                        } else {
+                            items.clear()
+                            items.addAll(cached)
+                            adapter.notifyDataSetChanged()
+                            updateCounter(0)
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(this@MedicineScreenActivity,
+                            "Error loading offline data", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
 
     private fun fetchDoctorDetails() {
-        val feedbackRef = db.child("feedback")
-
-        feedbackRef.orderByKey().limitToLast(1).get().addOnSuccessListener { feedbackSnapshot ->
-            if (feedbackSnapshot.exists()) {
-                for (snapshot in feedbackSnapshot.children) {
-                    val latestFeedback = snapshot.getValue(FeedbackData::class.java)
-                    medicineScreenViewModel.feedbackText = latestFeedback?.message ?: ""
+        db.child(FirebaseConstants.FEEDBACK).orderByKey().limitToLast(1)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    snapshot.children.firstOrNull()
+                        ?.getValue(FeedbackData::class.java)
+                        ?.let { medicineScreenViewModel.feedbackText = it.message ?: "" }
                 }
-            } else {
-                medicineScreenViewModel.feedbackText = ""
             }
+            .addOnFailureListener { Log.e("MedicineScreenActivity", "Failed to fetch feedback", it) }
 
-            // Proceed to fetch the schedule date
-            db.child("scheduleMeet").get().addOnSuccessListener { dateSnapshot ->
-                medicineScreenViewModel.selectedDate = dateSnapshot.getValue(String::class.java) ?: ""
-            }.addOnFailureListener { e ->
-                Log.e("MedicineScreenActivity", "Failed to fetch schedule date", e)
+        db.child(FirebaseConstants.SCHEDULE_MEET).get()
+            .addOnSuccessListener { snapshot ->
+                medicineScreenViewModel.selectedDate = snapshot.getValue(String::class.java) ?: ""
             }
-        }.addOnFailureListener { e ->
-            Log.e("MedicineScreenActivity", "Failed to fetch feedback", e)
-        }
-    }
-
-
-    fun isNetworkAvailable(context: Context): Boolean {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val network = connectivityManager.activeNetwork ?: return false
-            val networkCapabilities =
-                connectivityManager.getNetworkCapabilities(network) ?: return false
-            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        } else {
-            @Suppress("DEPRECATION")
-            val networkInfo = connectivityManager.activeNetworkInfo
-            @Suppress("DEPRECATION")
-            networkInfo != null && networkInfo.isConnected
-        }
+            .addOnFailureListener { Log.e("MedicineScreenActivity", "Failed to fetch schedule", it) }
     }
 }
