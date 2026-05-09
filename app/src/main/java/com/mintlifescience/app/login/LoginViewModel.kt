@@ -1,103 +1,109 @@
 package com.mintlifescience.app.login
 
 import android.app.Application
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
-import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
-import com.mintlifescience.app.UserData
-import com.mintlifescience.app.Utility
-import com.mintlifescience.app.addDoctor.AddDoctorActivity
-import com.google.firebase.database.*
-
-import com.mintlifescience.app.R
-
+import androidx.lifecycle.LiveData
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.mintlifescience.app.helperUtils.AppConstants
+import com.mintlifescience.app.helperUtils.FirebaseConstants
+import com.mintlifescience.app.helperUtils.PrefsManager
+import com.mintlifescience.app.helperUtils.SingleLiveEvent
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
-    private lateinit var activity: LoginActivity
-    private val firebaseDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
-    private val databaseReference: DatabaseReference = firebaseDatabase.getReference("Users")
-    private val sharedPreferences: SharedPreferences =
-        application.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseDatabase.getInstance().getReference(FirebaseConstants.USERS)
 
-    fun init(activity: LoginActivity) {
-        this.activity = activity
-        activity.binding.btn.background = Utility.createGeadientDrawable(
-            25f,
-            ContextCompat.getColor(activity, R.color.purple_500),
-            ContextCompat.getColor(activity, R.color.purple_500)
-        )
-    }
+    private val _navigateToHome = SingleLiveEvent<Unit>()
+    val navigateToHome: LiveData<Unit> = _navigateToHome
+
+    private val _navigateToLogin = SingleLiveEvent<Unit>()
+    val navigateToLogin: LiveData<Unit> = _navigateToLogin
+
+    private val _errorMessage = SingleLiveEvent<String>()
+    val errorMessage: LiveData<String> = _errorMessage
+
+    private val _isLoading = SingleLiveEvent<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
     fun login(email: String, password: String) {
-        databaseReference.orderByChild("email").equalTo(email)
+        if (email.isBlank() || password.isBlank()) {
+            _errorMessage.value = "Please enter email and password"
+            return
+        }
+        _isLoading.value = true
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener { result ->
+                val uid = result.user?.uid ?: run {
+                    _isLoading.value = false
+                    _errorMessage.value = "Login failed. Please try again."
+                    return@addOnSuccessListener
+                }
+                fetchUserNodeId(uid, email)
+            }
+            .addOnFailureListener { e ->
+                _isLoading.value = false
+                _errorMessage.value = e.message ?: "Login failed"
+            }
+    }
+
+    // Firebase Auth UID ≠ the custom userId key in Realtime DB.
+    // Look up the Realtime DB node whose "firebaseUid" matches, or fall back to email match.
+    private fun fetchUserNodeId(firebaseUid: String, email: String) {
+        db.orderByChild("email").equalTo(email)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        for (userSnapshot in snapshot.children) {
-                            val user = userSnapshot.getValue(UserData::class.java)
-                            if (user?.password == password) {
-                                // Save login state and userId
-                                with(sharedPreferences.edit()) {
-                                    putBoolean("isLoggedIn", true)
-                                    putString("userEmail", email)
-                                    putString("userId", user.id)  // Save userId
-                                    apply()
-                                }
-
-                               // Toast.makeText(activity, "Login Successful", Toast.LENGTH_SHORT).show()
-
-                                val intent = Intent(activity, AddDoctorActivity::class.java)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                getApplication<Application>().startActivity(intent)
-                            } else {
-                                Toast.makeText(activity, "Incorrect Password", Toast.LENGTH_SHORT).show()
-                            }
-                        }
+                    _isLoading.value = false
+                    val userNode = snapshot.children.firstOrNull()
+                    val nodeKey = userNode?.key
+                    if (nodeKey != null) {
+                        PrefsManager.saveLoginState(getApplication(), nodeKey, email)
+                        fetchAndSaveUserName(email)
+                        _navigateToHome.value = Unit
                     } else {
-                        Toast.makeText(activity, "User not found", Toast.LENGTH_SHORT).show()
+                        // First login after migration — store uid as the node key
+                        PrefsManager.saveLoginState(getApplication(), firebaseUid, email)
+                        _navigateToHome.value = Unit
                     }
                 }
-
                 override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(activity, "Login Failed", Toast.LENGTH_SHORT).show()
+                    _isLoading.value = false
+                    _errorMessage.value = error.message
                 }
+            })
+    }
+
+    private fun fetchAndSaveUserName(email: String) {
+        db.orderByChild("email").equalTo(email)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val username = snapshot.children.firstOrNull()
+                        ?.getValue(com.mintlifescience.app.UserData::class.java)?.username
+                    username?.let { PrefsManager.saveUserName(getApplication(), it) }
+                }
+                override fun onCancelled(error: DatabaseError) {}
             })
     }
 
     fun fetchUserName(email: String, onComplete: (String) -> Unit) {
-        databaseReference.orderByChild("email").equalTo(email)
+        db.orderByChild("email").equalTo(email)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        for (userSnapshot in snapshot.children) {
-                            val user = userSnapshot.getValue(UserData::class.java)
-                            user?.username?.let { onComplete(it) }
-                        }
-                    } else {
-                        onComplete(null.toString())
-                    }
+                    val username = snapshot.children.firstOrNull()
+                        ?.getValue(com.mintlifescience.app.UserData::class.java)?.username
+                    onComplete(username ?: "")
                 }
-
-                override fun onCancelled(error: DatabaseError) {
-                    onComplete(null.toString())
-                }
+                override fun onCancelled(error: DatabaseError) { onComplete("") }
             })
     }
 
     fun logout() {
-        with(sharedPreferences.edit()) {
-            putBoolean("isLoggedIn", false)
-            remove("userEmail")
-            remove("userId") // Remove userId on logout
-            apply()
-        }
-
-        val intent = Intent(getApplication(), LoginActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        getApplication<Application>().startActivity(intent)
+        auth.signOut()
+        PrefsManager.clearSession(getApplication())
+        _navigateToLogin.value = Unit
     }
 }

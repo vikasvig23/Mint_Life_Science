@@ -5,8 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- ==================== SHIMMER + IMAGE (4:3) ==================== -->
-    <!-- Shimmer Placeholder Layer -->
     <com.facebook.shimmer.ShimmerFrameLayout
         android:id="@+id/shimmer_layout"
         android:layout_width="0dp"
@@ -24,18 +22,17 @@
             android:background="@color/light_gray_placeholder" />
     </com.facebook.shimmer.ShimmerFrameLayout>
 
-    <!-- Actual Image -->
     <ImageView
         android:id="@+id/cardImage"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:contentDescription="@string/medicine_image_description"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintDimensionRatio="H,4:3"
         android:scaleType="centerCrop" />
 
-    <!-- ==================== GRADIENT ==================== -->
     <View
         android:id="@+id/imageOverlay"
         android:layout_width="0dp"
@@ -46,7 +43,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- ==================== PLAY & SHARE ==================== -->
     <LinearLayout
         android:id="@+id/topButtons"
         android:layout_width="wrap_content"
@@ -62,6 +58,7 @@
             android:layout_width="44dp"
             android:layout_height="44dp"
             android:layout_marginEnd="12dp"
+            android:contentDescription="@string/play_video_description"
             android:src="@drawable/outline_play_circle_24"
             app:tint="@android:color/white" />
 
@@ -69,16 +66,17 @@
             android:id="@+id/share_button"
             android:layout_width="44dp"
             android:layout_height="44dp"
+            android:contentDescription="@string/share_description"
             android:src="@drawable/baseline_share_24"
             app:tint="@android:color/white" />
     </LinearLayout>
 
-    <!-- ==================== NAV ARROWS ==================== -->
     <ImageView
         android:id="@+id/back_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:src="@drawable/baseline_arrow_back_ios_new_24"
+        android:contentDescription="@string/back_description"
         android:background="@drawable/round_white_bg"
         android:padding="10dp"
         app:tint="@color/black"
@@ -91,6 +89,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:src="@drawable/baseline_navigate_next_24"
+        android:contentDescription="@string/next_description"
         android:background="@drawable/round_white_bg"
         android:padding="10dp"
         app:tint="@color/black"
@@ -98,7 +97,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp" />
 
-    <!-- ==================== SCROLLABLE DETAILS ==================== -->
     <ScrollView
         android:id="@+id/detailScroll"
         android:layout_width="0dp"
@@ -156,169 +154,3 @@
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-
-
-
-
-    <!--<?xml version="1.0" encoding="utf-8"?>-->
-
-<!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    android:layout_margin="5dp"-->
-<!--    app:layout_constraintBottom_toBottomOf="parent"-->
-<!--    app:layout_constraintEnd_toEndOf="parent"-->
-<!--    app:layout_constraintEnd_toStartOf="parent"-->
-<!--    app:layout_constraintTop_toTopOf="parent">-->
-
-<!--    <ImageView-->
-<!--        android:id="@+id/cardImage"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:src="@mipmap/ic_launcher"-->
-<!--        android:scaleType="centerCrop"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintCircleRadius="@dimen/cardview_compat_inset_shadow"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-<!--    <ImageView-->
-<!--        android:id="@+id/play_button"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="20dp"-->
-<!--        android:layout_marginEnd="55dp"-->
-<!--        android:clickable="true"-->
-<!--        android:src="@drawable/outline_play_circle_24"-->
-<!--        app:layout_constraintRight_toRightOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-<!--    <ImageView-->
-<!--        android:id="@+id/share_button"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="22dp"-->
-<!--        android:layout_marginEnd="15dp"-->
-<!--        android:clickable="true"-->
-<!--        android:src="@drawable/baseline_share_24"-->
-<!--        app:layout_constraintRight_toRightOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-
-<!--    <ImageView-->
-<!--        android:id="@+id/back_button"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="3dp"-->
-<!--        android:layout_marginBottom="50dp"-->
-<!--        android:clickable="true"-->
-<!--        android:src="@drawable/baseline_arrow_back_ios_new_24"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-<!--    <ImageView-->
-<!--        android:id="@+id/next_button"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginEnd="3dp"-->
-<!--        android:layout_marginBottom="50dp"-->
-<!--        android:clickable="true"-->
-<!--        android:src="@drawable/baseline_navigate_next_24"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-<!--    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginBottom="60dp"-->
-<!--        android:orientation="vertical"-->
-<!--        android:paddingHorizontal="10dp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintLeft_toLeftOf="parent"-->
-<!--        app:layout_constraintRight_toRightOf="parent">-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/medicineName"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="5dp"-->
-<!--            android:ellipsize="end"-->
-<!--            android:hint="Medicine Name"-->
-<!--            android:maxLines="1"-->
-<!--            android:paddingHorizontal="10dp"-->
-<!--            android:paddingVertical="2dp"-->
-<!--            android:textColor="@color/black"-->
-<!--            android:textSize="18sp" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/medicineSaltDescription"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="5dp"-->
-<!--            android:ellipsize="end"-->
-<!--            android:hint="Salt Description"-->
-<!--            android:maxLines="1"-->
-<!--            android:paddingHorizontal="10dp"-->
-<!--            android:paddingVertical="2dp"-->
-<!--            android:textColor="@color/black"-->
-<!--            android:textSize="18sp" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/descriptionTextView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="5dp"-->
-<!--            android:ellipsize="end"-->
-<!--            android:hint="Description"-->
-<!--            android:maxLines="2"-->
-<!--            android:paddingHorizontal="10dp"-->
-<!--            android:paddingVertical="2dp"-->
-<!--            android:textColor="@color/black"-->
-<!--            android:textSize="18sp" />-->
-
-<!--    </LinearLayout>-->
-
-
-<!--    <TextView-->
-<!--        android:id="@+id/pdfTextView"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginEnd="25dp"-->
-<!--        android:layout_marginBottom="20dp"-->
-<!--        android:clickable="true"-->
-<!--        android:text="PDF"-->
-<!--        android:textColor="#E71313"-->
-<!--        android:textSize="18sp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintRight_toRightOf="parent" />-->
-
-<!--</androidx.constraintlayout.widget.ConstraintLayout>-->
-
-
-
-
-
-<!--&lt;!&ndash;    &lt;!&ndash; Shimmer FrameLayout &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;<com.facebook.shimmer.ShimmerFrameLayout&ndash;&gt;-->
-<!--&lt;!&ndash;android:id="@+id/shimmer_layout"&ndash;&gt;-->
-<!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
-<!--&lt;!&ndash;android:layout_height="match_parent"&ndash;&gt;-->
-<!--&lt;!&ndash;app:layout_constraintTop_toTopOf="parent"&ndash;&gt;-->
-<!--&lt;!&ndash;app:layout_constraintBottom_toBottomOf="parent"&ndash;&gt;-->
-<!--&lt;!&ndash;app:layout_constraintStart_toStartOf="parent"&ndash;&gt;-->
-<!--&lt;!&ndash;app:layout_constraintEnd_toEndOf="parent">&ndash;&gt;-->
-
-<!--&lt;!&ndash;<ImageView&ndash;&gt;-->
-<!--&lt;!&ndash;    android:id="@+id/cardImage"&ndash;&gt;-->
-<!--&lt;!&ndash;    android:layout_width="match_parent"&ndash;&gt;-->
-<!--&lt;!&ndash;    android:layout_height="match_parent"&ndash;&gt;-->
-<!--&lt;!&ndash;    android:scaleType="centerCrop"&ndash;&gt;-->
-<!--&lt;!&ndash;    android:background="@color/shadow_light_gray" />&ndash;&gt;-->
-<!--&lt;!&ndash;</com.facebook.shimmer.ShimmerFrameLayout>&ndash;&gt;-->

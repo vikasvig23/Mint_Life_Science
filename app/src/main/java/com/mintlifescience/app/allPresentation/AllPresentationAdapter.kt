@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.mintlifescience.app.R
 import com.mintlifescience.app.addDoctor.DoctorData
@@ -22,67 +23,60 @@ class AllPresentationAdapter(private var presentationList: List<DoctorData>) :
         val cardDoc: CardView = itemView.findViewById(R.id.card_doc)
         val docName: TextView = itemView.findViewById(R.id.tvName)
         val docSpeciality: TextView = itemView.findViewById(R.id.tvClass)
-        val scheduleMeet : TextView = itemView.findViewById(R.id.scheduleMeet)
+        val scheduleMeet: TextView = itemView.findViewById(R.id.scheduleMeet)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AllPresentationViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recent_doctor_list, parent, false)
-        return AllPresentationViewHolder(view)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        AllPresentationViewHolder(LayoutInflater.from(parent.context)
+            .inflate(R.layout.recent_doctor_list, parent, false))
 
-    override fun getItemCount(): Int {
-        return presentationList.size
-    }
+    override fun getItemCount() = presentationList.size
 
     override fun onBindViewHolder(holder: AllPresentationViewHolder, position: Int) {
-        val doctorData = presentationList[position]
-        holder.docName.text = doctorData.docName
-        holder.docSpeciality.text = doctorData.docSpeciality
+        val doctor = presentationList[position]
+        holder.docName.text = doctor.docName
+        holder.docSpeciality.text = doctor.docSpeciality
 
-
-        if (doctorData.havePresentation) {
-            holder.scheduleMeet.text = doctorData.scheduleMeet
-
-            // Check if the date is past or future
-            val currentDate = System.currentTimeMillis()
-            val meetDate = try {
-                SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(doctorData.scheduleMeet)?.time
+        if (doctor.havePresentation && doctor.scheduleMeet.isNotEmpty()) {
+            holder.scheduleMeet.text = doctor.scheduleMeet
+            val current = System.currentTimeMillis()
+            val meetMs = try {
+                SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(doctor.scheduleMeet)?.time
             } catch (e: Exception) {
-                Log.e("AddDoctorAdapter", "Date parsing failed for: ${doctorData.scheduleMeet}", e)
+                Log.e("AllPresentationAdapter", "Date parse failed: ${doctor.scheduleMeet}", e)
                 null
             }
-
-            if (meetDate != null) {
-                if (meetDate < currentDate) {
-                    holder.scheduleMeet.setBackgroundResource(R.drawable.rounded_red)
-                } else {
-                    holder.scheduleMeet.setBackgroundResource(R.drawable.rounded_blue)
-                }
-
+            if (meetMs != null) {
+                holder.scheduleMeet.setBackgroundResource(
+                    if (meetMs < current) R.drawable.rounded_red else R.drawable.rounded_blue
+                )
                 holder.scheduleMeet.visibility = View.VISIBLE
             } else {
                 holder.scheduleMeet.visibility = View.GONE
             }
+        } else {
+            holder.scheduleMeet.visibility = View.GONE
         }
 
-
         holder.cardDoc.setOnClickListener {
-            val context = holder.itemView.context
-            val intent: Intent = if (doctorData.havePresentation) {
-                Intent(context, MedicineScreenActivity::class.java)
-            } else {
-                Intent(context, HomeActivity::class.java)
-            }
-            intent.putExtra("doctorName", doctorData.docName) // Pass doctorName
-            intent.putExtra("allPresentation", true) // Pass doctorName
-            context.startActivity(intent)
+            val ctx = holder.itemView.context
+            val intent = if (doctor.havePresentation)
+                Intent(ctx, MedicineScreenActivity::class.java)
+            else Intent(ctx, HomeActivity::class.java)
+            intent.putExtra("doctorName", doctor.docName)
+            intent.putExtra("allPresentation", true)
+            ctx.startActivity(intent)
         }
     }
 
-
-    fun updateList(newDocList: List<DoctorData>) {
-        presentationList = newDocList
-        notifyDataSetChanged()
-        Log.d("RecyclerViewBinding", "List updated: $newDocList")
+    fun updateList(newList: List<DoctorData>) {
+        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = presentationList.size
+            override fun getNewListSize() = newList.size
+            override fun areItemsTheSame(o: Int, n: Int) = presentationList[o].docName == newList[n].docName
+            override fun areContentsTheSame(o: Int, n: Int) = presentationList[o] == newList[n]
+        })
+        presentationList = newList
+        diff.dispatchUpdatesTo(this)
     }
 }

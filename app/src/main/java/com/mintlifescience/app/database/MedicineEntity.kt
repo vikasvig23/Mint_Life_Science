@@ -1,9 +1,10 @@
 package com.mintlifescience.app.database
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "medicine_table")
+@Entity(tableName = "medicine_table", indices = [Index("doctorName")])
 data class MedicineEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val image: String? = null,

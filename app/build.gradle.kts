@@ -60,6 +60,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
     implementation ("com.google.firebase:firebase-storage:20.2.1")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
@@ -72,9 +73,11 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation ("com.google.android.exoplayer:exoplayer:2.18.1")
-    //implementation ("com.facebook.shimmer:shimmer:0.5.0")
-    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
+    // Media3 (replaces deprecated ExoPlayer 2.x)
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
+
+    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
 
     //Room
@@ -84,4 +87,7 @@ dependencies {
     implementation ("androidx.room:room-ktx:2.6.1")
 
     implementation("com.facebook.shimmer:shimmer:0.5.0")
+
+    // Encrypted SharedPreferences
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 }

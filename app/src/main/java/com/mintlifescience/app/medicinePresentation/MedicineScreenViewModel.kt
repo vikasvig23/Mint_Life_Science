@@ -21,7 +21,6 @@ class MedicineScreenViewModel(application: Application) : AndroidViewModel(appli
     var selectedDate: String = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
     var feedbackText: String = ""
 
-    // Set the Firebase reference to the ViewModel
     fun setDoctorReference(reference: DatabaseReference) {
         doctorReference = reference
     }
@@ -32,18 +31,11 @@ class MedicineScreenViewModel(application: Application) : AndroidViewModel(appli
         val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
 
         doctorReference?.let { reference ->
-            // Retrieve the current feedback list
             reference.child("feedback").get().addOnSuccessListener { snapshot ->
                 val feedbackList = snapshot.children.mapNotNull { it.getValue(FeedbackData::class.java) }.toMutableList()
 
-                // Add the new feedback
-                val newFeedback = FeedbackData(
-                    message = feedbackText,
-                    date = currentDate
-                )
-                feedbackList.add(newFeedback)
+                feedbackList.add(FeedbackData(message = feedbackText, date = currentDate))
 
-                // Update the feedback list in Firebase
                 val updates = mapOf(
                     "scheduleMeet" to selectedDate,
                     "feedback" to feedbackList
@@ -51,7 +43,6 @@ class MedicineScreenViewModel(application: Application) : AndroidViewModel(appli
 
                 reference.updateChildren(updates).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Log.d("MedicineViewModel", "Doctor data updated successfully with new feedback")
                         downloadStatus.postValue("Update successful")
                     } else {
                         Log.e("MedicineViewModel", "Failed to update doctor data", task.exception)
@@ -68,11 +59,11 @@ class MedicineScreenViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-
     fun downloadPdfFromFirebase(context: Context, fileName: String) {
         val storageRef = FirebaseStorage.getInstance().reference.child("pdfs/$fileName")
 
-        val outputDir = File(Environment.getExternalStorageDirectory(), "Download")
+        val outputDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            ?: context.filesDir
         if (!outputDir.exists()) outputDir.mkdirs()
 
         val outputFile = File(outputDir, fileName)

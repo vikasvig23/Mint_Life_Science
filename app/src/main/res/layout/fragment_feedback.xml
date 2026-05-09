@@ -16,7 +16,7 @@
         
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/feedback_container"
-            android:layout_width="400dp"
+            android:layout_width="@dimen/feedback_input_height"
             android:layout_height="wrap_content"
             android:background="@drawable/corners"
             app:layout_constraintTop_toTopOf="parent"

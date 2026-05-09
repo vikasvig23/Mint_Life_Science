@@ -1,3 +1,7 @@
 <resources>
-      <dimen name="fab_margin">16dp</dimen>
-   </resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="medicine_card_width">183dp</dimen>
+    <dimen name="medicine_card_height">235dp</dimen>
+    <dimen name="medicine_card_image_height">153dp</dimen>
+    <dimen name="feedback_input_height">400dp</dimen>
+</resources>

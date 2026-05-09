@@ -1,37 +1,36 @@
 package com.mintlifescience.app.Medicine
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import com.mintlifescience.app.R
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.firebase.database.FirebaseDatabase
 import com.mintlifescience.app.adapters.MedicineAdapter
-import com.mintlifescience.app.model.Medicine
 import com.mintlifescience.app.addDoctor.DoctorData
 import com.mintlifescience.app.databinding.ActivityMedicineListBinding
+import com.mintlifescience.app.helperUtils.AppConstants
+import com.mintlifescience.app.helperUtils.FirebaseConstants
+import com.mintlifescience.app.helperUtils.PrefsManager
+import com.mintlifescience.app.login.LoginActivity
 import com.mintlifescience.app.login.LoginViewModel
-import com.google.firebase.database.*
+import com.mintlifescience.app.model.Medicine
+import android.content.Intent
 
 class MedicineListActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityMedicineListBinding
     private lateinit var medicineAdapter: MedicineAdapter
-    private lateinit var database: DatabaseReference
-
     private lateinit var brandName: String
     private lateinit var doctorName: String
-
-    private var medicineList: MutableList<Medicine> = mutableListOf()
+    private var medicineList: List<Medicine> = emptyList()
     private var selectedMedicines: MutableList<Medicine> = mutableListOf()
     private var alreadySelectedMedicine: MutableList<Medicine> = mutableListOf()
     private lateinit var userId: String
-
     private lateinit var loginViewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,35 +38,33 @@ class MedicineListActivity : AppCompatActivity() {
         binding = ActivityMedicineListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.recyclerView.layoutManager = GridLayoutManager(this, 2) // 2 columns
-        medicineAdapter = MedicineAdapter(this, medicineList, selectedMedicines, alreadySelectedMedicine)
-        binding.recyclerView.adapter = medicineAdapter
+        loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
-        loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
+        brandName = intent.getStringExtra(AppConstants.IntentKeys.BRAND_NAME_SHORT) ?: ""
+        doctorName = intent.getStringExtra(AppConstants.IntentKeys.DOCTOR_NAME) ?: ""
 
-        brandName = intent.getStringExtra("brand_name") ?: ""
-        doctorName = intent.getStringExtra("doctorName") ?: ""
-
-        // Initialize SharedPreferences inside onCreate
-        val sharedPreferences: SharedPreferences =
-            getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-        userId = sharedPreferences.getString("userId", null) ?: run {
-            Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_LONG)
-                .show()
-
+        userId = PrefsManager.userId(this) ?: run {
+            Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_LONG).show()
+            loginViewModel.navigateToLogin.observe(this) {
+                startActivity(Intent(this, LoginActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+                finish()
+            }
             loginViewModel.logout()
             return
         }
 
-        fetchDoctorMedicines()
-        fetchMedicines()
+        binding.recyclerView.layoutManager = GridLayoutManager(this, 2)
+        medicineAdapter = MedicineAdapter(this, medicineList, selectedMedicines, alreadySelectedMedicine)
+        binding.recyclerView.adapter = medicineAdapter
 
-        // Search functionality
+        // Fetch already-selected medicines first, then load catalog so selection state is correct
+        fetchDoctorMedicines {
+            fetchMedicines()
+        }
+
         binding.search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
+            override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
                 filterMedicines(newText ?: "")
                 return true
@@ -75,191 +72,80 @@ class MedicineListActivity : AppCompatActivity() {
         })
 
         binding.done.setOnClickListener {
-            // Compare lists properly by their content
-            if (selectedMedicines != alreadySelectedMedicine) {
-                saveDoctorData()
-            }
+            if (selectedMedicines != alreadySelectedMedicine) saveDoctorData()
             finish()
         }
     }
 
-    /// FUNCTION TO FETCH MEDICINES
     private fun fetchMedicines() {
         val builder = AlertDialog.Builder(this)
         builder.setCancelable(false)
-        builder.setView(R.layout.progress_layout)
+        builder.setView(com.mintlifescience.app.R.layout.progress_layout)
         val dialog = builder.create()
         dialog.show()
 
-        // Initialize Firebase Database
-        database =
-            FirebaseDatabase.getInstance().getReference("Mint_Life_Science_Admin").child(brandName)
-
-        database.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                medicineList.clear()
+        FirebaseDatabase.getInstance()
+            .getReference(FirebaseConstants.ADMIN).child(brandName)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val newList = mutableListOf<Medicine>()
                 for (medicineSnapshot in snapshot.children) {
-                    val medicine = medicineSnapshot.getValue(Medicine::class.java)
-                    if (medicine != null) {
-                        medicineList.add(medicine)
-                    }
+                    medicineSnapshot.getValue(Medicine::class.java)?.let { newList.add(it) }
                 }
+                medicineList = newList
+                Log.d("MedicineListActivity", "Fetched ${medicineList.size} medicines for brand: $brandName")
                 medicineAdapter.updateMedicineList(medicineList)
-
-                // Show "Cart is Empty" if no data is available
                 updateCartVisibility()
-
                 dialog.dismiss()
             }
-
-            override fun onCancelled(error: DatabaseError) {
+            .addOnFailureListener { e ->
                 dialog.dismiss()
-                Toast.makeText(
-                    this@MedicineListActivity,
-                    "Failed to fetch medicines",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Log.e("MedicineListActivity", "Failed to fetch medicines from path: ${FirebaseConstants.ADMIN}/$brandName", e)
+                Toast.makeText(this, "Failed to fetch medicines", Toast.LENGTH_SHORT).show()
+                updateCartVisibility()
             }
-        })
     }
 
     private fun updateCartVisibility() {
-        if (medicineList.isEmpty()) {
-            binding.cartEmptyText.visibility = View.VISIBLE
-            binding.recyclerView.visibility = View.GONE
-        } else {
-            binding.cartEmptyText.visibility = View.GONE
-            binding.recyclerView.visibility = View.VISIBLE
-        }
+        binding.cartEmptyText.visibility = if (medicineList.isEmpty()) View.VISIBLE else View.GONE
+        binding.recyclerView.visibility = if (medicineList.isEmpty()) View.GONE else View.VISIBLE
     }
 
-    /// FUNCTION TO FILTER MEDICINES
     private fun filterMedicines(query: String) {
-        val trimmedQuery = query.trim()
-        val filteredList = if (trimmedQuery.isEmpty()) {
-            medicineList // Show the full list if the query is empty or just spaces
-        } else {
-            medicineList.filter {
-                it.name?.contains(trimmedQuery, ignoreCase = true) ?: false
-            }
-        }
-        medicineAdapter.updateMedicineList(filteredList)
-
-        // Show a message if no results are found
-        if (filteredList.isEmpty()) {
-            Toast.makeText(this, "No results found", Toast.LENGTH_SHORT).show()
-        }
+        val trimmed = query.trim()
+        val filtered = if (trimmed.isEmpty()) medicineList
+        else medicineList.filter { it.name?.contains(trimmed, ignoreCase = true) == true }
+        medicineAdapter.updateMedicineList(filtered)
     }
 
-    /// FUNCTION TO SAVE DOCTOR DATA
     private fun saveDoctorData() {
-        val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
-        val doctorMedicinesRef = databaseReference.child(userId).child("Mint_Life_Science_Client")
-            .child("Doctors").child(doctorName).child("medicines").child(brandName)
-
-        doctorMedicinesRef.setValue(selectedMedicines)
-            .addOnSuccessListener {
-                Log.d("MedicineListActivity", "Doctor data saved successfully!")
-                //saveInRecentDoctors()
-                selectedMedicines.clear()
-            }
+        FirebaseDatabase.getInstance().getReference(FirebaseConstants.USERS)
+            .child(userId).child(FirebaseConstants.CLIENT)
+            .child(FirebaseConstants.DOCTORS).child(doctorName)
+            .child(FirebaseConstants.MEDICINES).child(brandName)
+            .setValue(selectedMedicines)
+            .addOnSuccessListener { selectedMedicines.clear() }
             .addOnFailureListener { e ->
                 Log.e("MedicineListActivity", "Failed to save doctor data", e)
+                Toast.makeText(this, "Failed to save medicines", Toast.LENGTH_SHORT).show()
             }
     }
 
-    /// FUNCTION TO FETCH DOCTOR MEDICINES
-    private fun fetchDoctorMedicines() {
-        // Fetch doctor details from Firebase
-        val db = FirebaseDatabase.getInstance().getReference("Users")
-            .child(userId).child("Mint_Life_Science_Client").child("Doctors")
-            .child(doctorName)
-
-        db.get().addOnSuccessListener { dataSnapshot ->
-            val doctorData = dataSnapshot.getValue(DoctorData::class.java)
-            if (doctorData != null) {
-                val brandSnapshot = dataSnapshot.child("medicines").child(brandName)
+    private fun fetchDoctorMedicines(onComplete: () -> Unit) {
+        FirebaseDatabase.getInstance().getReference(FirebaseConstants.USERS)
+            .child(userId).child(FirebaseConstants.CLIENT)
+            .child(FirebaseConstants.DOCTORS).child(doctorName)
+            .get()
+            .addOnSuccessListener { snapshot ->
                 alreadySelectedMedicine.clear()
-                for (medicineSnapshot in brandSnapshot.children) {
-                    val medicine = medicineSnapshot.getValue(Medicine::class.java)
-                    if (medicine != null) {
-                        alreadySelectedMedicine.add(medicine)
-                    }
-                }
-            } else {
-                Toast.makeText(this, "No doctor data found", Toast.LENGTH_SHORT).show()
+                snapshot.child(FirebaseConstants.MEDICINES).child(brandName).children
+                    .mapNotNull { it.getValue(Medicine::class.java) }
+                    .let { alreadySelectedMedicine.addAll(it) }
+                onComplete()
             }
-        }.addOnFailureListener { e ->
-            Log.e("DoctorMedicineActivity", "Failed to fetch doctor data", e)
-        }
+            .addOnFailureListener { e ->
+                Log.e("MedicineListActivity", "Failed to fetch doctor medicines", e)
+                onComplete() // still load catalog even if pre-selection fails
+            }
     }
 }
-
-
-//binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//        super.onScrolled(recyclerView, dx, dy)
-//        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-//        val visibleItemCount = layoutManager.childCount
-//        val totalItemCount = layoutManager.itemCount
-//        val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-//
-//        if (!medicineViewModel.isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount) {
-//            // Fetch more data when reaching the end
-//            medicineViewModel.fetchMedicines(brandName, isLoadMore = true)
-//        }
-//    }
-//})
-//The scroll listener checks if the user has scrolled near the end of the list.
-//When the user reaches the end, it calls fetchMedicines() with isLoadMore = true to append more items.
-//The pagination is handled smoothly, fetching 20 items at a time and appending them to the list.
-
-
-
-//private fun saveInRecentDoctors() {
-//        val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
-//        val recentDoctorsRef =
-//            databaseReference.child(userId).child("RecentDoctors").child(doctorName)
-//                .child("medicines").child(brandName)
-//
-//        recentDoctorsRef.setValue(selectedMedicines)
-//            .addOnSuccessListener {
-//                Log.d("MedicineListActivity", "Doctor data saved to RecentDoctors successfully!")
-//                limitRecentDoctors()
-//            }
-//            .addOnFailureListener { e ->
-//                Log.e("MedicineListActivity", "Failed to save doctor data to RecentDoctors", e)
-//            }
-//    }
-//
-//    private fun limitRecentDoctors() {
-//        val recentDoctorsRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
-//            .child("RecentDoctors")
-//        recentDoctorsRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                val children = snapshot.children.toList()
-//                if (children.size > 20) {
-//                    val oldestChild = children.firstOrNull()
-//                    oldestChild?.key?.let { oldestKey ->
-//                        recentDoctorsRef.child(oldestKey).removeValue()
-//                            .addOnSuccessListener {
-//                                Log.d(
-//                                    "MedicineListActivity",
-//                                    "Oldest doctor removed from RecentDoctors"
-//                                )
-//                            }
-//                            .addOnFailureListener { e ->
-//                                Log.e("MedicineListActivity", "Failed to remove oldest doctor", e)
-//                            }
-//                    }
-//                }
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                Log.e(
-//                    "MedicineListActivity",
-//                    "Failed to retrieve RecentDoctors data: ${error.message}"
-//                )
-//            }
-//        })
-//    }

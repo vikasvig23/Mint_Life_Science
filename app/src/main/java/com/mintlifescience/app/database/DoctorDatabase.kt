@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [DoctorEntity::class, MedicineEntity::class], version = 2, exportSchema = false)
+@Database(entities = [DoctorEntity::class, MedicineEntity::class], version = 3, exportSchema = false)
 @TypeConverters(GroupConverter::class, FeedbackConverter::class)
 abstract class DoctorDatabase : RoomDatabase() {
     abstract fun doctorDao(): DoctorDao
@@ -23,12 +23,20 @@ abstract class DoctorDatabase : RoomDatabase() {
                     context.applicationContext,
                     DoctorDatabase::class.java,
                     "doctor_database"
-                ).addMigrations(MIGRATION_1_2) // Migration added
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 instance
             }
         }
+    }
+}
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_medicine_table_doctorName` ON `medicine_table` (`doctorName`)"
+        )
     }
 }
 

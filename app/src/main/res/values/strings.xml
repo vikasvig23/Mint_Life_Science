@@ -9,6 +9,13 @@
     <string name="open_nav">Open Navigation Drawer</string>
     <string name="close_nav">Close Navigation Drawer</string>
 
+    <string name="medicine_image_description">Medicine image</string>
+    <string name="brand_image_description">Brand image</string>
+    <string name="play_video_description">Play video</string>
+    <string name="share_description">Share</string>
+    <string name="back_description">Go back</string>
+    <string name="next_description">Go to next</string>
+
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus

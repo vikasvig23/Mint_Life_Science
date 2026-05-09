@@ -21,6 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
+            android:contentDescription="@string/brand_image_description"
             android:src="@drawable/baseline_image_24" />
 
         <!-- Text displayed over the image -->

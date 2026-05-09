@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/medicine_card_holder"
-    android:layout_width="183dp"
-    android:layout_height="235dp"
+    android:layout_width="@dimen/medicine_card_width"
+    android:layout_height="@dimen/medicine_card_height"
     android:background="@drawable/grey_background"
     android:layout_margin="8dp"
     android:elevation="3dp">
@@ -12,8 +12,9 @@
     <ImageView
         android:id="@+id/card_medicine_image"
         android:layout_width="0dp"
-        android:layout_height="153dp"
+        android:layout_height="@dimen/medicine_card_image_height"
         android:scaleType="centerCrop"
+        android:contentDescription="@string/medicine_image_description"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -3,10 +3,10 @@ package com.mintlifescience.app.medicinePresentation
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.ui.PlayerView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import com.mintlifescience.app.R
 
 class MediaPlayerActivity : AppCompatActivity() {
@@ -21,7 +21,6 @@ class MediaPlayerActivity : AppCompatActivity() {
         playerView = findViewById(R.id.player_view)
 
         val mediaUrl = intent.getStringExtra("MEDIA_URL")
-
         if (mediaUrl != null) {
             initializePlayer(mediaUrl)
         } else {
@@ -30,25 +29,16 @@ class MediaPlayerActivity : AppCompatActivity() {
     }
 
     private fun initializePlayer(mediaUrl: String) {
-        // Create ExoPlayer instance
         exoPlayer = ExoPlayer.Builder(this).build()
-
-        // Bind the ExoPlayer instance to the PlayerView
         playerView.player = exoPlayer
-
-        // Create media source from the URL
-        val mediaItem = MediaItem.fromUri(Uri.parse(mediaUrl))
-        exoPlayer?.setMediaItem(mediaItem)
-
-        // Prepare and start the player
+        exoPlayer?.setMediaItem(MediaItem.fromUri(Uri.parse(mediaUrl)))
         exoPlayer?.prepare()
         exoPlayer?.playWhenReady = true
     }
 
-
     override fun onStop() {
         super.onStop()
-        // Release the player when the activity is stopped
         exoPlayer?.release()
+        exoPlayer = null
     }
 }
