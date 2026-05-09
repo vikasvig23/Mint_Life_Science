@@ -23,7 +23,3 @@ class AboutUsActivity : AppCompatActivity() {
         }
     }
 }
-
-class ActivityAboutUsBinding {
-
-}

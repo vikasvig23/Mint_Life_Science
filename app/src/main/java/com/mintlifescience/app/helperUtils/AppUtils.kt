@@ -11,7 +11,7 @@ object AppUtils {
     fun getAppVersion(context: Context): String {
         return try {
             val packageInfo: PackageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            packageInfo.versionName
+            packageInfo.versionName ?: "1.0.0"
         } catch (e: PackageManager.NameNotFoundException) {
             Log.e("AppUtils", "Package name not found", e)
             "1.0.0" // Default version

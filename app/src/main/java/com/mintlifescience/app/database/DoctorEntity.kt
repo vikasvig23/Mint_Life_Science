@@ -8,13 +8,13 @@ import com.mintlifescience.app.model.FeedbackData
 
 @Entity(tableName = "doctor_table")
 data class DoctorEntity(
-    @PrimaryKey val docName: String = "",
-    val docSpeciality: String = "",
-    @TypeConverters(GroupConverter::class) // Ensure this is present
-    val groups: List<Group> = emptyList(),
+    @PrimaryKey var docName: String = "",
+    var docSpeciality: String = "",
+    @TypeConverters(GroupConverter::class)
+    var groups: List<Group> = emptyList(),
     var scheduleMeet: String = "",
     var havePresentation: Boolean = false,
-    @TypeConverters(FeedbackConverter::class) // For feedback
+    @TypeConverters(FeedbackConverter::class)
     var feedback: List<FeedbackData> = emptyList(),
     var lastAdded: Long = System.currentTimeMillis()
 )

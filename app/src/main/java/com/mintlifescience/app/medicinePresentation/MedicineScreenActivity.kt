@@ -123,16 +123,20 @@ class MedicineScreenActivity : AppCompatActivity() {
         fetchDoctorData()
         fetchDoctorDetails()
 
-        adapter = PresentationAdapter(items, binding.viewPager, this)
-        binding.viewPager.adapter = adapter
+
+        // Inside onCreate()
+        binding.viewPager.offscreenPageLimit = 2
         binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
 
-        binding.viewPager.setPageTransformer { page, position ->
-            page.translationX = -position * page.width
-            page.scaleY = 1 - (0.1f * kotlin.math.abs(position))
-            page.alpha = 0.8f + (1 - kotlin.math.abs(position)) * 0.2f
-        }
+        adapter = PresentationAdapter(items, binding.viewPager, this)
+        binding.viewPager.adapter = adapter
 
+// Update arrows on page change
+        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                adapter.notifyDataSetChanged() // Updates arrow visibility
+            }
+        })
 
         //Handle the submit
         binding.submitPresentation.setOnClickListener {

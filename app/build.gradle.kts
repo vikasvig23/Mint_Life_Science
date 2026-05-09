@@ -6,14 +6,14 @@ plugins {
 }
 android {
     namespace = "com.mintlifescience.app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.mintlifescience.app"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 3
-        versionName = "1.0.2"
+        targetSdk = 35
+        versionCode = 4
+        versionName = "1.0.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -27,13 +27,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_19
+        targetCompatibility = JavaVersion.VERSION_19
     }
 
-
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "19"
     }
 
 
@@ -79,10 +78,10 @@ dependencies {
 
 
     //Room
-    implementation ("androidx.room:room-runtime:2.5.0")
-    kapt ("androidx.room:room-compiler:2.5.0")
+    implementation ("androidx.room:room-runtime:2.6.1")
+    kapt ("androidx.room:room-compiler:2.6.1")
     implementation ("com.google.code.gson:gson:2.9.0")
-    implementation ("androidx.room:room-ktx:2.5.2")
+    implementation ("androidx.room:room-ktx:2.6.1")
 
-
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
 }

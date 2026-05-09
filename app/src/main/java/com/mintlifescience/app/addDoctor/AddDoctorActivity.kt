@@ -19,6 +19,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -75,7 +76,7 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         // Register the receiver to listen for network changes
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        registerReceiver(networkChangeReceiver, filter)
+        ContextCompat.registerReceiver(this, networkChangeReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
 
         // Observe isLoading LiveData to show/hide the progress bar
         viewModel.isLoading.observe(this) { isLoading ->
