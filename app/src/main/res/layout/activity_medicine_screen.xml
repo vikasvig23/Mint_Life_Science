@@ -54,14 +54,21 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- ====================== SUBMIT BUTTON ====================== -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/submit_presentation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:paddingHorizontal="40dp"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="16dp"
-            android:text="Submit"
+            android:text="Submit Presentation"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.04"
+            app:icon="@drawable/baseline_done_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="26dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

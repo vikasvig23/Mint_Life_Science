@@ -36,6 +36,7 @@ class PresentationAdapter(
         val nameTv = view.findViewById<TextView>(R.id.medicineName)
         val saltTv = view.findViewById<TextView>(R.id.medicineSaltDescription)
         val descTv = view.findViewById<TextView>(R.id.descriptionTextView)
+        val mrpChip = view.findViewById<TextView>(R.id.mrpChip)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -79,16 +80,39 @@ class PresentationAdapter(
         holder.saltTv.text = item.salt ?: ""
         holder.descTv.text = item.description ?: ""
 
-        // Play button
+        // MRP chip — show only when a price is available
+        if (!item.mrp.isNullOrBlank()) {
+            holder.mrpChip.text = "MRP  ₹${item.mrp}"
+            holder.mrpChip.visibility = View.VISIBLE
+        } else {
+            holder.mrpChip.visibility = View.GONE
+        }
+
+        // Play button — hide entirely when no video URL so there is nothing misleading to tap
+        val hasVideo = !item.videoUrl.isNullOrBlank()
+        holder.playBtn.visibility = if (hasVideo) View.VISIBLE else View.GONE
         holder.playBtn.setOnClickListener {
-            val url = item.videoUrl?.takeIf { it.isNotBlank() } ?: return@setOnClickListener
-            if (url.contains("youtube", ignoreCase = true)) {
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-            } else {
-                context.startActivity(
-                    Intent(context, MediaPlayerActivity::class.java)
-                        .putExtra("MEDIA_URL", url)
-                )
+            val url = item.videoUrl?.takeIf { it.isNotBlank() }
+            if (url == null) {
+                // Defensive: button is GONE when no URL, but guard just in case
+                android.widget.Toast.makeText(
+                    context, "No video available for this medicine", android.widget.Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+            try {
+                if (url.contains("youtube", ignoreCase = true)) {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                } else {
+                    context.startActivity(
+                        Intent(context, MediaPlayerActivity::class.java)
+                            .putExtra("MEDIA_URL", url)
+                    )
+                }
+            } catch (e: android.content.ActivityNotFoundException) {
+                android.widget.Toast.makeText(
+                    context, "No app found to play this video", android.widget.Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -103,15 +127,21 @@ class PresentationAdapter(
             if (!item.pdfUrl.isNullOrBlank()) sb.appendLine("PDF: ${item.pdfUrl}")
             sb.appendLine("\n– Mint Life Sciences")
 
-            context.startActivity(
-                Intent.createChooser(
-                    Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, sb.toString())
-                    },
-                    "Share Medicine"
+            try {
+                context.startActivity(
+                    Intent.createChooser(
+                        Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, sb.toString())
+                        },
+                        "Share Medicine"
+                    )
                 )
-            )
+            } catch (e: android.content.ActivityNotFoundException) {
+                android.widget.Toast.makeText(
+                    context, "No app found to share", android.widget.Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
         // Navigation arrows
@@ -128,11 +158,25 @@ class PresentationAdapter(
             if (cur < items.size - 1 && cur != RecyclerView.NO_POSITION) viewPager.setCurrentItem(cur + 1, true)
         }
 
-        // PDF link
+        // PDF button — hide when no URL; guard against missing PDF-viewer app
         holder.pdfTv.visibility = if (item.pdfUrl.isNullOrBlank()) View.GONE else View.VISIBLE
         holder.pdfTv.setOnClickListener {
-            val url = item.pdfUrl?.takeIf { it.isNotBlank() } ?: return@setOnClickListener
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            val url = item.pdfUrl?.takeIf { it.isNotBlank() }
+            if (url == null) {
+                android.widget.Toast.makeText(
+                    context, "No PDF available for this medicine", android.widget.Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+            try {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            } catch (e: android.content.ActivityNotFoundException) {
+                android.widget.Toast.makeText(
+                    context,
+                    "No PDF viewer found. Please install a PDF viewer app to open this file.",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
 

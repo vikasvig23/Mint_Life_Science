@@ -3,8 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
 
+    <!-- ══════════════════ HERO IMAGE SECTION ══════════════════ -->
+
+    <!-- Shimmer placeholder (16:9) -->
     <com.facebook.shimmer.ShimmerFrameLayout
         android:id="@+id/shimmer_layout"
         android:layout_width="0dp"
@@ -12,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintDimensionRatio="H,4:3"
+        app:layout_constraintDimensionRatio="H,16:9"
         app:shimmer_duration="1200"
         app:shimmer_auto_start="false">
 
@@ -22,82 +26,134 @@
             android:background="@color/light_gray_placeholder" />
     </com.facebook.shimmer.ShimmerFrameLayout>
 
+    <!-- Hero image (16:9 ratio for modern look) -->
     <ImageView
         android:id="@+id/cardImage"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:contentDescription="@string/medicine_image_description"
+        android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintDimensionRatio="H,4:3"
-        android:scaleType="centerCrop" />
+        app:layout_constraintDimensionRatio="H,16:9" />
 
+    <!-- Dark gradient overlay — transparent top → dark bottom, text sits here -->
     <View
         android:id="@+id/imageOverlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/gradient_overlay"
-        app:layout_constraintTop_toTopOf="@id/shimmer_layout"
-        app:layout_constraintBottom_toBottomOf="@id/shimmer_layout"
+        app:layout_constraintTop_toTopOf="@id/cardImage"
+        app:layout_constraintBottom_toBottomOf="@id/cardImage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Play + Share icon buttons — top-right corner of image -->
     <LinearLayout
-        android:id="@+id/topButtons"
+        android:id="@+id/topActionButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end"
         android:padding="12dp"
-        app:layout_constraintTop_toTopOf="@id/shimmer_layout"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="@id/cardImage"
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageView
             android:id="@+id/play_button"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_marginEnd="12dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="10dp"
             android:contentDescription="@string/play_video_description"
             android:src="@drawable/outline_play_circle_24"
+            android:background="@drawable/pill_nav_bg"
+            android:padding="8dp"
             app:tint="@android:color/white" />
 
         <ImageView
             android:id="@+id/share_button"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:contentDescription="@string/share_description"
             android:src="@drawable/baseline_share_24"
+            android:background="@drawable/pill_nav_bg"
+            android:padding="8dp"
             app:tint="@android:color/white" />
     </LinearLayout>
 
+    <!-- Medicine name + salt overlaid at bottom of image (on the gradient) -->
+    <LinearLayout
+        android:id="@+id/imageTextOverlay"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="60dp"
+        android:paddingBottom="14dp"
+        app:layout_constraintBottom_toBottomOf="@id/cardImage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/medicineName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Medicine Name"
+            android:textColor="@android:color/white"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:shadowColor="#99000000"
+            android:shadowDx="0"
+            android:shadowDy="1"
+            android:shadowRadius="6"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/medicineSaltDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Salt Composition"
+            android:textColor="#CCffffff"
+            android:textSize="13sp"
+            android:layout_marginTop="3dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <!-- Back nav arrow — vertically centred on image, left side -->
     <ImageView
         android:id="@+id/back_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:src="@drawable/baseline_arrow_back_ios_new_24"
         android:contentDescription="@string/back_description"
-        android:background="@drawable/round_white_bg"
-        android:padding="10dp"
-        app:tint="@color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="16dp" />
+        android:background="@drawable/pill_nav_bg"
+        android:padding="8dp"
+        android:layout_marginStart="10dp"
+        app:tint="@android:color/white"
+        app:layout_constraintTop_toTopOf="@id/cardImage"
+        app:layout_constraintBottom_toBottomOf="@id/cardImage"
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Next nav arrow — vertically centred on image, right side -->
     <ImageView
         android:id="@+id/next_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:src="@drawable/baseline_navigate_next_24"
         android:contentDescription="@string/next_description"
-        android:background="@drawable/round_white_bg"
-        android:padding="10dp"
-        app:tint="@color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp" />
+        android:background="@drawable/pill_nav_bg"
+        android:padding="8dp"
+        android:layout_marginEnd="10dp"
+        app:tint="@android:color/white"
+        app:layout_constraintTop_toTopOf="@id/cardImage"
+        app:layout_constraintBottom_toBottomOf="@id/cardImage"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <ScrollView
+    <!-- ══════════════════ DETAIL CONTENT AREA ══════════════════ -->
+
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/detailScroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -111,46 +167,86 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp">
 
-            <TextView
-                android:id="@+id/medicineName"
+            <!-- MRP chip + PDF button row -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Medicine Name"
-                android:textColor="@color/black"
-                android:textSize="24sp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="14dp">
+
+                <!-- MRP badge — shown only when mrp is not empty -->
+                <TextView
+                    android:id="@+id/mrpChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/mrp_chip_bg"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="5dp"
+                    android:textColor="@color/brand_green_dark"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.02"
+                    android:visibility="gone" />
+
+                <!-- Spacer -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <!-- PDF outlined button — shown only when pdfUrl is not empty -->
+                <TextView
+                    android:id="@+id/pdfTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/pdf_btn_bg"
+                    android:drawableStart="@drawable/baseline_insert_drive_file_24"
+                    android:drawablePadding="4dp"
+                    android:drawableTint="@color/brand_green"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="7dp"
+                    android:text="View PDF"
+                    android:textColor="@color/brand_green"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Section divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorOutline"
+                android:alpha="0.25"
+                android:layout_marginBottom="14dp" />
+
+            <!-- Section header -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ABOUT THIS MEDICINE"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="11sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="6dp"/>
+                android:letterSpacing="0.12"
+                android:layout_marginBottom="10dp" />
 
-            <TextView
-                android:id="@+id/medicineSaltDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Salt Description"
-                android:textColor="@color/dark_gray"
-                android:textSize="17sp"
-                android:layout_marginBottom="12dp"/>
-
+            <!-- Description body -->
             <TextView
                 android:id="@+id/descriptionTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Detailed description..."
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:lineSpacingExtra="4dp"/>
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="15sp"
+                android:lineSpacingExtra="5dp" />
 
-            <TextView
-                android:id="@+id/pdfTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="View PDF"
-                android:textColor="@color/purple_500"
-                android:textStyle="bold"
-                android:textSize="17sp"/>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
