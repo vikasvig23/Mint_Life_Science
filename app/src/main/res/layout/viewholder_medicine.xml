@@ -1,73 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/medicine_card_holder"
-    android:layout_width="@dimen/medicine_card_width"
-    android:layout_height="@dimen/medicine_card_height"
-    android:background="@drawable/grey_background"
-    android:layout_margin="8dp"
-    android:elevation="3dp">
-
-    <ImageView
-        android:id="@+id/card_medicine_image"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/medicine_card_image_height"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/medicine_image_description"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="2dp"
+    app:strokeColor="@android:color/transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="4dp"
-        android:background="@drawable/white_background"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/card_medicine_image">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/new_selectedIcon"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:text="+"
-            android:background="@drawable/plus_selected_medicine_background"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:gravity="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/card_medicine_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="4dp"
-            android:text="TextView"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            app:layout_constraintEnd_toStartOf="@+id/new_selectedIcon"
-            app:layout_constraintHorizontal_bias="0.0"
+        <!-- Shimmer placeholder (4:3 ratio) -->
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_layout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="H,4:3"
+            app:shimmer_duration="1200"
+            app:shimmer_auto_start="true">
 
-        <TextView
-            android:id="@+id/priceTxt"
-            android:layout_width="55dp"
-            android:layout_height="17dp"
-            android:textSize="15sp"
-            android:textColor="@color/blue"
-            android:layout_marginBottom="4dp"
-            android:text="$50"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@id/card_medicine_name" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/light_gray_placeholder" />
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
+        <!-- Medicine image (4:3 ratio) -->
+        <ImageView
+            android:id="@+id/card_medicine_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/medicine_image_description"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="H,4:3" />
+
+        <!-- Green tint overlay — visible only when selected -->
+        <View
+            android:id="@+id/selectedOverlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#2A2E7D32"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@id/card_medicine_image"
+            app:layout_constraintBottom_toBottomOf="@id/card_medicine_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Select / deselect toggle — top-right corner of image -->
+        <ImageView
+            android:id="@+id/new_selectedIcon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_margin="8dp"
+            android:src="@drawable/baseline_add_24"
+            android:contentDescription="Select medicine"
+            android:background="@drawable/round_white_bg"
+            android:padding="5dp"
+            app:tint="?attr/colorPrimary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Bottom info section -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintTop_toBottomOf="@id/card_medicine_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/card_medicine_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Medicine Name"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/priceTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="₹—"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
