@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mintlifescience.app.Medicine.MedicineListActivity
@@ -21,9 +20,8 @@ import com.mintlifescience.app.login.LoginActivity
 import com.mintlifescience.app.login.LoginViewModel
 import com.mintlifescience.app.model.Medicine
 import com.google.firebase.database.FirebaseDatabase
-import com.mintlifescience.app.R
 
-class DoctorMedicineActivity : AppCompatActivity() {
+class BrandMedicinesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDoctorMedicineBinding
     private lateinit var brandName: String
@@ -35,7 +33,8 @@ class DoctorMedicineActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_doctor_medicine)
+        binding = ActivityDoctorMedicineBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
@@ -46,13 +45,19 @@ class DoctorMedicineActivity : AppCompatActivity() {
         }
 
         loginViewModel.navigateToLogin.observe(this) {
-            startActivity(Intent(this, LoginActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+            startActivity(
+                Intent(this, LoginActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            )
             finish()
         }
 
         doctorName = intent.getStringExtra(AppConstants.IntentKeys.DOCTOR_NAME) ?: ""
-        brandName = intent.getStringExtra(AppConstants.IntentKeys.BRAND_NAME) ?: ""
+        brandName  = intent.getStringExtra(AppConstants.IntentKeys.BRAND_NAME) ?: ""
+
+        // Brand name as the main title, doctor name as subtitle
+        binding.toolbarTitle.text = brandName
+        binding.toolbarSubtitle.text = "Dr. $doctorName"
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -83,30 +88,51 @@ class DoctorMedicineActivity : AppCompatActivity() {
     }
 
     private fun fetchDoctorDetails() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.medRec.visibility = View.GONE
+        binding.emptyState.visibility = View.GONE
+
         FirebaseDatabase.getInstance()
             .getReference(FirebaseConstants.doctorPath(userId, doctorName))
             .get()
             .addOnSuccessListener { dataSnapshot ->
-                val doctorData = dataSnapshot.getValue(DoctorData::class.java) ?: return@addOnSuccessListener
-                val brandSnapshot = dataSnapshot.child(FirebaseConstants.MEDICINES).child(brandName)
+                binding.progressBar.visibility = View.GONE
+
+                dataSnapshot.getValue(DoctorData::class.java) ?: run {
+                    showEmpty()
+                    return@addOnSuccessListener
+                }
+
+                val brandSnapshot = dataSnapshot
+                    .child(FirebaseConstants.MEDICINES)
+                    .child(brandName)
 
                 medicineList.clear()
                 if (brandSnapshot.exists()) {
-                    for (medicineSnapshot in brandSnapshot.children) {
-                        medicineSnapshot.getValue(Medicine::class.java)?.let { medicineList.add(it) }
+                    for (snap in brandSnapshot.children) {
+                        snap.getValue(Medicine::class.java)?.let { medicineList.add(it) }
                     }
-                    doctorMedicineAdapter.updateMedicineList(medicineList)
-                    binding.noMedicineFoundText.visibility = if (medicineList.isEmpty()) View.VISIBLE else View.GONE
-                    binding.medRec.visibility = if (medicineList.isEmpty()) View.GONE else View.VISIBLE
-                } else {
-                    doctorMedicineAdapter.updateMedicineList(emptyList())
-                    binding.noMedicineFoundText.visibility = View.VISIBLE
-                    binding.medRec.visibility = View.GONE
                 }
+
+                doctorMedicineAdapter.updateMedicineList(medicineList)
+
+                if (medicineList.isEmpty()) showEmpty() else showList()
             }
             .addOnFailureListener { e ->
-                Log.e("DoctorMedicineActivity", "Failed to fetch medicines", e)
-                Toast.makeText(this, "Failed to load medicines", Toast.LENGTH_SHORT).show()
+                binding.progressBar.visibility = View.GONE
+                Log.e("BrandMedicinesActivity", "Failed to fetch medicines", e)
+                Toast.makeText(this, "Failed to load medicines. Please try again.", Toast.LENGTH_SHORT).show()
+                showEmpty()
             }
+    }
+
+    private fun showList() {
+        binding.medRec.visibility = View.VISIBLE
+        binding.emptyState.visibility = View.GONE
+    }
+
+    private fun showEmpty() {
+        binding.medRec.visibility = View.GONE
+        binding.emptyState.visibility = View.VISIBLE
     }
 }
