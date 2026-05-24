@@ -1,7 +1,7 @@
 package com.mintlifescience.app.helperUtils
 
 object AppConstants {
-    const val PRIVACY_POLICY_URL = "https://www.mintlifesciences.com/privacy-policy.php"
+    const val PRIVACY_POLICY_URL = "https://www.mintlifesciences.com/privacy-policy"
 
     object Prefs {
         const val FILE = "UserPrefs"
