@@ -3,6 +3,7 @@ package com.mintlifescience.app.signUp
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -26,7 +27,7 @@ class SignUpViewModel(application: Application) : AndroidViewModel(application) 
     private val _successMessage = SingleLiveEvent<String>()
     val successMessage: LiveData<String> = _successMessage
 
-    private val _isLoading = SingleLiveEvent<Boolean>()
+    private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     fun signUp(username: String, email: String, password: String) {

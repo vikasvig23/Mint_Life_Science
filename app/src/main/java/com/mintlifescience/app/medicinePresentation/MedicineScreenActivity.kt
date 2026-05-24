@@ -70,13 +70,15 @@ class MedicineScreenActivity : AppCompatActivity() {
         loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
         medicineScreenViewModel = ViewModelProvider(this)[MedicineScreenViewModel::class.java]
 
+        // Register logout observer unconditionally so it is never missed
+        loginViewModel.navigateToLogin.observe(this) {
+            startActivity(Intent(this, LoginActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+            finish()
+        }
+
         userId = PrefsManager.userId(this) ?: run {
             Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_LONG).show()
-            loginViewModel.navigateToLogin.observe(this) {
-                startActivity(Intent(this, LoginActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
-                finish()
-            }
             loginViewModel.logout()
             return
         }
