@@ -3,9 +3,8 @@ package com.mintlifescience.app.medicinePresentation
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -127,12 +126,48 @@ class MedicineScreenActivity : AppCompatActivity() {
         })
 
         // Submit always opens FeedbackFragment (pre-filled if already set)
-        binding.submitPresentation.setOnClickListener {
-            showFeedbackFragment()
+        binding.submitPresentation.setOnClickListener { showFeedbackFragment() }
+
+        // ── Action buttons ────────────────────────────────────────────────────
+        binding.btnEditFeedback.setOnClickListener { showFeedbackFragment() }
+
+        binding.btnSharePresentation.setOnClickListener {
+            if (items.isEmpty()) Toast.makeText(this, "No medicines to share", Toast.LENGTH_SHORT).show()
+            else sharePresentationAsPdf()
+        }
+
+        binding.btnUpdateMedicine.setOnClickListener {
+            db.child(FirebaseConstants.HAVE_PRESENTATION).setValue(false)
+            startActivity(
+                Intent(this, HomeActivity::class.java)
+                    .putExtra(AppConstants.IntentKeys.DOCTOR_NAME, doctorName)
+            )
+            finish()
         }
 
         fetchDoctorDetails()
         fetchDoctorData()
+        slideInActionButtons()
+    }
+
+    // ── Slide-in animation for action buttons ─────────────────────────────────
+    private fun slideInActionButtons() {
+        val buttons = listOf(
+            binding.btnEditFeedback,
+            binding.btnSharePresentation,
+            binding.btnUpdateMedicine
+        )
+        buttons.forEachIndexed { index, btn ->
+            btn.translationX = 600f
+            btn.alpha = 0f
+            btn.animate()
+                .translationX(0f)
+                .alpha(1f)
+                .setDuration(400)
+                .setStartDelay(180L + index * 90L)
+                .setInterpolator(DecelerateInterpolator(1.6f))
+                .start()
+        }
     }
 
     private fun showFeedbackFragment() {
@@ -151,36 +186,6 @@ class MedicineScreenActivity : AppCompatActivity() {
     private fun updateCounter(position: Int) {
         binding.toolbarTitle.text = if (items.isEmpty()) "Presentation"
         else "Medicine ${position + 1} / ${items.size}"
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.presn_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_share_presentation -> {
-                if (items.isEmpty()) {
-                    Toast.makeText(this, "No medicines to share", Toast.LENGTH_SHORT).show()
-                } else {
-                    sharePresentationAsPdf()
-                }
-                true
-            }
-            R.id.action_edit_feedback -> {
-                showFeedbackFragment()
-                true
-            }
-            R.id.action_update_medicine -> {
-                db.child(FirebaseConstants.HAVE_PRESENTATION).setValue(false)
-                startActivity(Intent(this, HomeActivity::class.java)
-                    .putExtra(AppConstants.IntentKeys.DOCTOR_NAME, doctorName))
-                finish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     private fun sharePresentationAsPdf() {

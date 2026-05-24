@@ -3,9 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <!-- (optional) -->
-    </data>
+    <data />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
@@ -13,7 +11,7 @@
         android:layout_height="match_parent"
         tools:context=".medicinePresentation.MedicineScreenActivity">
 
-        <!-- ====================== TOOLBAR ====================== -->
+        <!-- ══════════ TOOLBAR ══════════ -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -43,7 +41,7 @@
                 android:textStyle="bold" />
         </androidx.appcompat.widget.Toolbar>
 
-        <!-- ====================== VIEWPAGER2 (4:3 + DETAILS) ====================== -->
+        <!-- ══════════ VIEWPAGER2 ══════════ -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="0dp"
@@ -53,7 +51,78 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- ====================== SUBMIT BUTTON ====================== -->
+        <!-- ══════════ ACTION BUTTONS (slide in from right) ══════════ -->
+        <LinearLayout
+            android:id="@+id/actionButtonsPanel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end"
+            android:layout_marginEnd="14dp"
+            android:layout_marginBottom="14dp"
+            android:clipChildren="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/submit_presentation">
+
+            <!-- Edit Feedback — violet -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_edit_feedback"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginBottom="10dp"
+                android:text="Edit Feedback"
+                android:textColor="@android:color/white"
+                android:textSize="13sp"
+                android:paddingHorizontal="16dp"
+                app:icon="@drawable/baseline_edit_24"
+                app:iconTint="@android:color/white"
+                app:iconPadding="6dp"
+                app:iconSize="18dp"
+                app:cornerRadius="12dp"
+                app:backgroundTint="#7C4DFF"
+                android:elevation="4dp" />
+
+            <!-- Share Presentation — ocean blue -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_share_presentation"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginBottom="10dp"
+                android:text="Share PDF"
+                android:textColor="@android:color/white"
+                android:textSize="13sp"
+                android:paddingHorizontal="16dp"
+                app:icon="@drawable/baseline_share_24"
+                app:iconTint="@android:color/white"
+                app:iconPadding="6dp"
+                app:iconSize="18dp"
+                app:cornerRadius="12dp"
+                app:backgroundTint="#0288D1"
+                android:elevation="4dp" />
+
+            <!-- Update Medicine — deep orange -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_update_medicine"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:text="Update Medicines"
+                android:textColor="@android:color/white"
+                android:textSize="13sp"
+                android:paddingHorizontal="16dp"
+                app:icon="@drawable/baseline_refresh_24"
+                app:iconTint="@android:color/white"
+                app:iconPadding="6dp"
+                app:iconSize="18dp"
+                app:cornerRadius="12dp"
+                app:backgroundTint="#E65100"
+                android:elevation="4dp" />
+
+        </LinearLayout>
+
+        <!-- ══════════ SUBMIT BUTTON ══════════ -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/submit_presentation"
             style="@style/Widget.Material3.Button"
@@ -73,7 +142,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- ====================== PROGRESS BAR ====================== -->
+        <!-- ══════════ PROGRESS BAR ══════════ -->
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyle"
@@ -85,7 +154,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- ====================== DIM OVERLAY ====================== -->
+        <!-- ══════════ DIM OVERLAY ══════════ -->
         <View
             android:id="@+id/dim_overlay"
             android:layout_width="0dp"
@@ -98,7 +167,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- ====================== FRAGMENT CONTAINER ====================== -->
+        <!-- ══════════ FRAGMENT CONTAINER ══════════ -->
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="0dp"
