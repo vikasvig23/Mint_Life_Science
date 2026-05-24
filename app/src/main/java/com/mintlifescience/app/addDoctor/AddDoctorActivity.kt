@@ -1,5 +1,6 @@
 package com.mintlifescience.app.addDoctor
 
+import android.app.ActivityOptions
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -283,18 +284,31 @@ class AddDoctorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     private fun setupBottomNav() {
         binding.bottomNav.selectedItemId = R.id.bnav_doctors
+        attachBottomNavListener()
+    }
+
+    private fun attachBottomNavListener() {
         binding.bottomNav.setOnItemSelectedListener { item ->
             if (item.itemId == R.id.bnav_doctors) return@setOnItemSelectedListener true
+            val opts = ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()
             when (item.itemId) {
                 R.id.bnav_recent -> startActivity(
                     Intent(this, RecentDoctorsActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT), opts)
                 R.id.bnav_presentations -> startActivity(
                     Intent(this, All_Presentation::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT), opts)
             }
-            true
+            false // keep this screen's tab highlighted while navigating away
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Re-affirm correct tab when brought to front via REORDER_TO_FRONT
+        binding.bottomNav.setOnItemSelectedListener(null)
+        binding.bottomNav.selectedItemId = R.id.bnav_doctors
+        attachBottomNavListener()
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
