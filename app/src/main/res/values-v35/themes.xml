@@ -1,15 +1,16 @@
 <resources>
+    <!--
+        API 35 override — opts out of edge-to-edge enforcement while keeping the green brand.
+        Previously had colorPrimary=blue which caused blue splash on API 35 devices.
+    -->
     <style name="Base.Theme.MintLifeSciences" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/blue</item>
-        <item name="colorPrimaryVariant">@color/blue</item>
-        <item name="android:statusBarColor">#014F9D</item>
+        <item name="colorPrimary">@color/brand_green</item>
+        <item name="colorPrimaryVariant">@color/brand_green_dark</item>
+        <item name="colorSecondary">@color/brand_green_light</item>
+        <item name="android:statusBarColor">@color/brand_green_dark</item>
+        <item name="android:colorBackground">@color/color_surface</item>
         <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 
-    <style name="Theme.MintLifeSciences" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/blue</item>
-        <item name="colorPrimaryVariant">@color/blue</item>
-        <item name="android:statusBarColor">#014F9D</item>
-        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
-    </style>
+    <style name="Theme.MintLifeSciences" parent="Base.Theme.MintLifeSciences" />
 </resources>

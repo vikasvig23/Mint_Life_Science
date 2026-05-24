@@ -9,7 +9,23 @@
 
     <style name="Theme.MintLifeSciences" parent="Base.Theme.MintLifeSciences" />
 
+    <!-- Splash screen theme — applied to LoginActivity in the manifest.
+         core-splashscreen handles backward compat below API 31. -->
+    <style name="Theme.MintLifeSciences.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/brand_green_dark</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/brand_green_dark</item>
+        <item name="postSplashScreenTheme">@style/Theme.MintLifeSciences</item>
+    </style>
+
+    <!-- Rounded corners for medicine image inside the expanded card -->
+    <style name="RoundedImageStyle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10dp</item>
+    </style>
+
     <style name="CustomPopupMenu" parent="Widget.AppCompat.PopupMenu">
         <item name="android:popupBackground">@drawable/menu_item_background</item>
     </style>
+
 </resources>

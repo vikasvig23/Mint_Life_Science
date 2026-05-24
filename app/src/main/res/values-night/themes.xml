@@ -1,12 +1,55 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Dark-mode override: map every Material3 color role to our green palette.
+        Previously this file set colorPrimary=blue, causing the blue tones in dark mode.
+        Now fully seeded from brand green #2E7D32 via Material Theme Builder (dark scheme).
+    -->
     <style name="Base.Theme.MintLifeSciences" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
 
-        <item name="colorPrimary">@color/blue</item>
-        <item name="colorPrimaryVariant">@color/blue</item>
-        <item name="android:statusBarColor">#014F9D</item>
+        <!-- Primary -->
+        <item name="colorPrimary">@color/md_dark_primary</item>
+        <item name="colorOnPrimary">@color/md_dark_on_primary</item>
+        <item name="colorPrimaryContainer">@color/md_dark_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/md_dark_on_primary_container</item>
+        <item name="colorPrimaryVariant">@color/brand_green_dark</item>
+
+        <!-- Secondary (muted sage green) -->
+        <item name="colorSecondary">@color/md_dark_secondary</item>
+        <item name="colorOnSecondary">@color/md_dark_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/md_dark_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/md_dark_on_secondary_container</item>
+
+        <!-- Tertiary (warm teal accent) -->
+        <item name="colorTertiary">@color/md_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/md_dark_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/md_dark_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/md_dark_on_tertiary_container</item>
+
+        <!-- Error -->
+        <item name="colorError">@color/md_dark_error</item>
+        <item name="colorOnError">@color/md_dark_on_error</item>
+        <item name="colorErrorContainer">@color/md_dark_error_container</item>
+        <item name="colorOnErrorContainer">@color/md_dark_on_error_container</item>
+
+        <!-- Background / Surface (dark with subtle green undertone) -->
+        <item name="android:colorBackground">@color/md_dark_background</item>
+        <item name="colorSurface">@color/md_dark_surface</item>
+        <item name="colorOnSurface">@color/md_dark_on_surface</item>
+        <item name="colorSurfaceVariant">@color/md_dark_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/md_dark_on_surface_variant</item>
+
+        <!-- Outline -->
+        <item name="colorOutline">@color/md_dark_outline</item>
+        <item name="colorOutlineVariant">@color/md_dark_outline_variant</item>
+
+        <!-- Inverse -->
+        <item name="colorSurfaceInverse">@color/md_dark_inverse_surface</item>
+        <item name="colorOnSurfaceInverse">@color/md_dark_inverse_on_surface</item>
+        <item name="colorPrimaryInverse">@color/md_dark_inverse_primary</item>
+
+        <!-- Status bar blends with the dark surface -->
+        <item name="android:statusBarColor">@color/md_dark_background</item>
 
     </style>
 </resources>

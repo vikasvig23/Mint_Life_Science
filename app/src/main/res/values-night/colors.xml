@@ -1,11 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark-mode overrides for semantic tokens -->
-    <color name="color_surface">#1C1B1F</color>
-    <color name="color_surface_variant">#2C2C2C</color>
-    <color name="color_on_surface">#E6E1E5</color>
-    <color name="color_on_surface_variant">#CAC4D0</color>
+    <!--
+        Full Material3 dark-green palette seeded from #2E7D32.
+        Generated from Material Theme Builder (dark scheme).
+        Replaces the blue-toned M3 baseline defaults in dark mode.
+    -->
+
+    <!-- Primary green -->
+    <color name="md_dark_primary">#81C784</color>
+    <color name="md_dark_on_primary">#003910</color>
+    <color name="md_dark_primary_container">#00531A</color>
+    <color name="md_dark_on_primary_container">#9CF49F</color>
+
+    <!-- Secondary (muted sage green) -->
+    <color name="md_dark_secondary">#B8CCB5</color>
+    <color name="md_dark_on_secondary">#233426</color>
+    <color name="md_dark_secondary_container">#394B3B</color>
+    <color name="md_dark_on_secondary_container">#D4E8D0</color>
+
+    <!-- Tertiary (warm teal — complements green) -->
+    <color name="md_dark_tertiary">#A0CFD0</color>
+    <color name="md_dark_on_tertiary">#003738</color>
+    <color name="md_dark_tertiary_container">#1A4E4F</color>
+    <color name="md_dark_on_tertiary_container">#BBEBEC</color>
+
+    <!-- Error -->
+    <color name="md_dark_error">#FFB4AB</color>
+    <color name="md_dark_on_error">#690005</color>
+    <color name="md_dark_error_container">#93000A</color>
+    <color name="md_dark_on_error_container">#FFDAD6</color>
+
+    <!-- Background / Surface — dark with subtle green undertone -->
+    <color name="md_dark_background">#1A1C19</color>
+    <color name="md_dark_on_background">#E2E3DC</color>
+    <color name="md_dark_surface">#1A1C19</color>
+    <color name="md_dark_on_surface">#E2E3DC</color>
+    <color name="md_dark_surface_variant">#414941</color>
+    <color name="md_dark_on_surface_variant">#C1C9BF</color>
+
+    <!-- Outline / inverse -->
+    <color name="md_dark_outline">#8B9389</color>
+    <color name="md_dark_outline_variant">#414941</color>
+    <color name="md_dark_inverse_surface">#E2E3DC</color>
+    <color name="md_dark_inverse_on_surface">#2F312D</color>
+    <color name="md_dark_inverse_primary">#1B6E2D</color>
+
+    <!-- Semantic overrides used directly in layouts -->
     <color name="brand_green">#81C784</color>
-    <color name="brand_green_container">#1B5E20</color>
+    <color name="brand_green_dark">#1B5E20</color>
+    <color name="brand_green_container">#00531A</color>
+    <color name="color_surface">#1A1C19</color>
+    <color name="color_surface_variant">#2C2E2A</color>
+    <color name="color_on_surface">#E2E3DC</color>
+    <color name="color_on_surface_variant">#C1C9BF</color>
     <color name="avatar_placeholder">#388E3C</color>
 </resources>
