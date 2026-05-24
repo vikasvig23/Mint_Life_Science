@@ -1,74 +1,46 @@
-<androidx.cardview.widget.CardView
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/medicineCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="6dp"
-    app:contentPadding="12dp">
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="5dp"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <!-- Header with medicine title and arrow icon -->
+        <!-- Left green accent bar — always visible, signals this is a medicine item -->
+        <View
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="?attr/colorPrimary" />
+
+        <!-- Card content -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/medTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingStart="8dp"
-                android:paddingVertical="12dp"
-                android:paddingEnd="16dp"
-                android:textSize="20sp"
-                android:textColor="@android:color/black"
-                android:textStyle="bold"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Medicine Title" />
-
-            <ImageView
-                android:id="@+id/expandArrow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/baseline_arrow_drop_down_24"
-                android:layout_marginEnd="8dp" />
-        </LinearLayout>
-
-        <!-- Optional subtitle or additional content -->
-        <TextView
-            android:id="@+id/medicineSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="8dp"
-            android:paddingEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:textSize="16sp"
-            android:textColor="@color/blue"
-            android:text="Subtitle or additional information" />
-
-        <!-- Expanded Layout for additional details -->
-        <LinearLayout
-            android:id="@+id/expandedLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:visibility="gone"
-            android:padding="10dp">
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="6dp">
 
+            <!-- ── Collapsed header row ── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
+                <!-- Medicine name + salt -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -76,57 +48,124 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/medicineName"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/medTitle"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="5dp"
-                        android:layout_marginBottom="4dp"
                         android:text="Medicine Name"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textColor="@android:color/black" />
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
 
                     <TextView
                         android:id="@+id/medicineSalt"
-                        android:layout_width="wrap_content"
-                        android:padding="5dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="Salt: ABC"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        android:textColor="@android:color/darker_gray" />
-
-                    <TextView
-                        android:id="@+id/medicineUses"
-                        android:layout_width="wrap_content"
-                        android:padding="5dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="Uses: Example use"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        android:textColor="@android:color/darker_gray" />
+                        android:layout_marginTop="3dp"
+                        android:text="Salt: —"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.6"
+                        android:textSize="13sp"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
                 </LinearLayout>
+
+                <!-- Expand / collapse toggle -->
+                <ImageView
+                    android:id="@+id/expandArrow"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:padding="4dp"
+                    android:src="@drawable/baseline_arrow_drop_down_24"
+                    android:contentDescription="Expand"
+                    android:layout_marginEnd="4dp"
+                    app:tint="?attr/colorPrimary" />
+            </LinearLayout>
+
+            <!-- ── Expanded section ── -->
+            <LinearLayout
+                android:id="@+id/expandedLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/colorOutline"
+                    android:alpha="0.25" />
+
+                <!-- Medicine image with shimmer placeholder -->
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmer_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintDimensionRatio="H,16:9"
+                    app:shimmer_duration="1200"
+                    app:shimmer_auto_start="false">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/light_gray_placeholder" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <ImageView
                     android:id="@+id/medicineImage"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="12dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/logo" />
-            </LinearLayout>
+                    android:contentDescription="Medicine image"
+                    app:shapeAppearanceOverlay="@style/RoundedImageStyle" />
 
-            <!-- Optional subtitle or additional content -->
-            <TextView
-                android:id="@+id/medicineDescription"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="8dp"
-                android:paddingEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:textSize="16sp"
-                android:textColor="@color/blue"
-                android:text="Subtitle or additional information" />
+                <!-- MRP chip — shown only when price is available -->
+                <TextView
+                    android:id="@+id/mrpChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/mrp_chip_bg"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="5dp"
+                    android:textColor="@color/brand_green_dark"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <!-- "ABOUT" section label -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="ABOUT"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.12" />
+
+                <!-- Description -->
+                <TextView
+                    android:id="@+id/medicineDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="4dp"
+                    android:text="Description..."
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp" />
+
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>
