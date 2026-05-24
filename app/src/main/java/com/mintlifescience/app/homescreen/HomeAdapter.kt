@@ -1,43 +1,44 @@
 package com.mintlifescience.app.homescreen
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.mintlifescience.app.R
+import com.mintlifescience.app.databinding.HomeListItemBinding
 import com.mintlifescience.app.model.BrandItem
 
 class HomeAdapter(
     private var items: List<BrandItem>,
-    private val itemClickListener: (String) -> Unit
+    private val onItemClick: (String) -> Unit
 ) : RecyclerView.Adapter<HomeAdapter.ViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.itemTextView)
-        val imageView: ImageView = view.findViewById(R.id.itemImageView)
-    }
+    class ViewHolder(val binding: HomeListItemBinding) : RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.home_list_item, parent, false)
-        return ViewHolder(view)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ViewHolder(HomeListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+    override fun getItemCount() = items.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        holder.textView.text = item.name
-        holder.imageView.setImageResource(item.imageResId) // Set the drawable image
-
-        holder.itemView.setOnClickListener {
-            itemClickListener(item.name)
-        }
+        holder.binding.itemTextView.text = item.name
+        holder.binding.itemImageView.setImageResource(item.imageResId)
+        holder.binding.root.setOnClickListener { onItemClick(item.name) }
     }
 
-    override fun getItemCount(): Int = items.size
-
     fun updateItems(newItems: List<BrandItem>) {
+        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = items.size
+            override fun getNewListSize() = newItems.size
+            override fun areItemsTheSame(oldPos: Int, newPos: Int) =
+                items[oldPos].name == newItems[newPos].name
+            override fun areContentsTheSame(oldPos: Int, newPos: Int) =
+                items[oldPos] == newItems[newPos]
+        })
         items = newItems
-        notifyDataSetChanged()
+        diff.dispatchUpdatesTo(this)
     }
 }
