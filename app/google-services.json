@@ -1,33 +1,14 @@
 {
   "project_info": {
-    "project_number": "194546955110",
-    "firebase_url": "https://mint-life-sciences-admin-app-default-rtdb.firebaseio.com",
-    "project_id": "mint-life-sciences-admin-app",
-    "storage_bucket": "mint-life-sciences-admin-app.appspot.com"
+    "project_number": "319762923328",
+    "firebase_url": "https://mintlifesciences-42f08-default-rtdb.firebaseio.com",
+    "project_id": "mintlifesciences-42f08",
+    "storage_bucket": "mintlifesciences-42f08.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:194546955110:android:ef5323871a8db8beee8ea7",
-        "android_client_info": {
-          "package_name": "com.example.mintlifesciences"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDNayw91-3ChQgYovnxOnk5HV16OhVt09I"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:194546955110:android:be85cd62f632e5beee8ea7",
+        "mobilesdk_app_id": "1:319762923328:android:a8d23df1b5b70107bf04a5",
         "android_client_info": {
           "package_name": "com.mintlifescience.app"
         }
@@ -35,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDNayw91-3ChQgYovnxOnk5HV16OhVt09I"
+          "current_key": "AIzaSyDrBtFkGhM6xHs1GtUXkGzSTEX3VP241zU"
         }
       ],
       "services": {
